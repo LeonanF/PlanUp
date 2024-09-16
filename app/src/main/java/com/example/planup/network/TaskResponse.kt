@@ -2,6 +2,6 @@ package com.example.planup.network
 
 import com.example.planup.model.Task
 
-data class ApiResponse(
+data class TaskResponse(
     val data: List<Task>
 )
