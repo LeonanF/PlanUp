@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1086080638930",
+    "project_id": "gerenciamento-de-tarefas-e4fed",
+    "storage_bucket": "gerenciamento-de-tarefas-e4fed.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086080638930:android:8b113895d061b081c8720b",
+        "android_client_info": {
+          "package_name": "com.example.planup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1086080638930-rm4c78sdnnlpkbfnd0h58t9a393j4fjj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.planup",
+            "certificate_hash": "64b69d0f0fcb47732df4d66d70aedd56b7ad97d7"
+          }
+        },
+        {
+          "client_id": "1086080638930-56daiva42dm12lqdu8ia3srblv9elj99.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhh-K70Ggjie9JB_vJKVxSz8hPfZt5ZQo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1086080638930-56daiva42dm12lqdu8ia3srblv9elj99.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

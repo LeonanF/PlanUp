@@ -23,6 +23,5 @@ class MainActivity : ComponentActivity() {
                 MainScreen(projectRepository)
             }
         }
-
     }
 }
