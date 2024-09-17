@@ -1,3 +1,4 @@
+
 package com.example.planup.ui.screens
 
 import android.util.Log
@@ -45,7 +46,7 @@ import com.example.planup.R
 import com.example.planup.auth.FirebaseAuthManager
 
 @Composable
-fun UserRegister(navController: NavHostController) {
+fun RegisterScreen(navController: NavHostController) {
   var email by remember {
     mutableStateOf("")
   }

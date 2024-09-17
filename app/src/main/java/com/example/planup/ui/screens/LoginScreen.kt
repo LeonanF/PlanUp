@@ -43,9 +43,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.auth.FirebaseAuthManager
+import com.google.firebase.FirebaseApp
 
 @Composable
-fun UserLogin(navController: NavHostController) {
+fun LoginScreen(navController: NavHostController) {
   var email by remember {
     mutableStateOf("")
   }
@@ -357,14 +358,4 @@ fun UserLogin(navController: NavHostController) {
     }
 
   }
-}
-
-//@Preview
-//@Composable
-//fun UserLoginPreview() {
-//  UserLogin()
-//}
-
-fun checkRegister(email: String, senha: String) {
-
 }

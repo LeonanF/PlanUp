@@ -6,9 +6,11 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.planup.model.Project
 import com.example.planup.network.ProjectResponse
 import com.example.planup.network.RetrofitInstance
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -60,19 +62,20 @@ class ProjectRepository{
 
         val call = apiService.postProject(project)
 
-        call.enqueue(object : Callback<Project>{
+        call.enqueue(object : Callback<ResponseBody>{
 
-            override fun onResponse(call: Call<Project>, response: Response<Project>) {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+
                 if(response.isSuccessful){
-                    val createdProject = response.body()
-                    Log.d("PostProject", "Projeto criado com sucesso: ${createdProject?.name}")
+                    Log.d("PostProject", "Projeto criado com sucesso: ${response.body()}")
                 } else{
                     Log.e("PostProject", "Falha ao criar projeto: ${response.errorBody()?.string()}")
                 }
             }
 
-            override fun onFailure(call: Call<Project>, t: Throwable) {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("PostProject", "Erro ao enviar o projeto: ${t.message}")
+                t.printStackTrace()
             }
 
         })

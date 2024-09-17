@@ -30,4 +30,10 @@ class FirebaseAuthManager {
         callback(false)
       }
   }
+
+  fun getCurrentUserId(): String?{
+    val user = FirebaseAuth.getInstance().currentUser
+    return user?.uid
+  }
+
 }
