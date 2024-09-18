@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 
         navController = rememberNavController()
 
-        NavHost(navController, startDestination = "create_task"
+        NavHost(navController, startDestination = "login_screen"
         ){
             composable("login_screen"){ LoginScreen(navController = navController)}
             composable("home_screen"){ HomeScreen(navController = navController, innerPadding)}
