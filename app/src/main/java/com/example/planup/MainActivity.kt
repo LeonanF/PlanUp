@@ -4,20 +4,29 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.planup.repository.ProjectRepository
+import com.example.planup.repository.TaskRepository
+import com.example.planup.ui.screens.CreateProjectScreen
+import com.example.planup.ui.screens.CreateTask
 import com.example.planup.ui.screens.HomeScreen
+import com.example.planup.ui.screens.LoginScreen
+import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.task.model.TaskViewModel
-import com.example.planup.ui.task.model.TaskViewModelFactory
-import com.example.planup.ui.task.screens.SaveTask
-import com.example.planup.ui.task.screens.TaskList
 import com.example.planup.ui.theme.PlanUpTheme
 
 class MainActivity : ComponentActivity() {
+
+    private val taskRepository = TaskRepository()
+    private val projectRepository = ProjectRepository()
+    private lateinit var navController: NavHostController
+    private lateinit var innerPadding : PaddingValues
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,32 +35,31 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PlanUpTheme {
-                MainScreen()
+                InitPadding()
+                PlanUpNavHost()
             }
         }
-
     }
 
     @Composable
-    fun MainScreen() {
-        val navController = rememberNavController()
-        val taskViewModel: TaskViewModel = viewModel(factory = TaskViewModelFactory())
+    fun InitPadding(){
         Scaffold { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = "task_list"
-            ) {
+            this.innerPadding = innerPadding
+        }
+    }
 
-                composable("home_screen"){
-                    HomeScreen(navController, innerPadding)
-                }
-                composable("task_list") {
-                    TaskList(navController, taskViewModel)
-                }
-                composable("save_task") {
-                    SaveTask(navController, taskViewModel)
-                }
-            }
+    @Composable
+    fun PlanUpNavHost(){
+
+        navController = rememberNavController()
+
+        NavHost(navController, startDestination = "create_task"
+        ){
+            composable("login_screen"){ LoginScreen(navController = navController)}
+            composable("home_screen"){ HomeScreen(navController = navController, innerPadding)}
+            composable("register_screen"){ RegisterScreen(navController = navController) }
+            composable("create_project_screen"){ CreateProjectScreen(navController = navController, innerPadding ) }
+            composable("create_task"){ CreateTask(navController = navController, innerPadding, viewModel = TaskViewModel()) }
         }
     }
 }

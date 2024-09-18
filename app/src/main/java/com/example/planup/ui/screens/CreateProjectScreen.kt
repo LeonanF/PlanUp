@@ -21,16 +21,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.planup.auth.FirebaseAuthManager
+import com.example.planup.model.Project
+import com.example.planup.repository.ProjectRepository
 
-@Preview
 @Composable
 fun CreateProjectScreen(navController: NavHostController, paddingValues: PaddingValues){
 
     val projectName = remember {
+        mutableStateOf("")
+    }
+
+    val projectDescription = remember {
         mutableStateOf("")
     }
 
@@ -73,11 +78,37 @@ fun CreateProjectScreen(navController: NavHostController, paddingValues: Padding
                     )
                 )
 
+                OutlinedTextField(value = projectDescription.value, onValueChange = { newText ->
+                    projectDescription.value = newText
+                },
+                    label = {Text("Descrição do projeto", color = Color.White)},
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(0.dp, 10.dp),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFF1F222A),
+                        focusedContainerColor = Color(0xFF1F222A),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    )
+                )
+
                 Spacer(modifier = Modifier.height(25.dp))
 
                 Button(onClick = {
                     if(projectName.value.isNotBlank()){
                         navController.navigate("home_screen"){
+                            ProjectRepository()
+                                .postProject(
+                                    Project(
+                                        name= projectName.value,
+                                        description = projectDescription.value,
+                                        owner = FirebaseAuthManager().getCurrentUserId() ?: "",
+                                        taskLists = emptyList(),
+                                        members = emptyList(),
+                                        status = ""
+                                    )
+                                )
                             popUpTo("home_screen"){inclusive = true}
                         }
                     }
