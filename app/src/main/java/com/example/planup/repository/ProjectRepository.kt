@@ -39,30 +39,25 @@ class ProjectRepository{
         })
     }
 
-    @Composable
-    fun PrintProjects(){
-
-        LaunchedEffect(Unit) {
-            CoroutineScope(Dispatchers.IO).launch {
-                fetchProjects { result ->
-                    result.onSuccess { projects ->
-                        for(project in projects){
-                            println(project.name+": "+ project.description)
-                        }
-                    }.onFailure { throwable ->
-                        println(throwable.message)
-                    }
+    fun fetchUserProjects(userId: String, onSuccess: (ProjectResponse) -> Unit, onFailure: (Throwable)->Unit ){
+        apiService.fetchUserProjects(userId).enqueue(object : Callback<ProjectResponse>{
+            override fun onResponse(call: Call<ProjectResponse>, response: Response<ProjectResponse>) {
+                if(response.isSuccessful){
+                    response.body()?.let{onSuccess(it)}
+                } else{
+                    onFailure(Throwable("Erro: ${response.body()}"))
                 }
             }
-        }
 
+            override fun onFailure(call: Call<ProjectResponse>, t: Throwable) {
+                onFailure(t)
+            }
+        })
     }
 
     fun postProject(project : Project){
 
-        val call = apiService.postProject(project)
-
-        call.enqueue(object : Callback<ResponseBody>{
+        apiService.postProject(project).enqueue(object : Callback<ResponseBody>{
 
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
 
