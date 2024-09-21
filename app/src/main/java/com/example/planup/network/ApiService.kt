@@ -1,7 +1,6 @@
 package com.example.planup.network
 
 import com.example.planup.model.Project
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,5 +18,5 @@ interface ApiService {
     fun fetchUserProjects(@Query("userid") userId: String): Call<ProjectResponse>
 
     @POST("projects")
-    fun postProject(@Body newProject: Project): Call<ResponseBody>
+    fun postProject(@Body newProject: Project): Call<Project>
 }
