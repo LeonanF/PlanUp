@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
     private lateinit var innerPadding : PaddingValues
     private val auth = FirebaseAuth.getInstance()
+    private val currentUser = auth.currentUser
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,17 +44,23 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun InitPadding(){
+    fun InitPadding() {
         Scaffold { innerPadding ->
             this.innerPadding = innerPadding
         }
     }
 
     @Composable
-    fun PlanUpNavHost(){
-
+    fun PlanUpNavHost() {
         navController = rememberNavController()
 
+        LaunchedEffect(Unit) {
+            if (currentUser != null) {
+                navController.navigate("home_screen")
+            } else {
+                navController.navigate("login_screen")
+            }
+        }
 
         NavHost(navController, startDestination = "login_screen"
         ){

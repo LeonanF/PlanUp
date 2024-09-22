@@ -53,14 +53,7 @@ import com.example.planup.auth.EmailAndPasswordAuth
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavHostController/*, state: SignInState, onSignInClick: () -> Unit*/) {
-  /*val context = LocalContext.current
-  LaunchedEffect(key1 = state.signInError) {
-    state.signInError?.let { error ->
-      Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-    }
-  }*/
-
+fun LoginScreen(navController: NavHostController) {
   var email by remember {
     mutableStateOf("")
   }
@@ -288,9 +281,7 @@ fun LoginScreen(navController: NavHostController/*, state: SignInState, onSignIn
           containerColor = Color(0XFF1F222A),
           contentColor = Color.White
         ),
-        onClick = {
-          //onSignInClick()
-        }
+        onClick = {}
       ) {
         Text(
           text = "Continuar com Google",
