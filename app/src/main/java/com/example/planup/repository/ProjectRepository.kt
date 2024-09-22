@@ -1,15 +1,9 @@
 package com.example.planup.repository
 
 import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import com.example.planup.model.Project
 import com.example.planup.network.ProjectResponse
 import com.example.planup.network.RetrofitInstance
-import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -39,19 +33,22 @@ class ProjectRepository{
         })
     }
 
-    fun fetchUserProjects(userId: String, onSuccess: (ProjectResponse) -> Unit, onFailure: (Throwable)->Unit ){
-        apiService.fetchUserProjects(userId).enqueue(object : Callback<ProjectResponse>{
+    fun fetchUserProjects(userId: String, callback: (List<Project>?, String?) -> Unit) {
+
+        apiService.fetchUserProjects(userId).enqueue(object : Callback<ProjectResponse> {
+
             override fun onResponse(call: Call<ProjectResponse>, response: Response<ProjectResponse>) {
-                if(response.isSuccessful){
-                    response.body()?.let{onSuccess(it)}
-                } else{
-                    onFailure(Throwable("Erro: ${response.body()}"))
+                if (response.isSuccessful) {
+                    callback(response.body()?.data, null)
+                } else {
+                    callback(null, "Erro: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<ProjectResponse>, t: Throwable) {
-                onFailure(t)
+                callback(null, t.message)
             }
+
         })
     }
 
