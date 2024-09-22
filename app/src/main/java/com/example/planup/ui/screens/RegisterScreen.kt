@@ -1,6 +1,7 @@
 package com.example.planup.ui.screens
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,37 +16,56 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
-import com.example.planup.auth.FirebaseAuthManager
+import com.example.planup.auth.EmailAndPasswordAuth
+import com.example.planup.auth.SignInState
+import kotlinx.coroutines.launch
 
 @Composable
-fun UserRegister(navController: NavHostController) {
+fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSignInClick: () -> Unit*/) {
+  /*val context = LocalContext.current
+  LaunchedEffect(key1 = state.signInError) {
+    state.signInError?.let { error ->
+      Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+    }
+  }*/
+
   var email by remember {
     mutableStateOf("")
   }
@@ -54,12 +74,16 @@ fun UserRegister(navController: NavHostController) {
     mutableStateOf("")
   }
 
-  var check by remember {
+  var senhaVisivel by remember {
     mutableStateOf(false)
   }
 
+  val snackbarHostState = remember { SnackbarHostState() }
+  val coroutineScope = rememberCoroutineScope()
+
   Scaffold(
-    modifier = Modifier.fillMaxSize()
+    modifier = Modifier.fillMaxSize(),
+    snackbarHost = { SnackbarHost(snackbarHostState) }
   ) { innerPadding ->
     Column(
       modifier = Modifier
@@ -92,7 +116,7 @@ fun UserRegister(navController: NavHostController) {
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
         color = Color.White,
-        modifier = Modifier.padding(20.dp,40.dp,0.dp,0.dp)
+        modifier = Modifier.padding(20.dp, 40.dp, 0.dp, 0.dp)
       )
 
       TextField(
@@ -135,9 +159,37 @@ fun UserRegister(navController: NavHostController) {
         onValueChange = {
           senha = it
         },
-        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+          IconButton(
+            onClick = {
+              senhaVisivel = !senhaVisivel
+            }
+          ) {
+            val icon: Painter
+            val customModifier: Modifier
+
+            if(senhaVisivel) {
+              icon = painterResource(R.drawable.olho_senha_vis_red)
+              customModifier = Modifier.size(20.dp)
+            } else {
+              icon = painterResource(R.drawable.olho_senha_red)
+              customModifier = Modifier.size(40.dp)
+            }
+
+            val description = if (senhaVisivel) "Ocultar Senha" else "Mostrar Senha"
+
+            Icon(
+              painter = icon,
+              contentDescription = description,
+              tint = Color.White,
+              modifier = customModifier
+            )
+          }
+        },
         modifier = Modifier
-          .padding(20.dp, 20.dp, 20.dp, 0.dp)
+          .padding(20.dp, 20.dp, 20.dp, 50.dp)
           .fillMaxWidth(),
         shape = Shapes().large,
         colors = TextFieldDefaults.colors(
@@ -156,14 +208,6 @@ fun UserRegister(navController: NavHostController) {
             modifier = Modifier.size(20.dp)
           )
         },
-        trailingIcon = {
-          Image(
-            painter = painterResource(id = R.drawable.olho_senha_red),
-            contentDescription = null,
-            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White),
-            modifier = Modifier.size(35.dp)
-          )
-        },
         label = {
           Text(
             text = "Senha",
@@ -173,32 +217,6 @@ fun UserRegister(navController: NavHostController) {
         },
         singleLine = true
       )
-
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(0.dp, 20.dp, 20.dp, 0.dp),
-        horizontalArrangement = Arrangement.Center
-      ) {
-        Checkbox(
-          checked = check,
-          onCheckedChange = {
-            check = it
-          },
-          colors = androidx.compose.material3.CheckboxDefaults.colors(
-            checkedColor = Color(0XFF246BFD),
-            uncheckedColor = Color(0XFF246BFD)
-          )
-        )
-
-        Text(
-          text = "Lembrar de mim",
-          color = Color.White,
-          fontSize = 15.sp,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(0.dp, 16.dp, 0.dp, 0.dp)
-        )
-      }
 
       Button(
         modifier = Modifier
@@ -211,18 +229,40 @@ fun UserRegister(navController: NavHostController) {
         ),
         onClick = {
           if (email.isEmpty() || senha.isEmpty()) {
-            Log.d("Button", "Preencha todos os campos.")
-          } else if (senha.length < 6)  {
-            Log.d("Button", "A senha deve conter no mínimo 6 caracteres.")
+            coroutineScope.launch {
+              snackbarHostState.showSnackbar(
+                "Preencha todos os campos.",
+                actionLabel = "Ok",
+                duration = SnackbarDuration.Short
+              )
+            }
+          } else if (senha.length < 6) {
+            coroutineScope.launch {
+              snackbarHostState.showSnackbar(
+                "A senha deve conter no mínimo 6 caracteres.",
+                actionLabel = "Ok",
+                duration = SnackbarDuration.Short
+              )
+            }
           } else if (senha.length > 10) {
-            Log.d("Button", "A senha deve conter no máximo 10 caracteres.")
-          }else {
-            FirebaseAuthManager().signUpWithEmailAndPassword(email, senha) { result ->
-              Log.d("Button", "Dados salvos com sucesso: $result")
-
+            coroutineScope.launch {
+              snackbarHostState.showSnackbar(
+                "A senha deve conter no máximo 10 caracteres.",
+                actionLabel = "Ok",
+                duration = SnackbarDuration.Short
+              )
+            }
+          } else {
+            EmailAndPasswordAuth().signUpWithEmailAndPassword(email, senha) { result ->
               if (result) {
-                navController.navigate("home_screen"){
+                navController.navigate("create_project_screen"){
                   popUpTo("register_screen"){inclusive = true}
+                }
+              } else {
+                coroutineScope.launch {
+                  snackbarHostState.showSnackbar("Usuário já cadastrado no sistema",
+                    actionLabel = "Ok",
+                    duration = SnackbarDuration.Short)
                 }
               }
             }
@@ -239,7 +279,7 @@ fun UserRegister(navController: NavHostController) {
       Box(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(0.dp, 60.dp, 0.dp, 0.dp),
+          .padding(0.dp, 60.dp, 0.dp, 20.dp),
         Alignment.Center
       ) {
         Text(
@@ -249,69 +289,32 @@ fun UserRegister(navController: NavHostController) {
         )
       }
 
-      Row(
+      Button(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(40.dp, 30.dp, 40.dp, 0.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+          .height(45.dp)
+          .padding(20.dp, 0.dp, 20.dp, 0.dp),
+        shape = Shapes().large,
+        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+          containerColor = Color(0XFF1F222A),
+          contentColor = Color.White
+        ),
+        onClick = {
+          //onSignInClick()
+        }
       ) {
-        Button(
-          modifier = Modifier
-            .width(80.dp)
-            .height(45.dp)
-            .padding(0.dp, 0.dp, 0.dp, 0.dp),
-          shape = Shapes().small,
-          colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = Color(0XFF1F222A),
-            contentColor = Color.White
-          ),
-          onClick = { /*TODO*/ }
-        ) {
-          Image(
-            painter = painterResource(id = R.drawable.facebook_icon),
-            contentDescription = null,
-            modifier = Modifier.size(35.dp)
-          )
-        }
+        Text(
+          text = "Cadastre-se com Google",
+          fontSize = 16.sp,
+          color = Color.White,
+          modifier = Modifier.padding(0.dp, 0.dp, 10.dp, 0.dp)
+        )
 
-        Button(
-          modifier = Modifier
-            .width(80.dp)
-            .height(45.dp)
-            .padding(0.dp, 0.dp, 0.dp, 0.dp),
-          shape = Shapes().small,
-          colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = Color(0XFF1F222A),
-            contentColor = Color.White
-          ),
-          onClick = { /*TODO*/ }
-        ) {
-          Image(
-            painter = painterResource(id = R.drawable.google_icon),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-          )
-        }
-
-        Button(
-          modifier = Modifier
-            .width(80.dp)
-            .height(45.dp)
-            .padding(0.dp, 0.dp, 0.dp, 0.dp),
-          shape = Shapes().small,
-          colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = Color(0XFF1F222A),
-            contentColor = Color.White
-          ),
-          onClick = { /*TODO*/ }
-        ) {
-          Image(
-            painter = painterResource(id = R.drawable.apple_icon),
-            contentDescription = null,
-            modifier = Modifier.size(35.dp)
-          )
-        }
-
+        Image(
+          painter = painterResource(id = R.drawable.google_icon),
+          contentDescription = null,
+          modifier = Modifier.size(20.dp)
+        )
       }
 
       Box(
@@ -348,6 +351,7 @@ fun UserRegister(navController: NavHostController) {
           }
         }
       }
+
     }
   }
 }
