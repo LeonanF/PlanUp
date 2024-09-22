@@ -17,7 +17,7 @@ import com.example.planup.ui.theme.PurpleGrey80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateTask(navController: NavHostController, innerPadding: PaddingValues, viewModel: TaskViewModel) {  // Passar o viewModel como parâmetro
+fun CreateTaskScreen(navController: NavHostController, viewModel: TaskViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(

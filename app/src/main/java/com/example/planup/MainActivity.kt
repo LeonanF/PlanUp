@@ -11,20 +11,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.planup.repository.ProjectRepository
-import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.screens.CreateProjectScreen
-import com.example.planup.ui.screens.CreateTask
+import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
+import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.task.model.TaskViewModel
 import com.example.planup.ui.theme.PlanUpTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val taskRepository = TaskRepository()
-    private val projectRepository = ProjectRepository()
     private lateinit var navController: NavHostController
     private lateinit var innerPadding : PaddingValues
 
@@ -56,10 +53,11 @@ class MainActivity : ComponentActivity() {
         NavHost(navController, startDestination = "login_screen"
         ){
             composable("login_screen"){ LoginScreen(navController = navController)}
-            composable("home_screen"){ HomeScreen(navController = navController, innerPadding)}
             composable("register_screen"){ RegisterScreen(navController = navController) }
-            composable("create_project_screen"){ CreateProjectScreen(navController = navController, innerPadding ) }
-            composable("create_task"){ CreateTask(navController = navController, innerPadding, viewModel = TaskViewModel()) }
+            composable("create_project_screen"){ CreateProjectScreen(navController = navController ) }
+            composable("create_task"){ CreateTaskScreen(navController = navController, viewModel = TaskViewModel()) }
+            composable("project_screen"){ ProjectScreen(navController = navController) }
+            composable("home_screen"){ HomeScreen(navController = navController)}
         }
     }
 }
