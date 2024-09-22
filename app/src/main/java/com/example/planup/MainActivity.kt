@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,13 +18,16 @@ import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
+import com.example.planup.ui.screens.TaskAttributeScreen
 import com.example.planup.ui.task.model.TaskViewModel
 import com.example.planup.ui.theme.PlanUpTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
 
     private lateinit var navController: NavHostController
     private lateinit var innerPadding : PaddingValues
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +54,7 @@ class MainActivity : ComponentActivity() {
 
         navController = rememberNavController()
 
+
         NavHost(navController, startDestination = "login_screen"
         ){
             composable("login_screen"){ LoginScreen(navController = navController)}
@@ -58,6 +63,10 @@ class MainActivity : ComponentActivity() {
             composable("create_task"){ CreateTaskScreen(navController = navController, viewModel = TaskViewModel()) }
             composable("project_screen"){ ProjectScreen(navController = navController) }
             composable("home_screen"){ HomeScreen(navController = navController)}
+            composable("task_attribute_screen/{taskId}") { backStackEntry ->
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                TaskAttributeScreen(navController, taskId)
+            }
         }
     }
 }

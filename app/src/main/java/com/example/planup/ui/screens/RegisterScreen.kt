@@ -250,7 +250,7 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
           } else {
             EmailAndPasswordAuth().signUpWithEmailAndPassword(email, senha) { result ->
               if (result) {
-                navController.navigate("create_project_screen"){
+                navController.navigate("home_screen"){
                   popUpTo("register_screen"){inclusive = true}
                 }
               } else {

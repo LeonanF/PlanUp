@@ -244,7 +244,7 @@ fun LoginScreen(navController: NavHostController/*, state: SignInState, onSignIn
           } else {
             EmailAndPasswordAuth().signInWithEmailAndPassword(email, senha) { result ->
               if (result) {
-                navController.navigate("create_project_screen"){
+                navController.navigate("home_screen"){
                   popUpTo("login_screen"){inclusive = true}
                 }
               } else {

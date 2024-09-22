@@ -97,19 +97,19 @@ fun CreateProjectScreen(navController: NavHostController){
 
                 Button(onClick = {
                     if(projectName.value.isNotBlank()){
-                        navController.navigate("home_screen"){
-                            val userid = FirebaseAuth.getInstance().currentUser?.uid.toString()
-                            ProjectRepository()
-                                .postProject(
-                                    Project(
-                                        name= projectName.value,
-                                        description = projectDescription.value,
-                                        owner = userid,
-                                        taskLists = null,
-                                        members = listOf(userid),
-                                        status = null
-                                    )
+                        val userid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+                        ProjectRepository()
+                            .postProject(
+                                Project(
+                                    name= projectName.value,
+                                    description = projectDescription.value,
+                                    owner = userid,
+                                    taskLists = null,
+                                    members = listOf(userid),
+                                    status = null
                                 )
+                            )
+                        navController.navigate("home_screen"){
                             popUpTo("create_project_screen"){inclusive = true}
                         }
                     }

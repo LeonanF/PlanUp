@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
@@ -30,12 +29,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.planup.model.Attribute
+import com.example.planup.model.AttributeRequest
 import com.example.planup.repository.AttributeRepository
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskAttributeScreen(){
+fun TaskAttributeScreen(navController: NavHostController? = null, taskId:String? = null){
 
     var attributeName by remember { mutableStateOf("") }
     var attributeDescription by remember { mutableStateOf("") }
@@ -51,7 +51,7 @@ fun TaskAttributeScreen(){
                 .padding(innerPadding)
         ) {
             Button(
-                onClick = {},
+                onClick = {}, // <- Adicionar voltar para tarefas
                 colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.White
@@ -82,7 +82,12 @@ fun TaskAttributeScreen(){
             }
 
             TextField(
-                value = "Nome:",
+                label = {
+                    Text(
+                        text = "Nome",
+                        color = Color.LightGray,
+                        fontSize = 12.sp)},
+                value = attributeName,
                 onValueChange = {
                     attributeName = it
                 },
@@ -102,7 +107,12 @@ fun TaskAttributeScreen(){
             )
 
             TextField(
-                value = "Descrição:",
+                label = {
+                    Text(
+                        text = "Descrição",
+                        color = Color.LightGray,
+                        fontSize = 12.sp)},
+                value = attributeDescription,
                 onValueChange = {
                     attributeDescription = it
                 },
@@ -130,7 +140,7 @@ fun TaskAttributeScreen(){
                 Button(
                     onClick = {
                         AttributeRepository().postAttribute(
-                            Attribute(attributeName, attributeDescription)
+                            attributeReq = AttributeRequest(Attribute(attributeName, attributeDescription),taskId!!)
                         )
                     },
                     colors = androidx.compose.material3.ButtonDefaults.buttonColors(

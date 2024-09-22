@@ -1,6 +1,7 @@
 package com.example.planup.network
 
 import com.example.planup.model.Attribute
+import com.example.planup.model.AttributeRequest
 import com.example.planup.model.Project
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -23,5 +24,5 @@ interface ApiService {
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
     @POST("attribute")
-    fun postAttribute(@Body newAttribute: Attribute): Call<ResponseBody>
+    fun postAttribute(@Body attributeReq: AttributeRequest): Call<ResponseBody>
 }
