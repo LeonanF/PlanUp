@@ -2,7 +2,7 @@ package com.example.planup.auth
 
 import com.google.firebase.auth.FirebaseAuth
 
-class FirebaseAuthManager {
+class EmailAndPasswordAuth {
   private val auth = FirebaseAuth.getInstance()
 
   fun signUpWithEmailAndPassword(email: String, password: String, callback: (Boolean) -> Unit) {
@@ -30,10 +30,4 @@ class FirebaseAuthManager {
         callback(false)
       }
   }
-
-  fun getCurrentUserId(): String?{
-    val user = FirebaseAuth.getInstance().currentUser
-    return user?.uid
-  }
-
 }

@@ -1,30 +1,28 @@
-
 package com.example.planup.ui.screens
 
-import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -32,21 +30,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
-import com.example.planup.auth.FirebaseAuthManager
+import com.example.planup.auth.EmailAndPasswordAuth
+import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(navController: NavHostController) {
+fun RegisterScreen(navController: NavHostController? = null) {
   var email by remember {
     mutableStateOf("")
   }
@@ -55,12 +59,16 @@ fun RegisterScreen(navController: NavHostController) {
     mutableStateOf("")
   }
 
-  var check by remember {
+  var senhaVisivel by remember {
     mutableStateOf(false)
   }
 
+  val snackbarHostState = remember { SnackbarHostState() }
+  val coroutineScope = rememberCoroutineScope()
+
   Scaffold(
-    modifier = Modifier.fillMaxSize()
+    modifier = Modifier.fillMaxSize(),
+    snackbarHost = { SnackbarHost(snackbarHostState) }
   ) { innerPadding ->
     Column(
       modifier = Modifier
@@ -68,16 +76,12 @@ fun RegisterScreen(navController: NavHostController) {
         .background(Color(0XFF181A20))
         .padding(innerPadding)
     ) {
-      Button(
-        modifier = Modifier
-          .width(75.dp)
-          .padding(0.dp, 10.dp, 0.dp, 0.dp),
-        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-          containerColor = Color.Transparent,
-          contentColor = Color.White
-        ),
-        contentPadding = PaddingValues(0.dp, 0.dp, 10.dp, 0.dp),
-        onClick = { /*TODO*/ }
+      IconButton(
+        onClick = {
+          navController!!.popBackStack()
+        },
+        modifier = Modifier.size(50.dp)
+          .padding(10.dp, 20.dp, 0.dp, 0.dp)
       ) {
         Icon(
           imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -93,7 +97,7 @@ fun RegisterScreen(navController: NavHostController) {
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
         color = Color.White,
-        modifier = Modifier.padding(20.dp,40.dp,0.dp,0.dp)
+        modifier = Modifier.padding(20.dp, 40.dp, 0.dp, 0.dp)
       )
 
       TextField(
@@ -136,9 +140,37 @@ fun RegisterScreen(navController: NavHostController) {
         onValueChange = {
           senha = it
         },
-        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        visualTransformation = if (senhaVisivel) VisualTransformation.None else PasswordVisualTransformation(),
+        trailingIcon = {
+          IconButton(
+            onClick = {
+              senhaVisivel = !senhaVisivel
+            }
+          ) {
+            val icon: Painter
+            val customModifier: Modifier
+
+            if(senhaVisivel) {
+              icon = painterResource(R.drawable.olho_senha_vis_red)
+              customModifier = Modifier.size(20.dp)
+            } else {
+              icon = painterResource(R.drawable.olho_senha_red)
+              customModifier = Modifier.size(40.dp)
+            }
+
+            val description = if (senhaVisivel) "Ocultar Senha" else "Mostrar Senha"
+
+            Icon(
+              painter = icon,
+              contentDescription = description,
+              tint = Color.White,
+              modifier = customModifier
+            )
+          }
+        },
         modifier = Modifier
-          .padding(20.dp, 20.dp, 20.dp, 0.dp)
+          .padding(20.dp, 20.dp, 20.dp, 50.dp)
           .fillMaxWidth(),
         shape = Shapes().large,
         colors = TextFieldDefaults.colors(
@@ -157,14 +189,6 @@ fun RegisterScreen(navController: NavHostController) {
             modifier = Modifier.size(20.dp)
           )
         },
-        trailingIcon = {
-          Image(
-            painter = painterResource(id = R.drawable.olho_senha_red),
-            contentDescription = null,
-            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(Color.White),
-            modifier = Modifier.size(35.dp)
-          )
-        },
         label = {
           Text(
             text = "Senha",
@@ -175,36 +199,10 @@ fun RegisterScreen(navController: NavHostController) {
         singleLine = true
       )
 
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(0.dp, 20.dp, 20.dp, 0.dp),
-        horizontalArrangement = Arrangement.Center
-      ) {
-        Checkbox(
-          checked = check,
-          onCheckedChange = {
-            check = it
-          },
-          colors = androidx.compose.material3.CheckboxDefaults.colors(
-            checkedColor = Color(0XFF246BFD),
-            uncheckedColor = Color(0XFF246BFD)
-          )
-        )
-
-        Text(
-          text = "Lembrar de mim",
-          color = Color.White,
-          fontSize = 15.sp,
-          fontWeight = FontWeight.Bold,
-          modifier = Modifier.padding(0.dp, 16.dp, 0.dp, 0.dp)
-        )
-      }
-
       Button(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(20.dp, 0.dp, 20.dp, 0.dp),
+          .padding(20.dp, 20.dp, 20.dp, 0.dp),
         shape = Shapes().large,
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
           containerColor = Color(0XFF246BFD),
@@ -212,18 +210,40 @@ fun RegisterScreen(navController: NavHostController) {
         ),
         onClick = {
           if (email.isEmpty() || senha.isEmpty()) {
-            Log.d("Button", "Preencha todos os campos.")
-          } else if (senha.length < 6)  {
-            Log.d("Button", "A senha deve conter no mínimo 6 caracteres.")
+            coroutineScope.launch {
+              snackbarHostState.showSnackbar(
+                "Preencha todos os campos.",
+                actionLabel = "Ok",
+                duration = SnackbarDuration.Short
+              )
+            }
+          } else if (senha.length < 6) {
+            coroutineScope.launch {
+              snackbarHostState.showSnackbar(
+                "A senha deve conter no mínimo 6 caracteres.",
+                actionLabel = "Ok",
+                duration = SnackbarDuration.Short
+              )
+            }
           } else if (senha.length > 10) {
-            Log.d("Button", "A senha deve conter no máximo 10 caracteres.")
-          }else {
-            FirebaseAuthManager().signUpWithEmailAndPassword(email, senha) { result ->
-              Log.d("Button", "Dados salvos com sucesso: $result")
-
+            coroutineScope.launch {
+              snackbarHostState.showSnackbar(
+                "A senha deve conter no máximo 10 caracteres.",
+                actionLabel = "Ok",
+                duration = SnackbarDuration.Short
+              )
+            }
+          } else {
+            EmailAndPasswordAuth().signUpWithEmailAndPassword(email, senha) { result ->
               if (result) {
-                navController.navigate("home_screen"){
+                navController!!.navigate("home_screen"){
                   popUpTo("register_screen"){inclusive = true}
+                }
+              } else {
+                coroutineScope.launch {
+                  snackbarHostState.showSnackbar("Usuário já cadastrado no sistema",
+                    actionLabel = "Ok",
+                    duration = SnackbarDuration.Short)
                 }
               }
             }
@@ -240,85 +260,7 @@ fun RegisterScreen(navController: NavHostController) {
       Box(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(0.dp, 60.dp, 0.dp, 0.dp),
-        Alignment.Center
-      ) {
-        Text(
-          text = "Ou continue com",
-          fontSize = 18.sp,
-          color = Color.White
-        )
-      }
-
-      Row(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(40.dp, 30.dp, 40.dp, 0.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-      ) {
-        Button(
-          modifier = Modifier
-            .width(80.dp)
-            .height(45.dp)
-            .padding(0.dp, 0.dp, 0.dp, 0.dp),
-          shape = Shapes().small,
-          colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = Color(0XFF1F222A),
-            contentColor = Color.White
-          ),
-          onClick = { /*TODO*/ }
-        ) {
-          Image(
-            painter = painterResource(id = R.drawable.facebook_icon),
-            contentDescription = null,
-            modifier = Modifier.size(35.dp)
-          )
-        }
-
-        Button(
-          modifier = Modifier
-            .width(80.dp)
-            .height(45.dp)
-            .padding(0.dp, 0.dp, 0.dp, 0.dp),
-          shape = Shapes().small,
-          colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = Color(0XFF1F222A),
-            contentColor = Color.White
-          ),
-          onClick = { /*TODO*/ }
-        ) {
-          Image(
-            painter = painterResource(id = R.drawable.google_icon),
-            contentDescription = null,
-            modifier = Modifier.size(20.dp)
-          )
-        }
-
-        Button(
-          modifier = Modifier
-            .width(80.dp)
-            .height(45.dp)
-            .padding(0.dp, 0.dp, 0.dp, 0.dp),
-          shape = Shapes().small,
-          colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = Color(0XFF1F222A),
-            contentColor = Color.White
-          ),
-          onClick = { /*TODO*/ }
-        ) {
-          Image(
-            painter = painterResource(id = R.drawable.apple_icon),
-            contentDescription = null,
-            modifier = Modifier.size(35.dp)
-          )
-        }
-
-      }
-
-      Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(0.dp, 40.dp, 0.dp, 0.dp)
+          .padding(0.dp, 80.dp, 0.dp, 0.dp)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -337,7 +279,7 @@ fun RegisterScreen(navController: NavHostController) {
               contentColor = Color(0XFF246BFD)
             ),
             onClick = {
-              navController.navigate("login_screen")
+              navController!!.navigate("login_screen")
             }
           ) {
             Text(
@@ -349,12 +291,13 @@ fun RegisterScreen(navController: NavHostController) {
           }
         }
       }
+
     }
   }
 }
 
-//@Preview
-//@Composable
-//fun UserRegisterPreview() {
-//  UserRegister()
-//}
+@Preview
+@Composable
+fun UserRegisterPreview() {
+  RegisterScreen()
+}
