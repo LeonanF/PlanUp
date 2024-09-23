@@ -1,19 +1,15 @@
 package com.example.planup.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -45,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -53,14 +50,7 @@ import com.example.planup.auth.EmailAndPasswordAuth
 import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSignInClick: () -> Unit*/) {
-  /*val context = LocalContext.current
-  LaunchedEffect(key1 = state.signInError) {
-    state.signInError?.let { error ->
-      Toast.makeText(context, error, Toast.LENGTH_LONG).show()
-    }
-  }*/
-
+fun RegisterScreen(navController: NavHostController? = null) {
   var email by remember {
     mutableStateOf("")
   }
@@ -86,16 +76,12 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
         .background(Color(0XFF181A20))
         .padding(innerPadding)
     ) {
-      Button(
-        modifier = Modifier
-          .width(75.dp)
-          .padding(0.dp, 10.dp, 0.dp, 0.dp),
-        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-          containerColor = Color.Transparent,
-          contentColor = Color.White
-        ),
-        contentPadding = PaddingValues(0.dp, 0.dp, 10.dp, 0.dp),
-        onClick = { /*TODO*/ }
+      IconButton(
+        onClick = {
+          navController!!.popBackStack()
+        },
+        modifier = Modifier.size(50.dp)
+          .padding(10.dp, 20.dp, 0.dp, 0.dp)
       ) {
         Icon(
           imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -216,7 +202,7 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
       Button(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(20.dp, 0.dp, 20.dp, 0.dp),
+          .padding(20.dp, 20.dp, 20.dp, 0.dp),
         shape = Shapes().large,
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
           containerColor = Color(0XFF246BFD),
@@ -250,7 +236,7 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
           } else {
             EmailAndPasswordAuth().signUpWithEmailAndPassword(email, senha) { result ->
               if (result) {
-                navController.navigate("home_screen"){
+                navController!!.navigate("home_screen"){
                   popUpTo("register_screen"){inclusive = true}
                 }
               } else {
@@ -274,47 +260,7 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
       Box(
         modifier = Modifier
           .fillMaxWidth()
-          .padding(0.dp, 60.dp, 0.dp, 20.dp),
-        Alignment.Center
-      ) {
-        Text(
-          text = "Ou continue com",
-          fontSize = 18.sp,
-          color = Color.White
-        )
-      }
-
-      Button(
-        modifier = Modifier
-          .fillMaxWidth()
-          .height(45.dp)
-          .padding(20.dp, 0.dp, 20.dp, 0.dp),
-        shape = Shapes().large,
-        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-          containerColor = Color(0XFF1F222A),
-          contentColor = Color.White
-        ),
-        onClick = {
-        }
-      ) {
-        Text(
-          text = "Cadastre-se com Google",
-          fontSize = 16.sp,
-          color = Color.White,
-          modifier = Modifier.padding(0.dp, 0.dp, 10.dp, 0.dp)
-        )
-
-        Image(
-          painter = painterResource(id = R.drawable.google_icon),
-          contentDescription = null,
-          modifier = Modifier.size(20.dp)
-        )
-      }
-
-      Box(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(0.dp, 40.dp, 0.dp, 0.dp)
+          .padding(0.dp, 80.dp, 0.dp, 0.dp)
       ) {
         Row(
           modifier = Modifier.fillMaxWidth(),
@@ -333,7 +279,7 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
               contentColor = Color(0XFF246BFD)
             ),
             onClick = {
-              navController.navigate("login_screen")
+              navController!!.navigate("login_screen")
             }
           ) {
             Text(
@@ -350,8 +296,8 @@ fun RegisterScreen(navController: NavHostController/*, state: SignInState, onSig
   }
 }
 
-//@Preview
-//@Composable
-//fun UserRegisterPreview() {
-//  UserRegister()
-//}
+@Preview
+@Composable
+fun UserRegisterPreview() {
+  RegisterScreen()
+}
