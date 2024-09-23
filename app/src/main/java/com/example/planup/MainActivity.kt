@@ -18,6 +18,7 @@ import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.ProjectListScreen
+import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.screens.TaskAttributeScreen
 import com.example.planup.ui.task.model.TaskViewModel
