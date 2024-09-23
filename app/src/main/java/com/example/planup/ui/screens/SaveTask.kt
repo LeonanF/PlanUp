@@ -1,4 +1,4 @@
-package com.example.planup.ui.task.screens
+package com.example.planup.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,14 +13,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
-import com.example.planup.ui.task.model.TaskData
-import com.example.planup.ui.task.model.TaskViewModel
 import com.example.planup.ui.theme.Purple40
 import com.example.planup.ui.theme.PurpleGrey80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SaveTask(navController: NavHostController, viewModel: TaskViewModel) {
+fun SaveTask(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -81,8 +79,8 @@ fun SaveTask(navController: NavHostController, viewModel: TaskViewModel) {
             // Botão de salvar
             Button(
                 onClick = {
-                    viewModel.addTask(TaskData(title, description))
-                    navController.popBackStack() // Navegar de volta para a lista de tarefas
+                    //viewModel.addTask(TaskData(title, description))
+                    //navController.popBackStack() // Navegar de volta para a lista de tarefas
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Purple40,  // Cor de fundo do botão
