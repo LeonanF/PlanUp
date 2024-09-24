@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 @Composable
 fun HomeScreen(navController: NavHostController){
 
-    navController.navigate("project_list_screen"){
+    navController.navigate("create_task"){
         popUpTo("home_screen") {inclusive = true}
     }
 

@@ -1,24 +1,31 @@
 package com.example.planup.ui.screens
 
+import android.icu.text.SimpleDateFormat
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.planup.R
 import com.example.planup.model.Task
-import com.example.planup.ui.theme.Purple40
-import com.example.planup.ui.theme.PurpleGrey80
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateTask(navController: NavHostController, innerPadding: PaddingValues) {
+fun CreateTaskScreen(navController: NavHostController) {
+    val context = LocalContext.current // Obtenha o contexto atual
     Scaffold(
         topBar = {
             TopAppBar(
@@ -29,7 +36,16 @@ fun CreateTask(navController: NavHostController, innerPadding: PaddingValues) {
                         color = Color.White
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Purple40)
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_back),
+                            contentDescription = "Voltar",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF181A20))
             )
         }
     ) { paddingValues ->
@@ -37,101 +53,79 @@ fun CreateTask(navController: NavHostController, innerPadding: PaddingValues) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(PurpleGrey80)
+                .background(Color(0xFF181A20))
                 .padding(paddingValues)
                 .padding(16.dp),
             verticalArrangement = Arrangement.Top
         ) {
             var title by remember { mutableStateOf("") }
             var description by remember { mutableStateOf("") }
-            var subtasks by remember { mutableStateOf(listOf<String>()) }
-            var newSubtask by remember { mutableStateOf("") }
-            var completedSubtasks by remember { mutableStateOf(mutableMapOf<Int, Boolean>()) }
-            val isTaskCompleted by remember {
-                derivedStateOf { completedSubtasks.values.all { it } && subtasks.isNotEmpty() }
-            }
-            var id by remember { mutableStateOf(UUID.randomUUID().toString()) }
 
             // Campo de entrada para o título
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Título") },
+                label = null,
+                placeholder = {
+                    Text(
+                        text = "Título",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            color = Color.White
+                        )
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                textStyle = LocalTextStyle.current.copy(fontSize = 18.sp)
+                textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFF1F222A),
+                    unfocusedContainerColor = Color(0xFF1F222A),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
             )
 
             // Campo de entrada para a descrição
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
-                label = { Text("Descrição") },
+                label = null,
+                placeholder = {
+                    Text(
+                        text = "Descrição",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                            color = Color.White
+                        )
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
-                singleLine = false,
-                maxLines = 5
+                textStyle = LocalTextStyle.current.copy(fontSize = 22.sp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color(0xFF1F222A),
+                    unfocusedContainerColor = Color(0xFF1F222A),
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
             )
-
-            // Adicionar subtarefas
-            OutlinedTextField(
-                value = newSubtask,
-                onValueChange = { newSubtask = it },
-                label = { Text("Adicionar Subtarefa") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
-                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp),
-                singleLine = true
-            )
-
-            Button(
-                onClick = {
-                    if (newSubtask.isNotEmpty()) {
-                        subtasks = subtasks + newSubtask
-                        completedSubtasks[subtasks.size] = false // Adiciona uma nova subtarefa não concluída
-                        newSubtask = "" // Limpa o campo de entrada
-                    }
-                },
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                Text("Adicionar Subtarefa")
-            }
-
-            // Exibição das subtarefas
-            subtasks.forEachIndexed { index, subtask ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = completedSubtasks[index] == true,
-                        onCheckedChange = { isChecked ->
-                            completedSubtasks[index] = isChecked
-                        }
-                    )
-                    BasicTextField(
-                        value = subtask,
-                        onValueChange = { updatedText ->
-                            subtasks = subtasks.toMutableList().apply { set(index, updatedText) }
-                        },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Verificação automática da conclusão da tarefa principal
+            // Definindo a data de criação automaticamente
+            val currentDate = remember {
+                SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+            }
+
             Text(
-                text = if (isTaskCompleted) "Tarefa Principal Concluída!" else "Tarefa em andamento",
-                fontSize = 16.sp,
-                color = if (isTaskCompleted) Color.Green else Color.Black
+                text = "Data de Criação: $currentDate",
+                color = Color.White,
+                fontSize = 16.sp
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -139,15 +133,25 @@ fun CreateTask(navController: NavHostController, innerPadding: PaddingValues) {
             // Botão de criar
             Button(
                 onClick = {
-                    // Lógica de adicionar a tarefa com suas subtarefas
-                    val newTask = Task(name = title, description = description, id = id)
-                    //.addTask(newTask)  // Lógica para salvar a tarefa no repositório
-                    navController.popBackStack() // Voltar para a lista de tarefas após criar
+                    if (title.isNotBlank() && description.isNotBlank()) {
+                        val newTask = Task(
+                            id = UUID.randomUUID().toString(),
+                            name = title,
+                            description = description,
+                        )
+                        navController.popBackStack() // Voltar para a lista de tarefas
+                    } else {
+                        // Exibir mensagem se os campos estiverem vazios
+                        Toast.makeText(context, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Purple40,
+                    containerColor = if (title.isNotBlank() && description.isNotBlank()) Color(
+                        0xFF246BFD
+                    ) else Color(0xFF476EBE),
                     contentColor = Color.White
                 ),
+                enabled = true,
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(text = "Criar Tarefa")
