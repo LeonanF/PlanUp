@@ -60,7 +60,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
     var check by remember { mutableStateOf(false) }
 
     val backgroundImage: Painter = painterResource(viewModel.getImageForElement(project!!.name))
-    val backgroundSize = 200.dp
+    val backgroundSize = 300.dp
 
     val color = viewModel.getColorForElement(project.name)
 
@@ -81,7 +81,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
             ) {
                 Image(
                     painter = backgroundImage,
-                    contentDescription = null,
+                    contentDescription = "Imagem de fundo",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(backgroundSize),
@@ -205,9 +205,9 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
                     Text(
                         text = "$tarefasConcluidas / $numTarefas",
                         modifier = Modifier.padding(15.dp, 2.dp,15.dp, 2.dp),
-                        fontSize = 10.sp,
+                        fontSize = 14.sp,
                         color = Color.White,
-                        fontWeight = FontWeight.Light
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -283,7 +283,6 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
                                         )
                                     )
                                 }
-
                             }
                         }
 

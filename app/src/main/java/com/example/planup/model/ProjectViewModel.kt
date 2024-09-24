@@ -17,10 +17,9 @@ class ProjectViewModel: ViewModel() {
     private val colorList = listOf(
         Color.Red,
         Color.Green,
-        Color.Blue,
-        Color.Yellow,
-        Color.Magenta,
-        Color.Cyan
+        Color(0XFF246BFD),
+        Color.Gray,
+        Color.Magenta
     )
 
     private val imageList = listOf(
