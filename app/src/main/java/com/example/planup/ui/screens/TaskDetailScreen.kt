@@ -6,5 +6,4 @@ import androidx.navigation.NavHostController
 @Composable
 fun TaskDetailScreen(taskId: String?, navController: NavHostController) {
 
-
 }

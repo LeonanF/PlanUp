@@ -18,14 +18,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Task
+import com.example.planup.repository.TaskRepository
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateTaskScreen(navController: NavHostController) {
-    val context = LocalContext.current // Obtenha o contexto atual
+fun CreateTaskScreen(navController: NavHostController, projectId: String?) {
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -61,7 +61,6 @@ fun CreateTaskScreen(navController: NavHostController) {
             var title by remember { mutableStateOf("") }
             var description by remember { mutableStateOf("") }
 
-            // Campo de entrada para o título
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
@@ -88,7 +87,6 @@ fun CreateTaskScreen(navController: NavHostController) {
                 shape = RoundedCornerShape(12.dp)
             )
 
-            // Campo de entrada para a descrição
             OutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
@@ -117,7 +115,6 @@ fun CreateTaskScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Definindo a data de criação automaticamente
             val currentDate = remember {
                 SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
             }
@@ -130,18 +127,19 @@ fun CreateTaskScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botão de criar
             Button(
                 onClick = {
                     if (title.isNotBlank() && description.isNotBlank()) {
                         val newTask = Task(
-                            id = UUID.randomUUID().toString(),
                             name = title,
                             description = description,
+                            data = currentDate,
+                            projectId = projectId!!,
+                            _id = null
                         )
-                        navController.popBackStack() // Voltar para a lista de tarefas
+                        TaskRepository().postTasks(newTask)
+                        navController.popBackStack()
                     } else {
-                        // Exibir mensagem se os campos estiverem vazios
                         Toast.makeText(context, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
                     }
                 },

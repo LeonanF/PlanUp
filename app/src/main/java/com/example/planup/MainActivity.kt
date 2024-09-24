@@ -70,7 +70,11 @@ class MainActivity : ComponentActivity() {
             composable("login_screen"){ LoginScreen(navController = navController)}
             composable("register_screen"){ RegisterScreen(navController = navController) }
             composable("create_project_screen"){ CreateProjectScreen(navController = navController ) }
-            composable("create_task"){ CreateTaskScreen(navController = navController) }
+            composable("create_task_screen/{projectId}"){
+                backStackEntry ->
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                CreateTaskScreen(navController = navController, projectId = projectId)
+            }
             composable("task_detail_screen/{taskId}") {
                 backStackEntry ->
                 val taskId = backStackEntry.arguments?.getString("taskId")
