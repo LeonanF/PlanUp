@@ -12,7 +12,7 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("tasks")
-    fun fetchTasks(): Call<TaskResponse>
+    fun fetchTasks(@Query("taskId") taskId: String): Call<TaskResponse>
 
     @GET("projects")
     fun fetchProjects(): Call<ProjectResponse>
