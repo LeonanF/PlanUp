@@ -30,8 +30,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +46,7 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Project
 import com.example.planup.repository.ProjectRepository
+import com.example.planup.ui.components.CreateProjectModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 
@@ -55,9 +58,13 @@ fun ProjectListScreen(navController: NavHostController) {
     val projects = remember { mutableStateOf<List<Project>?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
 
+    var showCreateProject by remember {
+        mutableStateOf(false)
+    }
+
     val userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
 
-    LaunchedEffect(userId) {
+    LaunchedEffect(userId, showCreateProject) {
         ProjectRepository().fetchUserProjects(userId) { result, errorMsg ->
             projects.value = result
             error.value = errorMsg
@@ -85,7 +92,7 @@ fun ProjectListScreen(navController: NavHostController) {
                 )
             },
             bottomBar = {
-              Box(){
+              Box{
                 BottomAppBar(actions = {
                     Row (
                         modifier = Modifier.fillMaxWidth(),
@@ -101,9 +108,7 @@ fun ProjectListScreen(navController: NavHostController) {
                             }
                         })
                         BottomBarItem(iconRes = R.drawable.createbtn, label = "", 45.dp, onClick = {
-                            navController.navigate("create_project_screen"){
-                                popUpTo("project_list_screen"){ inclusive = true }
-                            }
+                            showCreateProject = true
                         })
                         BottomBarItem(iconRes = R.drawable.inbox, label = "Inbox", onClick = {})
                         BottomBarItem(iconRes = R.drawable.person, label = "Perfil", onClick = {})
@@ -173,6 +178,13 @@ fun ProjectListScreen(navController: NavHostController) {
             }
         }
     }
+
+    if(showCreateProject){
+        CreateProjectModalBottomSheet(onDismiss = {
+            showCreateProject = false
+        })
+    }
+
 }
 
 @Composable

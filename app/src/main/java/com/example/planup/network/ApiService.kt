@@ -6,6 +6,7 @@ import com.example.planup.model.Task
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
@@ -13,9 +14,6 @@ import retrofit2.http.Query
 interface ApiService {
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String): Call<TaskResponse>
-
-    @GET("projects")
-    fun fetchProjects(): Call<ProjectResponse>
 
     @GET("userProjects")
     fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
@@ -28,5 +26,8 @@ interface ApiService {
 
     @POST("tasks")
     fun postTask(@Body task: Task): Call<ResponseBody>
+
+    @DELETE("tasks")
+    fun deleteTask(@Query("taskId") taskId: String): Call<ResponseBody>
 
 }
