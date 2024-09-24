@@ -13,26 +13,6 @@ class ProjectRepository{
 
     private val apiService = RetrofitInstance.apiService
 
-    fun fetchProjects(callback: (Result<List<Project>>) -> Unit) {
-
-        apiService.fetchProjects().enqueue(object : Callback<ProjectResponse> {
-
-            override fun onResponse(call: Call<ProjectResponse>, response: Response<ProjectResponse>) {
-                if(response.isSuccessful){
-                    val projects = response.body()?.data ?: emptyList()
-                    callback(Result.success(projects))
-                } else{
-                    callback(Result.failure(Throwable("Error: ${response.message()}")))
-                }
-            }
-
-            override fun onFailure(call: Call<ProjectResponse>, t: Throwable) {
-                callback(Result.failure(t))
-            }
-
-        })
-    }
-
     fun fetchUserProjects(userId: String, callback: (List<Project>?, String?) -> Unit) {
 
         apiService.fetchUserProjects(userId).enqueue(object : Callback<ProjectResponse> {
