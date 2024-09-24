@@ -21,7 +21,7 @@ import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.screens.TaskAttributeScreen
-import com.example.planup.ui.task.model.TaskViewModel
+import com.example.planup.ui.screens.TaskDetailScreen
 import com.example.planup.ui.theme.PlanUpTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
@@ -70,7 +70,12 @@ class MainActivity : ComponentActivity() {
             composable("login_screen"){ LoginScreen(navController = navController)}
             composable("register_screen"){ RegisterScreen(navController = navController) }
             composable("create_project_screen"){ CreateProjectScreen(navController = navController ) }
-            composable("create_task"){ CreateTaskScreen(navController = navController, viewModel = TaskViewModel()) }
+            composable("create_task"){ CreateTaskScreen(navController = navController) }
+            composable("task_detail_screen/{taskId}") {
+                backStackEntry ->
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                TaskDetailScreen(navController = navController, taskId = taskId)
+            }
             composable("project_list_screen"){ ProjectListScreen(navController = navController) }
             composable("home_screen"){ HomeScreen(navController = navController)}
             composable("task_attribute_screen/{taskId}") { backStackEntry ->
@@ -84,4 +89,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
