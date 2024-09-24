@@ -1,4 +1,4 @@
-package com.example.planup.ui.screens
+package com.example.planup.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer

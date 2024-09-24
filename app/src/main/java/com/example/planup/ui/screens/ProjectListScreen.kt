@@ -46,6 +46,7 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Project
 import com.example.planup.repository.ProjectRepository
+import com.example.planup.ui.components.CreateProjectModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import com.google.gson.Gson
 
