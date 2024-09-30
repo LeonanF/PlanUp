@@ -1,6 +1,7 @@
 package com.example.planup.network
 
 import com.example.planup.model.AttributeRequest
+import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.Task
 import okhttp3.ResponseBody
@@ -20,6 +21,9 @@ interface ApiService {
 
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
+
+    @POST("projectMember")
+    fun postMember(@Body memberReq: MemberRequest): Call<ResponseBody>
 
     @POST("attribute")
     fun postAttribute(@Body attributeReq: AttributeRequest): Call<ResponseBody>

@@ -1,6 +1,7 @@
 package com.example.planup.repository
 
 import android.util.Log
+import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.network.ProjectResponse
 import com.example.planup.network.RetrofitInstance
@@ -52,6 +53,24 @@ class ProjectRepository{
 
         })
 
+    }
+
+    fun postMember(memberReq : MemberRequest){
+        apiService.postMember(memberReq).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("AddMember", "Membro adicionado com sucesso: ${response.body()}")
+                } else{
+                    Log.e("AddMember", "Falha ao adicionar membro: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("AddMember", "Erro ao enviar membro: ${t.message}")
+                t.printStackTrace()
+            }
+
+        })
     }
 
 }
