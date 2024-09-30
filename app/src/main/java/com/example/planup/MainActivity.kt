@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
             composable("task_detail_screen/{taskId}") {
                 backStackEntry ->
                 val taskId = backStackEntry.arguments?.getString("taskId")
-                TaskDetailScreen(navController = navController, taskId = taskId)
+                TaskDetailScreen(navController = navController, taskId = taskId!!)
             }
             composable("project_list_screen"){ ProjectListScreen(navController = navController) }
             composable("home_screen"){ HomeScreen(navController = navController)}

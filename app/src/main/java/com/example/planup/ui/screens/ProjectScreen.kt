@@ -15,12 +15,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,7 +45,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -52,17 +53,16 @@ import com.example.planup.model.Project
 import com.example.planup.model.ProjectViewModel
 
 @Composable
-fun ProjectScreen(navController: NavHostController? = null, project: Project? = null) {
+fun ProjectScreen(navController: NavHostController? = null, project: Project) {
     val viewModel: ProjectViewModel = viewModel()
     var progress by remember { mutableFloatStateOf(0.0f) }
     var numTarefas by remember { mutableIntStateOf(0) }
     var tarefasConcluidas by remember { mutableIntStateOf(0) }
     var check by remember { mutableStateOf(false) }
-
-    val backgroundImage: Painter = painterResource(viewModel.getImageForElement(project!!.name))
-    val backgroundSize = 300.dp
-
+    val backgroundImage: Painter = painterResource(viewModel.getImageForElement(project.name))
+    val backgroundSize = 200.dp
     val color = viewModel.getColorForElement(project.name)
+    val tasks = remember { mutableStateOf(project.taskLists) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -182,7 +182,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
 
                 IconButton(
                     onClick = {
-                        navController!!.navigate("create_task_screen")
+                        navController!!.navigate("create_task_screen/{projectId}")
                     }
                 ) {
                     Icon(
@@ -225,13 +225,13 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            project.taskLists?.let { taskList ->
+            tasks.value?.let { taskList ->
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    items(taskList.size) { task ->
+                    items(taskList) { task ->
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
@@ -239,57 +239,79 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
                                 .padding(10.dp)
                                 .background(Color(0XFF35383F))
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
+                            Button(
+                                onClick = {
+                                    val taskId = task._id
+                                    navController!!.navigate("task_detail_screen/$taskId") {
+                                        popUpTo("project_screen/{project}"){ inclusive = false }
+                                    }
+                                }
                             ) {
-                                Text(
-                                    text = taskList[task].name,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-
-                                Text(
-                                    text = taskList[task].description,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color.LightGray
-                                )
-
-                                Row(
+                                Column(
                                     modifier = Modifier
-                                        .fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
                                 ) {
                                     Text(
-                                        text = "Tarefa concluída",
+                                        text = task.name,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text(
+                                        text = task.description,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Medium,
                                         color = Color.LightGray
                                     )
 
-                                    Checkbox(
-                                        checked = check,
-                                        onCheckedChange ={
-                                            check = it
-                                        },
-                                        modifier = Modifier.size(16.dp),
-                                        colors = CheckboxDefaults.colors(
-                                            checkedColor = Color(0XFF246BFD),
-                                            uncheckedColor = Color(0XFF35383F)
-                                        )
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Text(
+                                        text = task.data,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = Color.LightGray
                                     )
+
+                                    Spacer(modifier = Modifier.height(10.dp))
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Tarefa concluída",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Color.LightGray
+                                        )
+
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Checkbox(
+                                            checked = check,
+                                            onCheckedChange ={
+                                                check = it
+                                            },
+                                            modifier = Modifier.size(16.dp),
+                                            colors = CheckboxDefaults.colors(
+                                                checkedColor = Color(0XFF246BFD),
+                                                uncheckedColor = Color(0XFF35383F)
+                                            )
+                                        )
+                                    }
                                 }
                             }
+                            numTarefas = taskList.size
+                            if(check) tarefasConcluidas++ else if(tarefasConcluidas > 0) tarefasConcluidas-- else tarefasConcluidas = 0
+                            progress = tarefasConcluidas.toFloat() / numTarefas.toFloat()
                         }
-
-                        numTarefas = taskList.size
-                        if(check) tarefasConcluidas++ else if(tarefasConcluidas > 0) tarefasConcluidas--
-                        progress = tarefasConcluidas.toFloat() / numTarefas.toFloat()
-
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
@@ -303,10 +325,4 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project? = 
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun ProjectScreenPreview() {
-    ProjectScreen()
 }
