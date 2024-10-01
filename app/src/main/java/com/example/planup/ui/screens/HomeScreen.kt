@@ -13,11 +13,10 @@ fun HomeScreen(navController: NavHostController){
 
     LaunchedEffect(Unit) {
         if (currentUser != null) {
-            navController.navigate("project_list_screen"){
+            navController.navigate("task_detail_screen/66fb37c8687c61ff8c03b546"){
                 popUpTo("home_screen"){ inclusive = true }
             }
         } else {
-
             navController.navigate("login_screen"){
                 popUpTo("home_screen"){ inclusive = true }
             }

@@ -37,25 +37,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
-import com.example.planup.model.Project
 import com.example.planup.model.Task
-import com.example.planup.repository.ProjectRepository
 import com.example.planup.repository.TaskRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskDetailScreen(taskId: String, navController: NavHostController) {
+
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
     val comments = remember { mutableStateListOf<String>() }
     val isEditingDescription = remember { mutableStateOf(false) }
-    val descriptionText = remember { mutableStateOf(task.value!!.description ?: "") }
+    val descriptionText = remember { mutableStateOf("") }
     val commentText = remember { mutableStateOf("") }
 
     LaunchedEffect(taskId) {
         TaskRepository().fetchTask(taskId) { result, errorMsg ->
             task.value = result
             error.value = errorMsg
+            result?.let {
+                descriptionText.value = it.description
+            }
         }
     }
 
@@ -63,13 +65,15 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = task.value!!.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    task.value?.let {
+                        Text(
+                            text = it.name,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            color = Color.White,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFF181A20),
@@ -113,7 +117,7 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
                         if (isEditingDescription.value) {
                             OutlinedTextField(
                                 value = descriptionText.value,
-                                onValueChange = { descriptionText.value = it },
+                                onValueChange = { descriptionText.value = it},
                                 label = { Text("Editar Descrição da Tarefa") },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -127,7 +131,7 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
                             Button(
                                 onClick = {
                                     isEditingDescription.value = false
-                                    task.value!!.description = descriptionText.value
+                                    task.value = task.value?.copy(description = descriptionText.value)
                                 },
                                 modifier = Modifier
                                     .align(Alignment.End)
@@ -152,7 +156,7 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
                         }
 
                         Text(
-                            text = "Data de criação: " +task.value!!.data,
+                            text = "Data de criação: " + (task.value?.data ?: ""),
                             fontWeight = FontWeight.Normal,
                             fontSize = 20.sp,
                             color = Color.White,
@@ -176,7 +180,8 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
                                 )
                             }
 
-                            items(task.value!!.attributes) { attribute ->
+                            task.value?.attributes?.let { attributes ->
+                            items(attributes) { attribute ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -190,6 +195,7 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
                                     )
                                 }
                             }
+                        }
                         }
 
                         Spacer(modifier = Modifier.height(30.dp))
