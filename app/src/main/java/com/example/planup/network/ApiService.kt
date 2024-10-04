@@ -14,7 +14,7 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("tasks")
-    fun fetchTasks(@Query("taskId") taskId: String): Call<TaskResponse>
+    fun fetchTasks(@Query("taskId") taskId: String): Call<Task>
 
     @GET("userProjects")
     fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>

@@ -1,11 +1,8 @@
 package com.example.planup.repository
 
-import android.adservices.adid.AdId
 import android.util.Log
-import com.example.planup.model.Project
 import com.example.planup.model.Task
 import com.example.planup.network.RetrofitInstance
-import com.example.planup.network.TaskResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -51,17 +48,17 @@ class TaskRepository {
 
     fun fetchTask(taskId: String, callback: (Task?, String?) -> Unit){
 
-        apiService.fetchTasks(taskId).enqueue(object : Callback<TaskResponse>{
-            override fun onResponse(call: Call<TaskResponse>, response: Response<TaskResponse>) {
+        apiService.fetchTasks(taskId).enqueue(object : Callback<Task>{
+            override fun onResponse(call: Call<Task>, response: Response<Task>) {
                 if (response.isSuccessful){
-                    callback(response.body()?.data, null)
+                    callback(response.body(), null)
                 }
                 else{
                     callback(null, response.errorBody()?.string())
                 }
             }
 
-            override fun onFailure(call: Call<TaskResponse>, t: Throwable) {
+            override fun onFailure(call: Call<Task>, t: Throwable) {
                 callback(null, t.message)
                 t.printStackTrace()
             }

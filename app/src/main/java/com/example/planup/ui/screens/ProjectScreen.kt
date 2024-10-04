@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,13 +56,14 @@ import com.example.planup.model.ProjectViewModel
 @Composable
 fun ProjectScreen(navController: NavHostController? = null, project: Project) {
     val viewModel: ProjectViewModel = viewModel()
+    val backgroundImage: Painter = painterResource(viewModel.getImageForElement(project.name))
+    val backgroundSize = 200.dp
+    val color = viewModel.getColorForElement(project.name)
+
     var progress by remember { mutableFloatStateOf(0.0f) }
     var numTarefas by remember { mutableIntStateOf(0) }
     var tarefasConcluidas by remember { mutableIntStateOf(0) }
     var check by remember { mutableStateOf(false) }
-    val backgroundImage: Painter = painterResource(viewModel.getImageForElement(project.name))
-    val backgroundSize = 200.dp
-    val color = viewModel.getColorForElement(project.name)
     val tasks = remember { mutableStateOf(project.taskLists) }
 
     Scaffold(
@@ -200,7 +202,10 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                 Box(
                     modifier = Modifier
                         .wrapContentSize()
-                        .background(Color(color.value), shape = RoundedCornerShape(20.dp))
+                        .background(
+                            Color(color.value),
+                            shape = RoundedCornerShape(20.dp)
+                        )
                 ) {
                     Text(
                         text = "$tarefasConcluidas / $numTarefas",
@@ -234,23 +239,28 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                     items(taskList) { task ->
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .wrapContentHeight()
-                                .padding(10.dp)
-                                .background(Color(0XFF35383F))
+                                .padding(20.dp, 10.dp)
                         ) {
                             Button(
+                                modifier = Modifier
+                                    .heightIn(200.dp)
+                                    .fillMaxWidth(),
                                 onClick = {
                                     val taskId = task._id
                                     navController!!.navigate("task_detail_screen/$taskId") {
                                         popUpTo("project_screen/{project}"){ inclusive = false }
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0XFF35383F),
+                                    contentColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(10.dp)
                             ) {
                                 Column(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.Start
                                 ) {
                                     Text(
                                         text = task.name,
@@ -316,12 +326,16 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                     }
                 }
             } ?: run {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
-                        .size(50.dp),
-                    color = Color.White
-                )
+                Scaffold(
+                    containerColor = Color(0xFF181A20)
+                ) { padding ->
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        CircularProgressIndicator(modifier = Modifier.padding(padding))
+                    }
+                }
             }
         }
     }
