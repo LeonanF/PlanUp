@@ -64,4 +64,41 @@ class TaskRepository {
             }
         })
     }
+
+     /*fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
+        apiService.addComment(commentRequest).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("PostComment", "Comentário adicionado com sucesso")
+                    callback(true, null)
+                } else {
+                    Log.d("PostComment", "Falha ao adicionar comentário: ${response.errorBody()?.string()}")
+                    callback(false, response.errorBody()?.string())
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("PostComment", "Erro ao enviar comentário: ${t.message}")
+                callback(false, t.message)
+                t.printStackTrace()
+            }
+        })
+    }*/
+
+    /*fun getComment(commentId: String, callback: (CommentRequest?, String?) -> Unit) {
+        apiService.fetchComment(commentId).enqueue(object : Callback<CommentRequest> {
+            override fun onResponse(call: Call<CommentRequest>, response: Response<CommentRequest>) {
+                if (response.isSuccessful) {
+                    callback(response.body(), null)
+                } else {
+                    callback(null, response.errorBody()?.string())
+                }
+            }
+
+            override fun onFailure(call: Call<CommentRequest>, t: Throwable) {
+                callback(null, t.message)
+                t.printStackTrace()
+            }
+        })
+    }*/
 }

@@ -136,7 +136,8 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String?) {
                             data = currentDate,
                             projectId = projectId!!,
                             _id = null,
-                            attributes = emptyList()
+                            attributes = emptyList(),
+                            comments = null
                         )
                         TaskRepository().postTasks(newTask)
                         navController.popBackStack()

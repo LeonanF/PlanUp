@@ -31,7 +31,12 @@ interface ApiService {
     @POST("tasks")
     fun postTask(@Body task: Task): Call<ResponseBody>
 
+    //@POST("comments")
+    //fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
+
+    //@GET("comments")
+    //fun fetchComment(@Query("taskId") taskId: String, @Query("projectId") userId: String, @Query("comment") status: String): Call<CommentResponse>
+
     @DELETE("tasks")
     fun deleteTask(@Query("taskId") taskId: String): Call<ResponseBody>
-
 }
