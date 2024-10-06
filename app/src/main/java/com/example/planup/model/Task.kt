@@ -6,5 +6,6 @@ data class Task(
     val data: String,
     val projectId: String,
     val _id: String?,
-    val attributes: List<Attribute>
+    val attributes: List<Attribute>,
+    val comments: List<Comment>?
 )
