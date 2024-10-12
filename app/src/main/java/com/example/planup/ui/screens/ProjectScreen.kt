@@ -52,9 +52,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectViewModel
+import com.example.planup.model.Task
+import com.google.gson.Gson
 
 @Composable
-fun ProjectScreen(navController: NavHostController? = null, project: Project) {
+fun ProjectScreen(navController: NavHostController, project: Project) {
     val viewModel: ProjectViewModel = viewModel()
     val backgroundImage: Painter = painterResource(viewModel.getImageForElement(project.name))
     val backgroundSize = 200.dp
@@ -64,7 +66,8 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
     var numTarefas by remember { mutableIntStateOf(0) }
     var tarefasConcluidas by remember { mutableIntStateOf(0) }
     var check by remember { mutableStateOf(false) }
-    val tasks = remember { mutableStateOf(project.taskLists) }
+    //val tasks = remember { mutableStateOf(project.taskLists) }
+    val tasks = remember { mutableStateOf<List<Task>?>(null) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -104,7 +107,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                     ) {
                         IconButton(
                             onClick = {
-                                navController!!.popBackStack()
+                                navController.popBackStack()
                             }
                         ) {
                             Icon(
@@ -115,7 +118,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                             )
                         }
 
-                        IconButton(
+                        /*IconButton(
                             onClick = {
                                 /*TODO*/
                             }
@@ -139,7 +142,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                                 tint = Color.White,
                                 modifier = Modifier.size(20.dp)
                             )
-                        }
+                        }*/
                     }
                 }
             }
@@ -184,7 +187,10 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
 
                 IconButton(
                     onClick = {
-                        navController!!.navigate("create_task_screen/{projectId}")
+                        val projectJson = Gson().toJson(project)
+                        navController.navigate("create_task_screen/{projectId}") {
+                            popUpTo("project_screen/$projectJson"){ inclusive = false }
+                        }
                     }
                 ) {
                     Icon(
@@ -247,8 +253,9 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                                     .fillMaxWidth(),
                                 onClick = {
                                     val taskId = task._id
-                                    navController!!.navigate("task_detail_screen/$taskId") {
-                                        popUpTo("project_screen/{project}"){ inclusive = false }
+                                    val projectJson = Gson().toJson(project)
+                                    navController.navigate("task_detail_screen/$taskId") {
+                                        popUpTo("project_screen/$projectJson"){ inclusive = false }
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -262,31 +269,11 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                                         .fillMaxWidth(),
                                     horizontalAlignment = Alignment.Start
                                 ) {
-                                    Text(
-                                        text = task.name,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White
-                                    )
-
+                                    Text(text = task.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                                     Spacer(modifier = Modifier.height(10.dp))
-
-                                    Text(
-                                        text = task.description,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = Color.LightGray
-                                    )
-
+                                    Text(text = task.description, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.LightGray)
                                     Spacer(modifier = Modifier.height(10.dp))
-
-                                    Text(
-                                        text = task.data,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = Color.LightGray
-                                    )
-
+                                    Text(text = task.data, fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.LightGray)
                                     Spacer(modifier = Modifier.height(10.dp))
 
                                     Row(
@@ -295,13 +282,7 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text(
-                                            text = "Tarefa concluída",
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            color = Color.LightGray
-                                        )
-
+                                        Text(text = "Tarefa concluída", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = Color.LightGray)
                                         Spacer(modifier = Modifier.height(10.dp))
 
                                         Checkbox(
@@ -322,7 +303,6 @@ fun ProjectScreen(navController: NavHostController? = null, project: Project) {
                             if(check) tarefasConcluidas++ else if(tarefasConcluidas > 0) tarefasConcluidas-- else tarefasConcluidas = 0
                             progress = tarefasConcluidas.toFloat() / numTarefas.toFloat()
                         }
-                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             } ?: run {

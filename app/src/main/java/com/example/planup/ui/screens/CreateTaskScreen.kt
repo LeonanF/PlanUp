@@ -21,6 +21,7 @@ import com.example.planup.model.Task
 import com.example.planup.repository.TaskRepository
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -135,8 +136,9 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String?) {
                             description = description,
                             data = currentDate,
                             projectId = projectId!!,
-                            _id = null,
-                            attributes = emptyList()
+                            _id = UUID.randomUUID().toString(),
+                            attributes = emptyList(),
+                            comments = null
                         )
                         TaskRepository().postTasks(newTask)
                         navController.popBackStack()
