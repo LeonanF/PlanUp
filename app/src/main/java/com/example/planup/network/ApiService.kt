@@ -1,6 +1,7 @@
 package com.example.planup.network
 
 import com.example.planup.model.AttributeRequest
+import com.example.planup.model.Lists
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.Task
@@ -19,6 +20,12 @@ interface ApiService {
     @GET("userProjects")
     fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
 
+    //@GET("comments")
+    //fun fetchComment(@Query("taskId") taskId: String, @Query("projectId") userId: String, @Query("comment") status: String): Call<CommentResponse>
+
+    @GET("lists")
+    fun fetchProjectLists(@Query("projectId") projectId: String): Call<ListResponse>
+
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
@@ -34,9 +41,10 @@ interface ApiService {
     //@POST("comments")
     //fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
 
-    //@GET("comments")
-    //fun fetchComment(@Query("taskId") taskId: String, @Query("projectId") userId: String, @Query("comment") status: String): Call<CommentResponse>
+    @POST("lists")
+    fun postList(@Body lists: Lists): Call<ResponseBody>
 
     @DELETE("tasks")
     fun deleteTask(@Query("taskId") taskId: String): Call<ResponseBody>
+
 }
