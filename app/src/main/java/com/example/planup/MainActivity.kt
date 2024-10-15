@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.planup.model.Project
+import com.example.planup.ui.components.CreateTaskList
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
@@ -80,6 +81,12 @@ class MainActivity : ComponentActivity() {
                 val projectJson = backStackEntry.arguments?.getString("project")
                 val project = Gson().fromJson(projectJson, Project::class.java)
                 ProjectScreen(navController = navController, project = project)
+            }
+            composable("create_task_list") {
+                CreateTaskList {
+                    navController.popBackStack()
+                }
+
             }
 
             composable("project_preview_list_screen") {
