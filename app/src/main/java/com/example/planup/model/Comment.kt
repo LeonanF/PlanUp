@@ -1,5 +1,7 @@
 package com.example.planup.model
 
+import kotlin.collections.List
+
 data class Comment(
     val _id: String?,
     val data: Long,

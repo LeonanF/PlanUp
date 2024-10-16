@@ -29,35 +29,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.TaskPreview
-import com.example.planup.repository.TaskRepository
-import com.google.gson.Gson
+import com.example.planup.repository.ProjectRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailScreen(
     navController: NavHostController,
     projectId: String,
-    projectName: String,
     onTaskClick: (String) -> Unit
 ) {
-    val taskPreview = remember { mutableStateOf<List<TaskPreview>?>(null) }
+    val project = remember { mutableStateOf<ProjectDetailPreview?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(projectId) {
-        TaskRepository().fetchTaskPreviews(projectId) { result, errorMsg ->
-            taskPreview.value = result
+        ProjectRepository().fetchProjectPreview(projectId) { result, errorMsg ->
+            project.value = result
             error.value = errorMsg
         }
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(text = projectName, style = MaterialTheme.typography.titleSmall) })
+            TopAppBar(title = { project.value?.let { Text(text = it.name, style = MaterialTheme.typography.titleSmall) } })
         }
     ) { innerPadding ->
 
@@ -72,7 +69,7 @@ fun ProjectDetailScreen(
             IconButton(
                 onClick = {
                     navController.navigate("create_task_screen/$projectId") {
-                        popUpTo("project_detail_screen/$projectId/$projectName") { inclusive = false }
+                        popUpTo("project_detail_screen/$projectId") { inclusive = false }
                     }
                 }
             ) {
@@ -87,11 +84,12 @@ fun ProjectDetailScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        taskPreview.value?.let { taskPreviewList ->
+        project.value?.taskLists?.let { taskLists ->
             LazyColumn(
                 modifier = Modifier.padding(innerPadding)
             ) {
-                items(taskPreviewList) { task ->
+                items(taskLists) { taskList ->
+                    taskList.tasks.forEach { task ->
                     TaskItem(
                         task = task,
                         onClick = {
@@ -100,6 +98,7 @@ fun ProjectDetailScreen(
                             }
                         }
                     )
+                    }
                 }
             }
         }

@@ -36,7 +36,7 @@ import com.google.firebase.auth.FirebaseAuth
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectPreviewListScreen(
-    onProjectClick: (String, Any?) -> Unit, // Passa o ID do projeto
+    onProjectClick: (String) -> Unit,
 ) {
     val projects = remember { mutableStateOf<List<ProjectPreview>?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
@@ -71,8 +71,7 @@ fun ProjectPreviewListScreen(
             )
         }
     ) { innerPadding ->
-        // projectPreview é uma lista de objetos ProjectPreview
-        // onProjectClick é uma função que será chamada quando um projeto for clicado
+
         projects.value?.let { projectPreviewList ->
             LazyColumn(
                 modifier = Modifier.padding(innerPadding)
@@ -81,11 +80,7 @@ fun ProjectPreviewListScreen(
                     ProjectItem(
                         project = project,
                         onClick = {
-                            project._id?.let { projectId ->
-                                project.name?.let { projectName ->
-                                    onProjectClick(projectId, projectName)
-                                }
-                            }
+                            onProjectClick(project._id)
                         }
                     )
                 }
@@ -104,11 +99,11 @@ fun ProjectItem(project: ProjectPreview, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            project.name?.let { Text(text = it, style = MaterialTheme.typography.titleSmall) }
+            Text(text = project.name, style = MaterialTheme.typography.titleSmall)
             Spacer(modifier = Modifier.height(10.dp))
-            project.description?.let { Text(text = it) }
+            Text(text = project.description)
             Spacer(modifier = Modifier.height(10.dp))
-            Text(text = "Status: ${project.status ?: ""}")
+            Text(text = "Status: ${project.status}")
         }
     }
 }

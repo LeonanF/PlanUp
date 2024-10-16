@@ -90,17 +90,16 @@ class MainActivity : ComponentActivity() {
             }
 
             composable("project_preview_list_screen") {
-                ProjectPreviewListScreen { projectId, projectName ->
-                    navController.navigate("project_detail_screen/$projectId/$projectName")
+                ProjectPreviewListScreen { projectId ->
+                    navController.navigate("project_detail_screen/$projectId")
                 }
             }
 
-            composable("project_detail_screen/{projectId}/{projectName}") { backStackEntry ->
+            composable("project_detail_screen/{projectId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
-                val projectName = backStackEntry.arguments?.getString("projectName")
-                ProjectDetailScreen(navController = navController, projectId = projectId!!, projectName = projectName!!) { taskId ->
+                ProjectDetailScreen(navController = navController, projectId = projectId!!, onTaskClick = { taskId ->
                     navController.navigate("task_detail_screen/$taskId")
-                }
+                })
             }
 
             composable("delete_list_screen/{listId}/{projectId}") {

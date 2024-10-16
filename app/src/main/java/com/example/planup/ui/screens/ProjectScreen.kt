@@ -20,8 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -159,7 +157,6 @@ fun ProjectScreen(navController: NavHostController, project: Project) {
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            project.description?.let {
                 Text(
                     text = project.description,
                     fontSize = 12.sp,
@@ -167,7 +164,6 @@ fun ProjectScreen(navController: NavHostController, project: Project) {
                     color = Color.LightGray,
                     modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
                 )
-            }
 
             Spacer(modifier = Modifier.height(20.dp))
 

@@ -1,8 +1,9 @@
 package com.example.planup.model
 
 data class ProjectPreview(
-    val _id: String? = null,
-    val name: String? = null,
-    val description: String? = null,
-    val status: String? = null
+    val _id: String,
+    val name: String,
+    val description: String,
+    val status: String,
+    val taskQuantity : Int
 )
