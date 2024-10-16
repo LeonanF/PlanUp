@@ -47,4 +47,24 @@ class ListsRepository {
             }
         })
     }
+
+    fun deleteList(listId: String, callback: (Boolean) -> Unit) {
+        apiService.deleteList(listId).enqueue(object: Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("DeleteList", "Lista deletada com sucesso: ${response.body()}")
+                    callback(true)
+                } else {
+                    Log.d("DeleteList", "Falha ao deletar a lista: ${response.errorBody()?.string()}")
+                    callback(false)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("DeleteList", "Erro ao deletar a lista: ${t.message}")
+                t.printStackTrace()
+                callback(false)
+            }
+        })
+    }
 }
