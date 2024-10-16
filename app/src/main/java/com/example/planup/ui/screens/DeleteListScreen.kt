@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.planup.repository.ListRepository
+import com.example.planup.repository.TaskListRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +31,7 @@ fun DeleteListScreen(
     projectId: String,
     onDismiss: () -> Unit
 ) {
-    val listRepository = ListRepository()
+    val taskListRepository = TaskListRepository()
     val context = LocalContext.current
 
     ModalBottomSheet(
@@ -72,8 +72,7 @@ fun DeleteListScreen(
 
             Button(
                 onClick = {
-                    // Lógica para deletar a lista
-                    listRepository.deleteList(listId) { result ->
+                    taskListRepository.deleteList(listId) { result ->
                         if (result) {
                             Toast.makeText(context, "Lista deletada com sucesso", Toast.LENGTH_SHORT).show()
                         } else {

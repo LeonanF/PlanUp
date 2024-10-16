@@ -13,7 +13,7 @@ fun HomeScreen(navController: NavHostController){
 
     LaunchedEffect(Unit) {
         if (currentUser != null) {
-            navController.navigate("task_detail_screen/66fb37c8687c61ff8c03b546"){
+            navController.navigate("project_list_screen"){
                 popUpTo("home_screen"){ inclusive = true }
             }
         } else {
@@ -23,5 +23,3 @@ fun HomeScreen(navController: NavHostController){
         }
     }
 }
-
-//task_detail_screen/66fb37c8687c61ff8c03b546

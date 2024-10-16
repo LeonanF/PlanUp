@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import com.example.planup.model.Project
 import com.example.planup.repository.ProjectRepository
 import com.google.firebase.auth.FirebaseAuth
-import java.util.UUID
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,13 +106,13 @@ fun CreateProjectModalBottomSheet(
                     ProjectRepository()
                         .postProject(
                             Project(
-                                _id = UUID.randomUUID().toString(),
+                                _id = null,
                                 name= projectName.value,
                                 description = projectDescription.value,
                                 owner = userid,
-                                taskLists = null,
+                                taskLists = emptyList(),
                                 members = listOf(userid),
-                                status = null
+                                status = ""
                             )
                         )
                     onDismiss.invoke()

@@ -36,7 +36,6 @@ class TaskRepository {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
                 if (response.isSuccessful) {
                     Log.d("PostTask", "Tarefa criada com sucesso: ${response.body()}")
-                    addTaskPreview(task)
                 } else {
                     Log.d("PostTask", "Falha ao criar tarefa: ${response.errorBody()?.string()}")
                 }
@@ -66,18 +65,6 @@ class TaskRepository {
                 callback(null, t.message)
             }
         })
-    }
-
-    private val taskPreviews = mutableListOf<TaskPreview>()
-
-    fun addTaskPreview(task: Task) {
-        taskPreviews.add(
-            TaskPreview(
-                task._id,
-                task.name,
-                task.data
-            )
-        )
     }
 
     fun fetchTask(taskId: String, callback: (Task?, String?) -> Unit){

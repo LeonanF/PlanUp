@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,12 +14,12 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.planup.model.Lists
-import com.example.planup.repository.ListsRepository
-import java.util.UUID
+import com.example.planup.model.TaskList
+import com.example.planup.repository.TaskListRepository
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,14 +75,15 @@ fun CreateTaskList (
                 Spacer(modifier = Modifier.height(25.dp))
 
                 Button(onClick = {
-                    ListsRepository()
+                    TaskListRepository()
                         .postProjectList(
-                            Lists(
-                                id = UUID.randomUUID().toString(),
-                                description = listName.value,
+                            TaskList(
+                                _id = null,
+                                name = listName.value,
                                 tasks = emptyList()
                             )
                         )
+                    onDismiss.invoke()
                 },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (activeButton) Color(0xFF246BFD) else Color(0xFF476EBE),

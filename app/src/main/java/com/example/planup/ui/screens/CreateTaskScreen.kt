@@ -136,7 +136,7 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String?) {
                             description = description,
                             data = currentDate,
                             projectId = projectId!!,
-                            _id = UUID.randomUUID().toString(),
+                            _id = null,
                             attributes = emptyList(),
                             comments = null
                         )

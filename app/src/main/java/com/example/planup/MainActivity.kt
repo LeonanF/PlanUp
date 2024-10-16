@@ -19,7 +19,6 @@ import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
-import com.example.planup.ui.screens.ProjectPreviewListScreen
 import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.screens.TaskAttributeScreen
@@ -89,18 +88,13 @@ class MainActivity : ComponentActivity() {
 
             }
 
-            composable("project_preview_list_screen") {
-                ProjectPreviewListScreen { projectId, projectName ->
-                    navController.navigate("project_detail_screen/$projectId/$projectName")
-                }
-            }
-
-            composable("project_detail_screen/{projectId}/{projectName}") { backStackEntry ->
+            composable("project_detail_screen/{projectId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
-                val projectName = backStackEntry.arguments?.getString("projectName")
-                ProjectDetailScreen(navController = navController, projectId = projectId!!, projectName = projectName!!) { taskId ->
-                    navController.navigate("task_detail_screen/$taskId")
-                }
+                ProjectDetailScreen(navController = navController, projectId = projectId!!, onTaskClick = { taskId ->
+                    navController.navigate("task_detail_screen/$taskId") {
+                        popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                    }
+                })
             }
 
             composable("delete_list_screen/{listId}/{projectId}") {
