@@ -1,5 +1,6 @@
 package com.example.planup.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -70,7 +71,7 @@ fun ProjectDetailScreen(
     val backgroundImage: Painter? = project.value?.name?.let {
         viewModel.getImageForElement(it)
     }?.let { painterResource(it) }
-    val backgroundSize = 200.dp
+    val backgroundSize = 300.dp
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -164,7 +165,8 @@ fun ProjectDetailScreen(
 
                 IconButton(
                     onClick = {
-                        navController.navigate("create_task_list") {
+                        Log.d("ProjectDetailScreen", "projectId: $projectId")
+                        navController.navigate("create_task_list/$projectId") {
                             popUpTo("project_detail_screen/$projectId") { inclusive = false }
                         }
                     }
