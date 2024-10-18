@@ -1,11 +1,11 @@
 package com.example.planup.network
 
 import com.example.planup.model.AttributeRequest
-import com.example.planup.model.TaskList
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.Task
+import com.example.planup.model.TaskListRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -49,7 +49,7 @@ interface ApiService {
     //fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
 
     @POST("lists")
-    fun postList(@Body taskList: TaskList): Call<ResponseBody>
+    fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
     @DELETE("tasks")
     fun deleteTask(@Query("taskId") taskId: String): Call<ResponseBody>

@@ -1,7 +1,7 @@
 package com.example.planup.repository
 
 import android.util.Log
-import com.example.planup.model.TaskList
+import com.example.planup.model.TaskListRequest
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -31,7 +31,7 @@ class TaskListRepository {
         })
     }
 
-    fun postProjectList(list:TaskList){
+    fun postProjectList(list:TaskListRequest){
         apiService.postList(list).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
 
