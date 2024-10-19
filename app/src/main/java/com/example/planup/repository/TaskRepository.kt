@@ -1,6 +1,7 @@
 package com.example.planup.repository
 
 import android.util.Log
+import com.example.planup.model.Project
 import com.example.planup.model.Task
 import com.example.planup.model.TaskPreview
 import com.example.planup.network.RetrofitInstance
@@ -13,6 +14,24 @@ import retrofit2.Callback
 class TaskRepository {
 
     private val apiService = RetrofitInstance.apiService
+
+    suspend fun moveTask(projectId: String, taskId: String, destinationList: String) {
+        apiService.moveTask(projectId, taskId, mapOf("destinationList" to destinationList))
+            .enqueue(object: Callback<ResponseBody>{
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                    if(response.isSuccessful){
+                        Log.d("MoveTask", "Tarefa movida com sucesso: ${response.body()}")
+                    } else {
+                        Log.d("MoveTask", "Falha ao mover a tarefa: ${response.errorBody()?.string()}")
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.e("MoveTask", "Erro ao mover a tarefa: ${t.message}")
+                    t.printStackTrace()
+                }
+            })
+    }
 
     fun deleteTask(taskId: String) {
         apiService.deleteTask(taskId).enqueue(object: Callback<ResponseBody> {

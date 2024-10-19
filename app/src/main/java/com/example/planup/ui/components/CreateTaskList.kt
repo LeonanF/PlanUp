@@ -26,7 +26,7 @@ import com.example.planup.repository.TaskListRepository
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTaskList (projectId: String, onDismiss: () -> Unit) {
-    val listName = remember {
+    var listName by remember {
         mutableStateOf("")
     }
 
@@ -55,8 +55,8 @@ fun CreateTaskList (projectId: String, onDismiss: () -> Unit) {
 
             HorizontalDivider(color = Color(0xFF35383F), thickness = 1.dp, modifier = Modifier.padding(20.dp, 0.dp))
 
-            OutlinedTextField(value = listName.value, onValueChange = { newText ->
-                listName.value = newText
+            OutlinedTextField(value = listName, onValueChange = { newText ->
+                listName = newText
                 activeButton = newText.isNotBlank()
                 },
                 label = { Text("Nome do quadro", color = Color.LightGray) },
@@ -74,14 +74,14 @@ fun CreateTaskList (projectId: String, onDismiss: () -> Unit) {
             Spacer(modifier = Modifier.height(25.dp))
 
             Button(onClick = {
-                Log.d("CreateTaskList", "listName: ${listName.value}")
+                Log.d("CreateTaskList", "listName: $listName" + " Tipo: ${listName::class.simpleName}")
                 TaskListRepository()
                     .postProjectList(
                         TaskListRequest(
                             projectId = projectId,
                             taskList = TaskList(
                                 _id = null,
-                                name = listName.value,
+                                name = listName,
                                 tasks = emptyList()
                             )
                         )
@@ -104,5 +104,3 @@ fun CreateTaskList (projectId: String, onDismiss: () -> Unit) {
         }
     }
 }
-
-

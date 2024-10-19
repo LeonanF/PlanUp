@@ -17,6 +17,7 @@ import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
+import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.ProjectScreen
@@ -82,9 +83,10 @@ class MainActivity : ComponentActivity() {
                 ProjectScreen(navController = navController, project = project)
             }
             composable("create_task_list/{projectId}") { backStackEntry ->
-                val projectId = backStackEntry.arguments?.getString("projectId")
-                CreateTaskList(projectId!!) {
-                    navController.popBackStack()
+                backStackEntry.arguments?.getString("projectId")?.let {
+                    CreateTaskList(it) {
+                        navController.popBackStack()
+                    }
                 }
             }
             composable("project_detail_screen/{projectId}") { backStackEntry ->
@@ -102,6 +104,12 @@ class MainActivity : ComponentActivity() {
                 DeleteListScreen(listId = listId!!, projectId = projectId!!) {
                     navController.popBackStack()
                 }
+            }
+            composable("move_task_screen/{projectId}/{taskId}") { backStackEntry ->
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                val taskId = backStackEntry.arguments?.getString("taskId")
+
+                MoveTaskScreen(projectId = projectId!!, taskId = taskId!!)
             }
         }
     }
