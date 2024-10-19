@@ -19,12 +19,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.planup.model.TaskList
+import com.example.planup.model.TaskListRequest
 import com.example.planup.repository.TaskListRepository
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTaskList (
+    projectId: String,
     onDismiss: () -> Unit
     ){
 
@@ -77,10 +79,11 @@ fun CreateTaskList (
                 Button(onClick = {
                     TaskListRepository()
                         .postProjectList(
-                            TaskList(
-                                _id = null,
+                            TaskListRequest(
+                                projectId = projectId,
+                                taskList =TaskList(_id= null,
                                 name = listName.value,
-                                tasks = emptyList()
+                                tasks = emptyList())
                             )
                         )
                 },
