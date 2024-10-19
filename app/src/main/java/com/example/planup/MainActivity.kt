@@ -82,9 +82,11 @@ class MainActivity : ComponentActivity() {
                 val project = Gson().fromJson(projectJson, Project::class.java)
                 ProjectScreen(navController = navController, project = project)
             }
-            composable("create_task_list") {
-                CreateTaskList {
-                    navController.popBackStack()
+            composable("create_task_list/{projectId}") { backStackEntry ->
+                backStackEntry.arguments?.getString("projectId")?.let {
+                    CreateTaskList(it) {
+                        navController.popBackStack()
+                    }
                 }
 
             }
