@@ -16,7 +16,7 @@ import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
-import com.example.planup.ui.screens.MoveTaskScreen
+//import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.RegisterScreen
@@ -63,10 +63,12 @@ class MainActivity : ComponentActivity() {
                 val listId = backStackEntry.arguments!!.getString("listId")
                 CreateTaskScreen(navController = navController, projectId = projectId!!, listId = listId!!)
             }
-            composable("task_detail_screen/{taskId}") {
+            composable("task_detail_screen/{taskId}/{projectId}/{listId}") {
                 backStackEntry ->
                 val taskId = backStackEntry.arguments?.getString("taskId")
-                TaskDetailScreen(navController = navController, taskId = taskId!!)
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                val listId = backStackEntry.arguments?.getString("listId")
+                TaskDetailScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!)
             }
             composable("project_list_screen"){ ProjectListScreen(navController = navController) }
             composable("home_screen"){ HomeScreen(navController = navController)}
@@ -97,12 +99,12 @@ class MainActivity : ComponentActivity() {
                     navController.popBackStack()
                 }
             }
-            composable("move_task_screen/{projectId}/{taskId}") { backStackEntry ->
+/*            composable("move_task_screen/{projectId}/{taskId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 val taskId = backStackEntry.arguments?.getString("taskId")
 
                 MoveTaskScreen(projectId = projectId!!, taskId = taskId!!)
-            }
+            }*/
         }
     }
 

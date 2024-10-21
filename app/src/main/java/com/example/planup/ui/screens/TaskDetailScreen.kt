@@ -30,7 +30,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskDetailScreen(taskId: String, navController: NavHostController) {
+fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navController: NavHostController) {
 
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
@@ -53,7 +53,7 @@ fun TaskDetailScreen(taskId: String, navController: NavHostController) {
 
 
     LaunchedEffect(taskId) {
-        TaskRepository().fetchTask(taskId) { result, errorMsg ->
+        TaskRepository().fetchTask(taskId, listId, projectId) { result, errorMsg ->
             task.value = result
             error.value = errorMsg
             result?.let { taskData ->

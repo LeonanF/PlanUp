@@ -599,7 +599,7 @@ fun TaskListItem(
                     IconButton(
                         modifier = Modifier.padding(25.dp, 0.dp, 0.dp, 0.dp),
                         onClick = {
-                            navController.navigate("create_task_screen/$projectId") {
+                            navController.navigate("create_task_screen/$projectId/${tasks._id}") {
                                 popUpTo("project_detail_screen/$projectId") { inclusive = false }
                             }
                         }

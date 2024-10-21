@@ -7,6 +7,7 @@ import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.SubtaskRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskListRequest
+import com.example.planup.model.TaskRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -21,7 +22,7 @@ interface ApiService {
     fun fetchTaskPreviews(@Query("projectId") projectId: String): Call<TaskPreviewResponse>
 
     @GET("tasks")
-    fun fetchTasks(@Query("taskId") taskId: String): Call<Task>
+    fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
     @GET("lists")
     fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
@@ -55,7 +56,7 @@ interface ApiService {
     fun postAttribute(@Body attributeReq: AttributeRequest): Call<ResponseBody>
 
     @POST("tasks")
-    fun postTask(@Body task: Task): Call<ResponseBody>
+    fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>

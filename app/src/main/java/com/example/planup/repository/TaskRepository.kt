@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.planup.model.Project
 import com.example.planup.model.Task
 import com.example.planup.model.TaskPreview
+import com.example.planup.model.TaskRequest
 import com.example.planup.network.RetrofitInstance
 import com.example.planup.network.TaskPreviewResponse
 import okhttp3.ResponseBody
@@ -50,8 +51,8 @@ class TaskRepository {
         })
     }
 
-    fun postTasks(task: Task) {
-        apiService.postTask(task).enqueue(object : Callback <ResponseBody> {
+    fun postTasks(taskRequest: TaskRequest) {
+        apiService.postTask(taskRequest).enqueue(object : Callback <ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
                 if (response.isSuccessful) {
                     Log.d("PostTask", "Tarefa criada com sucesso: ${response.body()}")
@@ -86,9 +87,9 @@ class TaskRepository {
         })
     }
 
-    fun fetchTask(taskId: String, callback: (Task?, String?) -> Unit){
+    fun fetchTask(taskId: String, listId: String, projectId: String, callback: (Task?, String?) -> Unit){
 
-        apiService.fetchTasks(taskId).enqueue(object : Callback<Task>{
+        apiService.fetchTasks(taskId, listId, projectId).enqueue(object : Callback<Task>{
             override fun onResponse(call: Call<Task>, response: Response<Task>) {
                 if (response.isSuccessful){
                     callback(response.body(), null)
