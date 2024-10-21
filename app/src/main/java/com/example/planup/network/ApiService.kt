@@ -4,6 +4,7 @@ import com.example.planup.model.AttributeRequest
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
+import com.example.planup.model.SubtaskRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskListRequest
 import okhttp3.ResponseBody
@@ -44,6 +45,9 @@ interface ApiService {
 
     @POST("tasks")
     fun postTask(@Body task: Task): Call<ResponseBody>
+
+    @POST("subtask")
+    fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
 
     //@POST("comments")
     //fun addComment(@Body comment: CommentRequest): Call<ResponseBody>

@@ -31,7 +31,7 @@ class TaskListRepository {
         })
     }
 
-    fun postProjectList(list:TaskListRequest){
+    fun postProjectList(list : TaskListRequest){
         apiService.postList(list).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
 

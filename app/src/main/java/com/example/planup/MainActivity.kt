@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
     fun PlanUpNavHost() {
         navController = rememberNavController()
 
-
         NavHost(navController, startDestination = "home_screen"
         ){
             composable("login_screen"){ LoginScreen(navController = navController)}
