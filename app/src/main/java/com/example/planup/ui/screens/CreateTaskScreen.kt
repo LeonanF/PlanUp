@@ -131,11 +131,10 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String?) {
                 onClick = {
                     if (title.isNotBlank() && description.isNotBlank()) {
                         val newTask = Task(
+                            _id = null,
                             name = title,
                             description = description,
                             data = currentDate,
-                            projectId = projectId!!,
-                            _id = null,
                             attributes = emptyList(),
                             comments = null
                         )
@@ -155,6 +154,39 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String?) {
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Text(text = "Criar Tarefa")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                onClick = {
+                    if (title.isNotBlank() && description.isNotBlank()) {
+                        // Duplicar tarefa, garantindo que o ID seja novo ou nulo
+                        val duplicatedTask = Task(
+                            _id = null, // Gerar novo ID ao salvar
+                            name = "$title (Cópia)", // Opcional: indicar que é uma cópia
+                            description = description,
+                            data = currentDate,
+                            attributes = emptyList(),
+                            comments = null
+                        )
+                        TaskRepository().postTasks(duplicatedTask)
+                        navController.popBackStack()
+                        Toast.makeText(context, "Tarefa duplicada com sucesso!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (title.isNotBlank() && description.isNotBlank()) Color(
+                        0xFF246BFD
+                    ) else Color(0xFF476EBE),
+                    contentColor = Color.White
+                ),
+                enabled = true,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text(text = "Duplicar Tarefa")
             }
         }
     }
