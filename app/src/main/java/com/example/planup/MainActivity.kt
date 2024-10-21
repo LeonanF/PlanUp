@@ -11,7 +11,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.planup.model.Project
 import com.example.planup.ui.components.CreateTaskList
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteListScreen
@@ -20,12 +19,10 @@ import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
-import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.screens.TaskAttributeScreen
 import com.example.planup.ui.screens.TaskDetailScreen
 import com.example.planup.ui.theme.PlanUpTheme
-import com.google.gson.Gson
 
 class MainActivity : ComponentActivity() {
 
@@ -56,7 +53,6 @@ class MainActivity : ComponentActivity() {
     fun PlanUpNavHost() {
         navController = rememberNavController()
 
-
         NavHost(navController, startDestination = "home_screen"
         ){
             composable("login_screen"){ LoginScreen(navController = navController)}
@@ -76,11 +72,6 @@ class MainActivity : ComponentActivity() {
             composable("task_attribute_screen/{taskId}") { backStackEntry ->
                 val taskId = backStackEntry.arguments?.getString("taskId")
                 TaskAttributeScreen(navController, taskId)
-            }
-            composable("project_screen/{project}"){backStackEntry ->
-                val projectJson = backStackEntry.arguments?.getString("project")
-                val project = Gson().fromJson(projectJson, Project::class.java)
-                ProjectScreen(navController = navController, project = project)
             }
             composable("create_task_list/{projectId}") { backStackEntry ->
                 backStackEntry.arguments?.getString("projectId")?.let {
