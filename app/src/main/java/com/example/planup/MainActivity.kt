@@ -60,10 +60,11 @@ class MainActivity : ComponentActivity() {
         ){
             composable("login_screen"){ LoginScreen(navController = navController)}
             composable("register_screen"){ RegisterScreen(navController = navController) }
-            composable("create_task_screen/{projectId}"){
+            composable("create_task_screen/{projectId}/{listId}"){
                 backStackEntry ->
-                val projectId = backStackEntry.arguments?.getString("projectId")
-                CreateTaskScreen(navController = navController, projectId = projectId)
+                val projectId = backStackEntry.arguments!!.getString("projectId")
+                val listId = backStackEntry.arguments!!.getString("listId")
+                CreateTaskScreen(navController = navController, projectId = projectId!!, listId = listId!!)
             }
             composable("task_detail_screen/{taskId}") {
                 backStackEntry ->
