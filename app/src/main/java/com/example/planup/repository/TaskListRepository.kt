@@ -2,7 +2,10 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.TaskListRequest
+import com.example.planup.model.TaskList
+import com.example.planup.model.TaskPreview
 import com.example.planup.network.RetrofitInstance
+import com.example.planup.network.TaskListResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -12,13 +15,16 @@ class TaskListRepository {
     private val apiService = RetrofitInstance.apiService
 
     fun deleteList(listId: String, callback: (Boolean) -> Unit) {
-        apiService.deleteList(listId).enqueue(object: Callback<ResponseBody> {
+        apiService.deleteList(listId).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if(response.isSuccessful){
+                if (response.isSuccessful) {
                     Log.d("DeleteList", "Lista deletada com sucesso: ${response.body()}")
                     callback(true)
                 } else {
-                    Log.d("DeleteList", "Falha ao deletar a lista: ${response.errorBody()?.string()}")
+                    Log.d(
+                        "DeleteList",
+                        "Falha ao deletar a lista: ${response.errorBody()?.string()}"
+                    )
                     callback(false)
                 }
             }
@@ -31,19 +37,36 @@ class TaskListRepository {
         })
     }
 
-    fun postProjectList(list : TaskListRequest){
+    fun postProjectList(list: TaskListRequest) {
         apiService.postList(list).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
 
-                if(response.isSuccessful){
+                if (response.isSuccessful) {
                     Log.d("PostList", "Lista criada com sucesso: ${response.body()}")
-                } else{
+                } else {
                     Log.e("PostList", "Falha ao criar lista: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("PostList", "Erro ao enviar a lista: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun fetchProjectLists(projectId: String, callback: (List<TaskList>?, String?) -> Unit) {
+        apiService.fetchLists(projectId).enqueue(object : Callback<TaskListResponse> {
+            override fun onResponse(call: Call<TaskListResponse>, response: Response<TaskListResponse>) {
+                if (response.isSuccessful) {
+                    Log.d("FetchLists",  "${response.body()}")
+                } else {
+                    Log.e("FetchLists", "${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<TaskListResponse>, t: Throwable) {
+                Log.e("FetchLists", "${t.message}")
                 t.printStackTrace()
             }
         })

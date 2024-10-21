@@ -13,6 +13,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -21,6 +22,9 @@ interface ApiService {
 
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String): Call<Task>
+
+    @GET("lists")
+    fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
 
     @GET("projectPreviews")
     fun fetchProjectPreviews(@Query("userId") userId: String): Call<ProjectPreviewResponse>
@@ -36,6 +40,13 @@ interface ApiService {
 
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
+
+    @POST("projects/{projectId}/tasks/{taskId}/move")
+    suspend fun moveTask(
+        @Path("projectId") projectId: String,
+        @Path("taskId") taskId: String,
+        @Body destinationList: Map<String, String>
+    ): Call<ResponseBody>
 
     @POST("projectMember")
     fun postMember(@Body memberReq: MemberRequest): Call<ResponseBody>
