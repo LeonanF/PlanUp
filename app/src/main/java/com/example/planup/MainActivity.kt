@@ -12,10 +12,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.planup.model.Project
+import com.example.planup.ui.components.CreateTaskList
 import com.example.planup.ui.screens.CreateTaskScreen
+import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
+import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
+import com.example.planup.ui.screens.ProjectPreviewListScreen
 import com.example.planup.ui.screens.ProjectScreen
 import com.example.planup.ui.screens.RegisterScreen
 import com.example.planup.ui.screens.TaskAttributeScreen
@@ -77,6 +81,36 @@ class MainActivity : ComponentActivity() {
                 val projectJson = backStackEntry.arguments?.getString("project")
                 val project = Gson().fromJson(projectJson, Project::class.java)
                 ProjectScreen(navController = navController, project = project)
+            }
+            composable("create_task_list/{projectId}") { backStackEntry ->
+                backStackEntry.arguments?.getString("projectId")?.let {
+                    CreateTaskList(it) {
+                        navController.popBackStack()
+                    }
+                }
+
+            }
+
+            composable("project_preview_list_screen") {
+                ProjectPreviewListScreen { projectId ->
+                    navController.navigate("project_detail_screen/$projectId")
+                }
+            }
+
+            composable("project_detail_screen/{projectId}") { backStackEntry ->
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                ProjectDetailScreen(navController = navController, projectId = projectId!!, onTaskClick = { taskId ->
+                    navController.navigate("task_detail_screen/$taskId")
+                })
+            }
+
+            composable("delete_list_screen/{listId}/{projectId}") {
+                backStackEntry ->
+                val listId = backStackEntry.arguments?.getString("listId")
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                DeleteListScreen(listId = listId!!, projectId = projectId!!) {
+                    navController.popBackStack()
+                }
             }
         }
     }

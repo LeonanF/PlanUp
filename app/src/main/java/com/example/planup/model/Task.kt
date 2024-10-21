@@ -1,5 +1,7 @@
 package com.example.planup.model
 
+import kotlin.collections.List
+
 data class Task(
     val _id: String?,
     val name: String,

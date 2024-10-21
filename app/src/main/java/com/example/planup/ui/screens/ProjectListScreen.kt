@@ -44,18 +44,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
-import com.example.planup.model.Project
+import com.example.planup.model.ProjectPreview
 import com.example.planup.repository.ProjectRepository
 import com.example.planup.ui.components.CreateProjectModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
-import com.google.gson.Gson
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectListScreen(navController: NavHostController) {
 
-    val projects = remember { mutableStateOf<List<Project>?>(null) }
+    val projects = remember { mutableStateOf<List<ProjectPreview>?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
 
     var showCreateProject by remember {
@@ -65,7 +63,7 @@ fun ProjectListScreen(navController: NavHostController) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid.toString()
 
     LaunchedEffect(userId, showCreateProject) {
-        ProjectRepository().fetchUserProjects(userId) { result, errorMsg ->
+        ProjectRepository().fetchProjectPreviews(userId) { result, errorMsg ->
             projects.value = result
             error.value = errorMsg
         }
@@ -138,8 +136,7 @@ fun ProjectListScreen(navController: NavHostController) {
                             .padding(20.dp,10.dp)
                             ){
                             Button(onClick = {
-                                val projectJson = Gson().toJson(project)
-                                navController.navigate("project_screen/$projectJson"){
+                                navController.navigate("project_detail_screen/${project._id}"){
                                     popUpTo("project_list_screen"){ inclusive = false }
                                 }
                                              }, modifier = Modifier
@@ -152,13 +149,12 @@ fun ProjectListScreen(navController: NavHostController) {
                                 )
                             ){
                                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start){
-                                    val taskQuantity = project.taskLists?.size ?: 0
-                                    val description = project.description ?: ""
                                     Text(project.name, fontWeight = FontWeight.Bold, fontSize = 28.sp)
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text(description, fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                                    Text(project.description, fontWeight = FontWeight.Medium, fontSize = 16.sp)
                                     Spacer(modifier = Modifier.height(24.dp))
-                                    Text(taskQuantity.toString(), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text("Quantidade de tarefas: ${project.taskQuantity}", fontWeight = FontWeight.Medium, fontSize = 16.sp)
+                                    Spacer(modifier = Modifier.height(24.dp))
                                 }
                             }
                         }
@@ -182,6 +178,9 @@ fun ProjectListScreen(navController: NavHostController) {
     if(showCreateProject){
         CreateProjectModalBottomSheet(onDismiss = {
             showCreateProject = false
+            navController.navigate("project_list_screen") {
+                popUpTo("project_list_screen"){ inclusive = true }
+            }
         })
     }
 

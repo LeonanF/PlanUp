@@ -106,12 +106,13 @@ fun CreateProjectModalBottomSheet(
                     ProjectRepository()
                         .postProject(
                             Project(
+                                _id = null,
                                 name= projectName.value,
                                 description = projectDescription.value,
                                 owner = userid,
-                                taskLists = null,
+                                taskLists = emptyList(),
                                 members = listOf(userid),
-                                status = null
+                                status = ""
                             )
                         )
                     onDismiss.invoke()

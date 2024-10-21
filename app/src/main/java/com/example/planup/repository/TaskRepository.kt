@@ -2,7 +2,9 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.Task
+import com.example.planup.model.TaskPreview
 import com.example.planup.network.RetrofitInstance
+import com.example.planup.network.TaskPreviewResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -34,6 +36,7 @@ class TaskRepository {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>){
                 if (response.isSuccessful) {
                     Log.d("PostTask", "Tarefa criada com sucesso: ${response.body()}")
+                    addTaskPreview(task)
                 } else {
                     Log.d("PostTask", "Falha ao criar tarefa: ${response.errorBody()?.string()}")
                 }
@@ -44,6 +47,37 @@ class TaskRepository {
                 t.printStackTrace()
             }
         })
+    }
+
+    fun fetchTaskPreviews(projectId: String, callback: (List<TaskPreview>?, String?) -> Unit){
+        apiService.fetchTaskPreviews(projectId).enqueue(object : Callback<TaskPreviewResponse>{
+            override fun onResponse(
+                call: Call<TaskPreviewResponse>,
+                response: Response<TaskPreviewResponse>
+            ) {
+                if (response.isSuccessful) {
+                    callback(response.body()?.data, null)
+                } else {
+                    callback(null, "Erro: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<TaskPreviewResponse>, t: Throwable) {
+                callback(null, t.message)
+            }
+        })
+    }
+
+    private val taskPreviews = mutableListOf<TaskPreview>()
+
+    fun addTaskPreview(task: Task) {
+        taskPreviews.add(
+            TaskPreview(
+                task._id,
+                task.name,
+                task.data
+            )
+        )
     }
 
     fun fetchTask(taskId: String, callback: (Task?, String?) -> Unit){

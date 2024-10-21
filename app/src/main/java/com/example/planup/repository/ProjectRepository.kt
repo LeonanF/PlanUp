@@ -3,7 +3,9 @@ package com.example.planup.repository
 import android.util.Log
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
-import com.example.planup.network.ProjectResponse
+import com.example.planup.model.ProjectDetailPreview
+import com.example.planup.model.ProjectPreview
+import com.example.planup.network.ProjectPreviewResponse
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -14,11 +16,9 @@ class ProjectRepository{
 
     private val apiService = RetrofitInstance.apiService
 
-    fun fetchUserProjects(userId: String, callback: (List<Project>?, String?) -> Unit) {
-
-        apiService.fetchUserProjects(userId).enqueue(object : Callback<ProjectResponse> {
-
-            override fun onResponse(call: Call<ProjectResponse>, response: Response<ProjectResponse>) {
+    fun fetchProjectPreviews(userId: String, callback: (List<ProjectPreview>?, String?) -> Unit) {
+        apiService.fetchProjectPreviews(userId).enqueue(object : Callback<ProjectPreviewResponse> {
+            override fun onResponse(call: Call<ProjectPreviewResponse>, response: Response<ProjectPreviewResponse>) {
                 if (response.isSuccessful) {
                     callback(response.body()?.data, null)
                 } else {
@@ -26,7 +26,25 @@ class ProjectRepository{
                 }
             }
 
-            override fun onFailure(call: Call<ProjectResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ProjectPreviewResponse>, t: Throwable) {
+                callback(null, t.message)
+            }
+        })
+    }
+
+    fun fetchProjectPreview(userId: String, callback: (ProjectDetailPreview?, String?) -> Unit) {
+
+        apiService.fetchProjectPreview(userId).enqueue(object : Callback<ProjectDetailPreview> {
+
+            override fun onResponse(call: Call<ProjectDetailPreview>, response: Response<ProjectDetailPreview>) {
+                if (response.isSuccessful) {
+                    callback(response.body(), null)
+                } else {
+                    callback(null, "Erro: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ProjectDetailPreview>, t: Throwable) {
                 callback(null, t.message)
             }
 
@@ -52,7 +70,6 @@ class ProjectRepository{
             }
 
         })
-
     }
 
     fun postMember(memberReq : MemberRequest){
