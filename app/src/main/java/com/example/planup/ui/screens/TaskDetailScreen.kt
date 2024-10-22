@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Task
 import com.example.planup.repository.TaskRepository
+import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
 import java.util.Locale
@@ -51,13 +52,16 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     val replies = mutableListOf<Pair<String, String>>() // Definindo a lista de respostas
     var isReplyFieldVisible by remember { mutableStateOf(false) } // Variável para controlar a visibilidade do campo de resposta
 
+    var showCreateSubtask by remember {
+        mutableStateOf(false)
+    }
 
     LaunchedEffect(taskId) {
         TaskRepository().fetchTask(taskId, listId, projectId) { result, errorMsg ->
             task.value = result
             error.value = errorMsg
             result?.let { taskData ->
-                descriptionText.value = taskData.description ?: "Descrição não disponível"
+                descriptionText.value = taskData.description
                 comments.clear()
                 taskData.comments?.let { commentList ->
                     //comments.addAll(commentList) // Adiciona comentários se não for nulo
@@ -122,7 +126,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         Column {
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            // Campo de edição da descrição
                             if (isEditingDescription.value) {
                                 OutlinedTextField(
                                     value = descriptionText.value,
@@ -142,7 +145,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         isEditingDescription.value = false
                                         task.value =
                                             task.value?.copy(description = descriptionText.value)
-                                        // Chamar função para atualizar o banco de dados
 
                                     },
                                     modifier = Modifier
@@ -167,7 +169,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 )
                             }
 
-                            // Exibição da data de criação
                             Text(
                                 text = "Data de criação: " + (task.value?.data ?: ""),
                                 fontWeight = FontWeight.Normal,
@@ -180,7 +181,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            // Atributos
                             Text(
                                 text = "Atributos: ",
                                 fontWeight = FontWeight.Normal,
@@ -190,10 +190,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     .fillMaxWidth()
                                     .padding(0.dp, 50.dp, 10.dp)
                             )
-                            // Exibição e edição dos atributos
+
                             task.value?.attributes?.let { attributes ->
                                 attributes.forEach { attribute ->
-                                    // Inicializa o status selecionado com o nome do atributo
+
                                     var selectedStatus by remember {
                                         mutableStateOf(
                                             attribute.attributeName ?: "Atributo sem nome"
@@ -207,20 +207,18 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                             .background(Color.Gray)
                                             .fillMaxWidth()
                                     ) {
-                                        // Nome do atributo
                                         Text(
                                             text = attribute.attributeName ?: "Atributo sem nome",
                                             fontSize = 18.sp,
                                             color = Color.White
                                         )
 
-                                        // Exibir o status selecionado e o botão de edição
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(
                                                 text = selectedStatus,
                                                 fontSize = 16.sp,
                                                 color = Color.LightGray,
-                                                modifier = Modifier.padding(end = 8.dp) // Espaçamento entre o texto e o botão
+                                                modifier = Modifier.padding(end = 8.dp)
                                             )
 
                                             IconButton(onClick = { expanded = true }) {
@@ -258,7 +256,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                                 )
                                             }
 
-                                            // Botão para salvar a alteração do estado
                                             Button(
                                                 onClick = {
                                                     // Chamar função para atualizar o atributo no banco de dados
@@ -286,9 +283,30 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     }
                 }
             }
+            item{
+
+                Row(modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ){
+                    Button(modifier = Modifier
+                        .padding(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF246BFD),
+                            contentColor = Color.White
+                        ), onClick = {showCreateSubtask = true}){
+                        Text(text = "Adicionar subtarefa")
+                    }
+                }
+
+                if(showCreateSubtask){
+                    CreateSubtaskModalBottomSheet(onDismiss = {
+                        showCreateSubtask = false
+                    }, projectId = projectId, listId = listId, taskId = taskId)
+                }
+            }
 
             item {
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
                 OutlinedTextField(
                     value = commentText.value,
@@ -342,6 +360,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     }
                 }
             }
+
+
 
             item {
                 if (comments.isNotEmpty()) {
@@ -448,7 +468,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                                 Button(
                                     onClick = {
-                                        if (replyText.value.isNotBlank() && email != null) {
+                                        if (replyText.value.isNotBlank() && email.isNotBlank()) {
                                             // Adiciona a resposta à lista de respostas como um par (email, texto da resposta)
                                             replies.add(Pair(email, replyText.value))
                                             replyText.value = "" // Limpa o campo de texto após enviar

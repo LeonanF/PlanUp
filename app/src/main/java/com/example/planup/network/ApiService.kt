@@ -70,6 +70,9 @@ interface ApiService {
     @DELETE("tasks")
     fun deleteTask(@Query("taskId") taskId: String): Call<ResponseBody>
 
+    @DELETE("subtask")
+    fun deleteSubtask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId :String) : Call<ResponseBody>
+
     @DELETE("lists")
     fun deleteList(@Query("listId") listId: String): Call<ResponseBody>
 }

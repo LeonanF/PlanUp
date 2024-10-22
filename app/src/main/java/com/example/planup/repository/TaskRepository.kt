@@ -1,7 +1,6 @@
 package com.example.planup.repository
 
 import android.util.Log
-import com.example.planup.model.Project
 import com.example.planup.model.Task
 import com.example.planup.model.TaskPreview
 import com.example.planup.model.TaskRequest
@@ -93,9 +92,11 @@ class TaskRepository {
             override fun onResponse(call: Call<Task>, response: Response<Task>) {
                 if (response.isSuccessful){
                     callback(response.body(), null)
+                    Log.d("FetchTask", "Tarefa encontrada: ${response.body()}")
                 }
                 else{
                     callback(null, response.errorBody()?.string())
+                    Log.e("FetchTask", "Erro ao buscar tarefa: ${response.errorBody()}")
                 }
             }
 

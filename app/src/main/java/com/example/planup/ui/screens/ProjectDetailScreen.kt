@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -63,8 +61,7 @@ import com.example.planup.repository.ProjectRepository
 @Composable
 fun ProjectDetailScreen(
     navController: NavHostController,
-    projectId: String,
-    onTaskClick: (String) -> Unit
+    projectId: String
 ) {
     val project = remember { mutableStateOf<ProjectDetailPreview?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
@@ -508,12 +505,14 @@ fun ProjectDetailScreen(
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         items(taskLists) { taskList ->
-                            TaskListItem(
-                                tasks = taskList,
-                                navController = navController,
-                                projectId = projectId,
-                                onTaskClick = onTaskClick
-                            )
+                            taskList._id?.let {
+                                TaskListItem(
+                                    tasks = taskList,
+                                    navController = navController,
+                                    projectId = projectId,
+                                    listId = it
+                                )
+                            }
                         }
                     }
                 }
@@ -527,14 +526,13 @@ fun TaskListItem(
     tasks: TaskListPreview,
     navController: NavHostController,
     projectId: String,
-    onTaskClick: (String) -> Unit
+    listId : String
 ) {
     val scrollState = rememberScrollState()
 
     Row(
         modifier = Modifier
             .fillMaxWidth(),
-            //.horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
@@ -624,7 +622,7 @@ fun TaskListItem(
                         projectId = projectId,
                         onClick = {
                             task._id?.let { taskId ->
-                                onTaskClick(taskId)
+                                navController.navigate("task_detail_screen/$taskId/$projectId/$listId")
                             }
                         }
                     )

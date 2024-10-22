@@ -71,7 +71,9 @@ class MainActivity : ComponentActivity() {
                 TaskDetailScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!)
             }
             composable("project_list_screen"){ ProjectListScreen(navController = navController) }
+
             composable("home_screen"){ HomeScreen(navController = navController)}
+
             composable("task_attribute_screen/{taskId}") { backStackEntry ->
                 val taskId = backStackEntry.arguments?.getString("taskId")
                 TaskAttributeScreen(navController, taskId)
@@ -85,12 +87,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("project_detail_screen/{projectId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
-                ProjectDetailScreen(navController = navController, projectId = projectId!!, onTaskClick = { taskId ->
-                    navController.navigate("task_detail_screen/$taskId") {
-                        popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                    }
-                })
-            }
+                ProjectDetailScreen(navController = navController, projectId = projectId!!)
+                }
+
             composable("delete_list_screen/{listId}/{projectId}") {
                 backStackEntry ->
                 val listId = backStackEntry.arguments?.getString("listId")
