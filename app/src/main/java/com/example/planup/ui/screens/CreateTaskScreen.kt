@@ -1,6 +1,5 @@
 package com.example.planup.ui.screens
 
-import android.adservices.adid.AdId
 import android.icu.text.SimpleDateFormat
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -138,7 +137,8 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String, listId
                             description = description,
                             data = currentDate,
                             attributes = emptyList(),
-                            comments = null
+                            comments = emptyList(),
+                            subtasks = emptyList()
                         )
                         val newTaskRequest = TaskRequest(projectId = projectId, listId = listId, task = newTask)
                         TaskRepository().postTasks(newTaskRequest)

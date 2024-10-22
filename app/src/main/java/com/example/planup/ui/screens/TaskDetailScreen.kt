@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -22,7 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
+import com.example.planup.model.Status
+import com.example.planup.model.Subtask
 import com.example.planup.model.Task
+import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
@@ -63,7 +67,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             result?.let { taskData ->
                 descriptionText.value = taskData.description
                 comments.clear()
-                taskData.comments?.let { commentList ->
+                taskData.comments.let { commentList ->
                     //comments.addAll(commentList) // Adiciona comentários se não for nulo
                 }
             }
@@ -258,8 +262,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                                             Button(
                                                 onClick = {
-                                                    // Chamar função para atualizar o atributo no banco de dados
-                                                    // Exemplo: updateAttribute(attribute.id, selectedStatus)
                                                 },
                                                 modifier = Modifier.padding(start = 8.dp),
                                                 colors = ButtonDefaults.buttonColors(
@@ -283,7 +285,23 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     }
                 }
             }
+
             item{
+
+                LazyColumn (modifier = Modifier
+                    .heightIn(100.dp, 200.dp)
+                    .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                    task.value?.let {
+                        items(it.subtasks){ subtask->
+                            SubtaskItem(
+                                subtask = subtask,
+                                onDelete = { subtask._id?.let { it1 -> SubtaskRepository().deleteSubtask(projectId = projectId, listId = listId, taskId = taskId, subtaskId = it1) } }
+                            )
+                            }
+                        }
+                    }
 
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -303,6 +321,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         showCreateSubtask = false
                     }, projectId = projectId, listId = listId, taskId = taskId)
                 }
+
             }
 
             item {
@@ -384,7 +403,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     replyingTo.value = Pair(email, comment)
                                 }
                         ) {
-                            // Exibindo o email e o comentário original
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
@@ -412,7 +431,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 )
                             }
 
-                            // Alinhamento dos botões e exibição do campo de resposta
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -420,7 +438,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
 
-                                // Botão para exibir/ocultar respostas à direita
                                 IconButton(onClick = { showReplies = !showReplies }) {
                                     Icon(
                                         painter = painterResource(id = if (showReplies) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down),
@@ -429,14 +446,13 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     )
                                 }
 
-                                // Botão "Responder" para abrir/fechar o campo de resposta
                                 Button(
                                     onClick = {
                                         isReplyFieldVisible =
-                                            !isReplyFieldVisible // Alterna a visibilidade do campo de resposta
+                                            !isReplyFieldVisible
                                         if (isReplyFieldVisible) {
                                             replyText.value =
-                                                "" // Limpa o campo de texto quando o campo é aberto
+                                                ""
                                         }
                                     },
                                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -449,7 +465,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 }
                             }
 
-                            // Campo de resposta
                             if (isReplyFieldVisible) {
                                 OutlinedTextField(
                                     value = replyText.value,
@@ -469,16 +484,16 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 Button(
                                     onClick = {
                                         if (replyText.value.isNotBlank() && email.isNotBlank()) {
-                                            // Adiciona a resposta à lista de respostas como um par (email, texto da resposta)
+
                                             replies.add(Pair(email, replyText.value))
-                                            replyText.value = "" // Limpa o campo de texto após enviar
-                                            isReplyFieldVisible = false // Fecha o campo de resposta após enviar
+                                            replyText.value = ""
+                                            isReplyFieldVisible = false
                                         } else {
                                             Toast.makeText(
                                                 context,
                                                 "Por favor, preencha a resposta.",
                                                 Toast.LENGTH_SHORT
-                                            ).show() // Exibe uma mensagem de erro
+                                            ).show()
                                         }
                                     },
                                     modifier = Modifier
@@ -493,7 +508,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 }
                             }
 
-                            // Exibir as respostas se showReplies for verdadeiro
                             if (showReplies) {
                                 replies.forEach { (email, replyText) ->
                                     Column(modifier = Modifier.padding(start = 16.dp, top = 4.dp)) {
@@ -510,7 +524,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         )
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.End // Alinha o conteúdo à direita
+                                            horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
                                                 text = currentDate,
@@ -527,4 +541,72 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             }
         }
     }
+}
+
+@Composable
+fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
+
+    var clicked by remember {
+        mutableStateOf(false)
+    }
+
+    var status by remember{
+        mutableStateOf(subtask.status)
+    }
+
+    Box(
+        modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth(0.9f)
+            .padding(8.dp)
+            .clickable {
+                clicked = !clicked
+            }
+            .background(Color(0xFF1F222A), shape = RoundedCornerShape(15.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .padding(30.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = subtask.name,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                Text(
+                    text = subtask.dueDate,
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+            Checkbox(
+                checked = status==Status.DONE,
+                onCheckedChange = { isChecked ->
+                    val updatedStatus = if (isChecked) Status.DONE else Status.TODO
+                    status = updatedStatus
+                },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color(0xFF246BFD),
+                    uncheckedColor = Color(0xFF246BFD),
+                    checkmarkColor = Color.White
+                )
+            )
+        }
+    }
+
+    if(clicked){
+        IconButton(modifier = Modifier.padding(16.dp), onClick = {onDelete()}){
+            Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
+        }
+    }
+
 }
