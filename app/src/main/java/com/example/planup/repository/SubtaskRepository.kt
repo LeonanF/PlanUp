@@ -27,4 +27,23 @@ class SubtaskRepository {
         })
     }
 
+    fun deleteSubtask(projectId: String, listId: String, taskId: String, subtaskId :String){
+
+        apiService.deleteSubtask(projectId = projectId, listId = listId, taskId = taskId, subtaskId = subtaskId).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("DeleteSubTask", "Subtarefa deletada com sucesso: ${response.body()}")
+                } else{
+                    Log.d("DeleteSubTask", "Falha ao deletar subtarefa: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("DeleteSubTask", "Erro na solicitação de deletar: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+
+    }
+
 }

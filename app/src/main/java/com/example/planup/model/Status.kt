@@ -2,7 +2,6 @@ package com.example.planup.model
 
 enum class Status {
     TODO,
-    DOING,
     DONE;
 
 
