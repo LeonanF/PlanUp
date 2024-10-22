@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -65,7 +64,6 @@ fun ProjectDetailScreen(
 ) {
     val project = remember { mutableStateOf<ProjectDetailPreview?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
-    val scrollState = rememberScrollState()
 
     LaunchedEffect(projectId) {
         ProjectRepository().fetchProjectPreview(projectId) { result, errorMsg ->
@@ -88,7 +86,6 @@ fun ProjectDetailScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .background(Color(0XFF181A20))
-                //.verticalScroll(scrollState),
         ) {
             Box(
                 modifier = Modifier
@@ -501,9 +498,7 @@ fun ProjectDetailScreen(
                         )
                     }
                 } else {
-                    LazyRow(
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
+                    LazyRow {
                         items(taskLists) { taskList ->
                             taskList._id?.let {
                                 TaskListItem(
@@ -526,10 +521,8 @@ fun TaskListItem(
     tasks: TaskListPreview,
     navController: NavHostController,
     projectId: String,
-    listId : String
+    listId : String,
 ) {
-    val scrollState = rememberScrollState()
-
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -546,14 +539,18 @@ fun TaskListItem(
                 containerColor = Color(0XFF1F222A)
             )
         ) {
-            Spacer(modifier = Modifier.width(10.dp))
-
             Row(
                 modifier = Modifier.wrapContentSize(),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = tasks.name, style = MaterialTheme.typography.titleSmall)
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = tasks.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.White
+                )
 
                 Spacer(modifier = Modifier.width(5.dp))
 
@@ -581,7 +578,7 @@ fun TaskListItem(
                 ) {
                     IconButton(
                         onClick = {
-                            navController.navigate("delete_task_list_screen/$projectId") {
+                            navController.navigate("delete_list_screen/$listId/$projectId") {
                                 popUpTo("project_detail_screen/$projectId") { inclusive = false }
                             }
                         }
