@@ -1,6 +1,7 @@
 package com.example.planup.network
 
 import com.example.planup.model.AttributeRequest
+import com.example.planup.model.CommentRequest
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
@@ -14,6 +15,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface ApiService {
@@ -35,8 +37,8 @@ interface ApiService {
     // @GET("userProjects")
     // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
 
-    //@GET("comments")
-    //fun fetchComment(@Query("taskId") taskId: String, @Query("projectId") userId: String, @Query("comment") status: String): Call<CommentResponse>
+    @GET("comments")
+    fun fetchComment(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String/*, @Query("comment") comment: String*/): Call<CommentResponse>
 
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
@@ -56,11 +58,14 @@ interface ApiService {
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
 
-    //@POST("comments")
-    //fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
+    @POST("comments")
+    fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
 
     @POST("lists")
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
+
+    @PUT("tasks/{id}")
+    fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
     @DELETE("tasks")
     fun deleteTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String): Call<ResponseBody>
@@ -73,4 +78,5 @@ interface ApiService {
 
     @DELETE("lists")
     fun deleteList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<ResponseBody>
+
 }
