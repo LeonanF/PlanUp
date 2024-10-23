@@ -1,8 +1,10 @@
 package com.example.planup.repository
 
 import android.util.Log
+import com.example.planup.model.CommentRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
+import com.example.planup.network.CommentResponse
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -99,7 +101,7 @@ class TaskRepository {
         })
     }
 
-     /*fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
+     fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
         apiService.addComment(commentRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
@@ -117,11 +119,11 @@ class TaskRepository {
                 t.printStackTrace()
             }
         })
-    }*/
+    }
 
-    /*fun getComment(commentId: String, callback: (CommentRequest?, String?) -> Unit) {
-        apiService.fetchComment(commentId).enqueue(object : Callback<CommentRequest> {
-            override fun onResponse(call: Call<CommentRequest>, response: Response<CommentRequest>) {
+    fun getComment(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
+        apiService.fetchComment(taskId, listId, projectId).enqueue(object : Callback<CommentResponse> {
+            override fun onResponse(call: Call<CommentResponse>, response: Response<CommentResponse>) {
                 if (response.isSuccessful) {
                     callback(response.body(), null)
                 } else {
@@ -129,10 +131,10 @@ class TaskRepository {
                 }
             }
 
-            override fun onFailure(call: Call<CommentRequest>, t: Throwable) {
+            override fun onFailure(call: Call<CommentResponse>, t: Throwable) {
                 callback(null, t.message)
                 t.printStackTrace()
             }
         })
-    }*/
+    }
 }
