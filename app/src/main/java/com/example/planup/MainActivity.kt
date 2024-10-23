@@ -17,7 +17,6 @@ import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MemberScreen
-//import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.RegisterScreen

@@ -14,8 +14,8 @@ import retrofit2.Response
 class TaskListRepository {
     private val apiService = RetrofitInstance.apiService
 
-    fun deleteList(listId: String, callback: (Boolean) -> Unit) {
-        apiService.deleteList(listId).enqueue(object : Callback<ResponseBody> {
+    fun deleteList(projectId: String, listId: String, callback: (Boolean) -> Unit) {
+        apiService.deleteList(projectId, listId).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("DeleteList", "Lista deletada com sucesso: ${response.body()}")
@@ -55,17 +55,22 @@ class TaskListRepository {
         })
     }
 
-    fun fetchProjectLists(projectId: String, callback: (List<TaskList>?, String?) -> Unit) {
+    fun fetchProjectLists(projectId: String, callback: (TaskListResponse?, String?) -> Unit) {
         apiService.fetchLists(projectId).enqueue(object : Callback<TaskListResponse> {
             override fun onResponse(call: Call<TaskListResponse>, response: Response<TaskListResponse>) {
                 if (response.isSuccessful) {
-                    Log.d("FetchLists",  "${response.body()}")
+                    response.body()?.let { taskListResponse ->
+                        callback(taskListResponse, null)
+                        Log.d("FetchLists",  "${response.body()}")
+                    }
                 } else {
                     Log.e("FetchLists", "${response.errorBody()?.string()}")
+                    callback(null, response.errorBody()?.string())
                 }
             }
 
             override fun onFailure(call: Call<TaskListResponse>, t: Throwable) {
+                callback(null, t.message)
                 Log.e("FetchLists", "${t.message}")
                 t.printStackTrace()
             }
