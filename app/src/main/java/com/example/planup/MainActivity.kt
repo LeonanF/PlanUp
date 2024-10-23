@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.planup.ui.components.CreateTaskList
+import com.example.planup.ui.components.DeleteModalBottomSheet
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
@@ -71,6 +72,14 @@ class MainActivity : ComponentActivity() {
                 val listId = backStackEntry.arguments?.getString("listId")
                 TaskDetailScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!)
             }
+            composable("delete_modal_bottom_sheet/{taskId}/{projectId}/{listId}") { backStackEntry ->
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                val listId = backStackEntry.arguments?.getString("listId")
+                DeleteModalBottomSheet(taskId = taskId!!, projectId = projectId!!, listId = listId!!) {
+                    navController.popBackStack()
+                }
+            }
             composable("project_list_screen"){ ProjectListScreen(navController = navController) }
 
             composable("home_screen"){ HomeScreen(navController = navController)}
@@ -89,7 +98,7 @@ class MainActivity : ComponentActivity() {
             composable("project_detail_screen/{projectId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 ProjectDetailScreen(navController = navController, projectId = projectId!!)
-                }
+            }
 
             composable("delete_list_screen/{listId}/{projectId}") {
                 backStackEntry ->

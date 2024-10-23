@@ -10,6 +10,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun DeleteModalBottomSheet(
+    projectId: String,
+    listId: String,
     taskId: String,
     onDismiss: () -> Unit
 ) {
@@ -29,7 +31,7 @@ fun DeleteModalBottomSheet(
                 onClick = {
                     isLoading = true
                     scope.launch {
-                        taskRepository.deleteTask(taskId)
+                        taskRepository.deleteTask(projectId, listId, taskId)
                         isLoading = false
                         onDismiss()
                     }

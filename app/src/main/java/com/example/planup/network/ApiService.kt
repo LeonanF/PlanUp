@@ -14,13 +14,9 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
-    @GET("taskPreviews")
-    fun fetchTaskPreviews(@Query("projectId") projectId: String): Call<TaskPreviewResponse>
-
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
@@ -42,13 +38,6 @@ interface ApiService {
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
-    @POST("projects/{projectId}/tasks/{taskId}")
-    suspend fun moveTask(
-        @Path("projectId") projectId: String,
-        @Path("taskId") taskId: String,
-        @Body destinationList: Map<String, String>
-    ): Call<ResponseBody>
-
     @POST("projectMember")
     fun postMember(@Body memberReq: MemberRequest): Call<ResponseBody>
 
@@ -57,6 +46,9 @@ interface ApiService {
 
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
+
+    @POST("tasks/move")
+    suspend fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
 
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
@@ -68,7 +60,7 @@ interface ApiService {
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
     @DELETE("tasks")
-    fun deleteTask(@Query("taskId") taskId: String): Call<ResponseBody>
+    fun deleteTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String): Call<ResponseBody>
 
     @DELETE("subtask")
     fun deleteSubtask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId :String) : Call<ResponseBody>

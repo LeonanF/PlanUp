@@ -27,7 +27,6 @@ import com.example.planup.repository.TaskRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun MoveTaskScreen(
@@ -82,10 +81,13 @@ fun MoveTaskScreen(
                                 projectId = projectId,
                                 taskId = id,
                                 destinationList = selectedList
-                            )
-                        }
-                        withContext(Dispatchers.Main) {
-                            isLoading = false
+                            ) { success ->
+                                isLoading = false
+
+                                if (!success) {
+                                    error = "Erro ao mover a tarefa"
+                                }
+                            }
                         }
                     }
                 }
