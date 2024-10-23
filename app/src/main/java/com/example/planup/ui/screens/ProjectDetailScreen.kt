@@ -194,293 +194,6 @@ fun ProjectDetailScreen(
                 )
             }
 
-            /*Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(scrollState),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Card(
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.Center)
-                        .padding(20.dp, 0.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    shape = CardDefaults.shape,
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0XFF1F222A)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.wrapContentSize(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Text(text = "Pendentes", style = MaterialTheme.typography.titleSmall, color = Color.White)
-
-                        Spacer(modifier = Modifier.width(5.dp))
-
-                        Box {
-                            Box(
-                                modifier = Modifier
-                                    .wrapContentSize(Alignment.Center)
-                                    .background(
-                                        Color.Transparent,
-                                    )
-                                    .border(
-                                        1.dp,
-                                        Color(0XFF246BFD),
-                                        shape = RoundedCornerShape(20.dp)
-                                    )
-                            ) {
-                                Text(
-                                    text = "0",
-                                    modifier = Modifier.padding(12.dp, 0.dp,12.dp, 0.dp),
-                                    fontSize = 10.sp,
-                                    color = Color(0XFF246BFD),
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                        Box(
-                            modifier = Modifier.wrapContentSize(),
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    /*TODO*/
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Excluir lista",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-
-                            IconButton(
-                                modifier = Modifier.padding(25.dp, 0.dp, 0.dp, 0.dp),
-                                onClick = {
-                                    navController.navigate("create_task_screen/$projectId") {
-                                        popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Add,
-                                    contentDescription = "Adicionar nova tarefa",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .align(Alignment.CenterHorizontally),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Card(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .padding(0.dp, 10.dp),
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            shape = CardDefaults.shape,
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0XFF35383f)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(text = "Nome", style = MaterialTheme.typography.titleSmall, color = Color.White)
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                Text(text = "19/09/2003", style = MaterialTheme.typography.bodyMedium, color = Color.White)
-
-                                Spacer(modifier = Modifier.height(10.dp))
-                                
-                                Button(
-                                    onClick = {
-
-                                    },
-                                    shape = ButtonDefaults.textShape,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0XFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text(text = "Mover", style = MaterialTheme.typography.bodySmall, color = Color.White)
-                                }
-                            }
-                        }
-
-                        Card(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .padding(20.dp, 10.dp),
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            shape = CardDefaults.shape,
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0XFF35383f)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(text = "Nome2", style = MaterialTheme.typography.titleSmall, color = Color.White)
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Text(text = "21/09/2014", style = MaterialTheme.typography.bodyMedium, color = Color.White)
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Button(
-                                    onClick = {
-
-                                    },
-                                    shape = ButtonDefaults.shape,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0XFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text(text = "Mover", style = MaterialTheme.typography.bodySmall, color = Color.White)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Card(
-                    modifier = Modifier
-                        .wrapContentSize(Alignment.Center)
-                        .padding(20.dp, 0.dp),
-                    elevation = CardDefaults.cardElevation(4.dp),
-                    shape = CardDefaults.shape,
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0XFF1F222A)
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.wrapContentSize(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Text(text = "Em andamento", style = MaterialTheme.typography.titleSmall, color = Color.White)
-
-                        Spacer(modifier = Modifier.width(5.dp))
-
-                        Box {
-                            Box(
-                                modifier = Modifier
-                                    .wrapContentSize(Alignment.Center)
-                                    .background(
-                                        Color.Transparent,
-                                    )
-                                    .border(
-                                        1.dp,
-                                        Color(0XFF246BFD),
-                                        shape = RoundedCornerShape(20.dp)
-                                    )
-                            ) {
-                                Text(
-                                    text = "0",
-                                    modifier = Modifier.padding(12.dp, 0.dp,12.dp, 0.dp),
-                                    fontSize = 10.sp,
-                                    color = Color(0XFF246BFD),
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                        Box(
-                            modifier = Modifier.wrapContentSize(),
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    /*TODO*/
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Excluir lista",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-
-                            IconButton(
-                                modifier = Modifier.padding(25.dp, 0.dp, 0.dp, 0.dp),
-                                onClick = {
-                                    navController.navigate("create_task_screen/$projectId") {
-                                        popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                    }
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Add,
-                                    contentDescription = "Adicionar nova tarefa",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                        }
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .align(Alignment.CenterHorizontally),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-
-                        Card(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .padding(20.dp, 10.dp),
-                            elevation = CardDefaults.cardElevation(4.dp),
-                            shape = CardDefaults.shape,
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0XFF35383f)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(text = "Nome2", style = MaterialTheme.typography.titleSmall, color = Color.White)
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Text(text = "21/09/2014", style = MaterialTheme.typography.bodyMedium, color = Color.White)
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Button(
-                                    onClick = {
-
-                                    },
-                                    shape = ButtonDefaults.shape,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0XFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text(text = "Mover", style = MaterialTheme.typography.bodySmall, color = Color.White)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))*/
-
             project.value?.taskLists?.let { taskLists ->
                 if (taskLists.isEmpty()) {
                     Box(
@@ -521,7 +234,7 @@ fun TaskListItem(
     tasks: TaskListPreview,
     navController: NavHostController,
     projectId: String,
-    listId : String,
+    listId : String
 ) {
     Row(
         modifier = Modifier
@@ -617,6 +330,7 @@ fun TaskListItem(
                         navController = navController,
                         task = task,
                         projectId = projectId,
+                        listId = listId,
                         onClick = {
                             task._id?.let { taskId ->
                                 navController.navigate("task_detail_screen/$taskId/$projectId/$listId")
@@ -630,7 +344,13 @@ fun TaskListItem(
 }
 
 @Composable
-fun TaskItem(navController: NavHostController, task: TaskPreview, projectId: String, onClick: () -> Unit) {
+fun TaskItem(
+    navController: NavHostController,
+    task: TaskPreview,
+    projectId: String,
+    listId: String,
+    onClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .wrapContentSize(),
@@ -666,7 +386,7 @@ fun TaskItem(navController: NavHostController, task: TaskPreview, projectId: Str
 
                 Button(
                     onClick = {
-                        navController.navigate("move_task_screen/$projectId/${task._id}") {
+                        navController.navigate("move_task_screen/$projectId/${task._id}/$listId") {
                             popUpTo("project_detail_screen/$projectId") { inclusive = false }
                         }
                     },

@@ -67,25 +67,6 @@ class TaskRepository {
         })
     }
 
-    fun fetchTaskPreviews(projectId: String, callback: (List<TaskPreview>?, String?) -> Unit){
-        apiService.fetchTaskPreviews(projectId).enqueue(object : Callback<TaskPreviewResponse>{
-            override fun onResponse(
-                call: Call<TaskPreviewResponse>,
-                response: Response<TaskPreviewResponse>
-            ) {
-                if (response.isSuccessful) {
-                    callback(response.body()?.data, null)
-                } else {
-                    callback(null, "Erro: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<TaskPreviewResponse>, t: Throwable) {
-                callback(null, t.message)
-            }
-        })
-    }
-
     fun fetchTask(taskId: String, listId: String, projectId: String, callback: (Task?, String?) -> Unit){
 
         apiService.fetchTasks(taskId, listId, projectId).enqueue(object : Callback<Task>{

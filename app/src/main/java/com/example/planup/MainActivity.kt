@@ -16,6 +16,7 @@ import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
+import com.example.planup.ui.screens.MoveTaskScreen
 //import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
@@ -98,12 +99,13 @@ class MainActivity : ComponentActivity() {
                     navController.popBackStack()
                 }
             }
-/*            composable("move_task_screen/{projectId}/{taskId}") { backStackEntry ->
+            composable("move_task_screen/{projectId}/{taskId}/{listId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 val taskId = backStackEntry.arguments?.getString("taskId")
+                val listId = backStackEntry.arguments?.getString("listId")
 
-                MoveTaskScreen(projectId = projectId!!, taskId = taskId!!)
-            }*/
+                MoveTaskScreen(projectId = projectId!!, taskId = taskId!!, listId = listId!!)
+            }
         }
     }
 

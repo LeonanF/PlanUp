@@ -72,7 +72,7 @@ fun DeleteListScreen(
 
             Button(
                 onClick = {
-                    taskListRepository.deleteList(listId) { result ->
+                    taskListRepository.deleteList(projectId, listId) { result ->
                         if (result) {
                             Toast.makeText(context, "Lista deletada com sucesso", Toast.LENGTH_SHORT).show()
                         } else {

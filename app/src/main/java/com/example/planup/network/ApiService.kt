@@ -42,7 +42,7 @@ interface ApiService {
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
-    @POST("projects/{projectId}/tasks/{taskId}/move")
+    @POST("projects/{projectId}/tasks/{taskId}")
     suspend fun moveTask(
         @Path("projectId") projectId: String,
         @Path("taskId") taskId: String,
@@ -74,5 +74,5 @@ interface ApiService {
     fun deleteSubtask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId :String) : Call<ResponseBody>
 
     @DELETE("lists")
-    fun deleteList(@Query("listId") listId: String): Call<ResponseBody>
+    fun deleteList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<ResponseBody>
 }
