@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.planup.R
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.ProjectViewModel
 import com.example.planup.model.TaskListPreview
@@ -159,13 +160,18 @@ fun ProjectDetailScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                project.value?.owner?.let {
-                    Text(
-                        text = it,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.LightGray
-                    )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp, 0.dp, 0.dp, 0.dp),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Membros", tint = Color.White, modifier = Modifier.size(40.dp))
+                    Text("Time")
+                    Button(onClick = { navController.navigate("member_screen/${projectId}")}) {
+                        Text("Ver membros")
+                    }
                 }
 
                 IconButton(

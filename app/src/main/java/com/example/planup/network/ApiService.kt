@@ -33,6 +33,9 @@ interface ApiService {
     @GET("projectPreview")
     fun fetchProjectPreview(@Query("projectId") projectId: String): Call<ProjectDetailPreview>
 
+    @GET("projectMembers")
+    fun fetchMembers(@Query("projectId") projectId: String): Call<MemberResponse>
+
     // @GET("userProjects")
     // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
 
@@ -72,6 +75,9 @@ interface ApiService {
 
     @DELETE("subtask")
     fun deleteSubtask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId :String) : Call<ResponseBody>
+
+    @DELETE("projectMember")
+    fun deleteMember(@Query("projectId") projectId: String, @Query("memberId") memberId:String): Call<ResponseBody>
 
     @DELETE("lists")
     fun deleteList(@Query("listId") listId: String): Call<ResponseBody>
