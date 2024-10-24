@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.planup.ui.components.CreateTaskList
 import com.example.planup.ui.screens.CreateTaskScreen
+import com.example.planup.ui.screens.DeleteAccountScreen
 import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
@@ -109,6 +110,10 @@ class MainActivity : ComponentActivity() {
 
                 MoveTaskScreen(projectId = projectId!!, taskId = taskId!!)
             }*/
+
+            composable("delete_account_screen") {
+                DeleteAccountScreen(navController = navController)
+            }
         }
     }
 
