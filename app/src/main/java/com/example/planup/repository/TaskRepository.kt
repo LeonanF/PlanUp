@@ -100,24 +100,8 @@ class TaskRepository {
             }
         })
     }
-    fun updateTask(taskRequest: TaskRequest) {
-        apiService.updateTask(taskRequest).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful) {
-                    Log.d("UpdateTask", "Tarefa atualizada com sucesso: ${response.body()}")
-                } else {
-                    Log.d("UpdateTask", "Falha ao atualizar tarefa: ${response.errorBody()?.string()}")
-                }
-            }
 
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Log.e("UpdateTask", "Erro ao atualizar tarefa: ${t.message}")
-                t.printStackTrace()
-            }
-        })
-    }
-
-    fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
+     fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
         apiService.addComment(commentRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
@@ -149,6 +133,23 @@ class TaskRepository {
 
             override fun onFailure(call: Call<CommentResponse>, t: Throwable) {
                 callback(null, t.message)
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun updateTask(taskRequest: TaskRequest) {
+        apiService.updateTask(taskRequest).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("UpdateTask", "Tarefa atualizada com sucesso: ${response.body()}")
+                } else {
+                    Log.d("UpdateTask", "Falha ao atualizar tarefa: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateTask", "Erro ao atualizar tarefa: ${t.message}")
                 t.printStackTrace()
             }
         })

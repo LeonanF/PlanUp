@@ -439,6 +439,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
+// Dentro do seu método onClick
                         onClick = {
                             if (commentText.value.isNotBlank() && email != null) {
                                 // Criação do comentário
