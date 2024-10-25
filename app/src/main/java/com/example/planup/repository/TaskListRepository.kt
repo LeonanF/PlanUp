@@ -2,8 +2,6 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.TaskListRequest
-import com.example.planup.model.TaskList
-import com.example.planup.model.TaskPreview
 import com.example.planup.network.RetrofitInstance
 import com.example.planup.network.TaskListResponse
 import okhttp3.ResponseBody
@@ -55,7 +53,8 @@ class TaskListRepository {
         })
     }
 
-    fun fetchProjectLists(projectId: String, callback: (TaskListResponse?, String?) -> Unit) {
+    // Apagar se não precisar mais
+    /*fun fetchProjectLists(projectId: String, callback: (TaskListResponse?, String?) -> Unit) {
         apiService.fetchLists(projectId).enqueue(object : Callback<TaskListResponse> {
             override fun onResponse(call: Call<TaskListResponse>, response: Response<TaskListResponse>) {
                 if (response.isSuccessful) {
@@ -75,5 +74,5 @@ class TaskListRepository {
                 t.printStackTrace()
             }
         })
-    }
+    }*/
 }

@@ -22,8 +22,9 @@ interface ApiService {
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
-    @GET("lists")
-    fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
+    // Apagar se não precisar mais
+    //@GET("lists")
+    //fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
 
     @GET("projectPreviews")
     fun fetchProjectPreviews(@Query("userId") userId: String): Call<ProjectPreviewResponse>
