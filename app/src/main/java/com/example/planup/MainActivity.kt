@@ -18,6 +18,7 @@ import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MemberScreen
+import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.RegisterScreen
@@ -104,11 +105,12 @@ class MainActivity : ComponentActivity() {
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 MemberScreen(projectId = projectId!!, navController = navController)
             }
-/*            composable("move_task_screen/{projectId}/{taskId}") { backStackEntry ->
+            /*composable("move_task_screen/{projectId}/{taskName}/{taskId}/{lists}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
+                val taskname = backStackEntry.arguments?.getString("taskName")
                 val taskId = backStackEntry.arguments?.getString("taskId")
 
-                MoveTaskScreen(projectId = projectId!!, taskId = taskId!!)
+                MoveTaskScreen(projectId = projectId!!, lists)
             }*/
 
             composable("delete_account_screen") {

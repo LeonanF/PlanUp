@@ -15,12 +15,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.planup.model.Task
 import com.example.planup.model.TaskList
+import com.example.planup.model.TaskListPreview
 import com.example.planup.network.TaskListResponse
 import com.example.planup.repository.TaskListRepository
 import com.example.planup.repository.TaskRepository
@@ -31,41 +33,20 @@ import kotlinx.coroutines.launch
 @Composable
 fun MoveTaskScreen(
     projectId: String,
+    taskName: String,
     taskId: String,
-    listId: String
+    lists: List<TaskListPreview>
 ) {
-    var lists by remember { mutableStateOf<TaskListResponse?>(null) }
-    val task = remember { mutableStateOf<Task?>(null) }
     var selectedList by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
-    var listError by remember { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(key1 = projectId) {
-        TaskListRepository().fetchProjectLists(projectId) { result, msg ->
-            lists = result
-            listError = msg
-        }
-    }
-
-    LaunchedEffect(key1 = taskId) {
-        TaskRepository().fetchTask(taskId, listId, projectId) { result, msg ->
-            task.value = result
-            error = msg
-        }
-    }
+    val coroutineScope = rememberCoroutineScope()
 
     Column {
-        listError?.let {
-            Text(text = it, color = Color.Red)
-        }
+        Text("Mover tarefa: $taskName")
 
-        Text("Mover tarefa: ${task.value?.name}")
-
-        lists?.data?.let {
-            MoveTaskDropDown(lists = it) { listId ->
-                selectedList = listId
-            }
+        MoveTaskDropDown(lists = lists) { listId ->
+            selectedList = listId
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -75,18 +56,16 @@ fun MoveTaskScreen(
                 if (selectedList.isNotEmpty()) {
                     isLoading = true
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        task.value?._id?.let { id ->
-                            TaskRepository().moveTask(
-                                projectId = projectId,
-                                taskId = id,
-                                destinationList = selectedList
-                            ) { success ->
-                                isLoading = false
+                    coroutineScope.launch {
+                        TaskRepository().moveTask(
+                            projectId = projectId,
+                            taskId = taskId,
+                            destinationList = selectedList
+                        ) { success ->
+                            isLoading = false
 
-                                if (!success) {
-                                    error = "Erro ao mover a tarefa"
-                                }
+                            if (!success) {
+                                error = "Erro ao mover a tarefa"
                             }
                         }
                     }
@@ -107,9 +86,9 @@ fun MoveTaskScreen(
 }
 
 @Composable
-fun MoveTaskDropDown(lists: List<TaskList>, onListSelected: (String) -> Unit) {
+fun MoveTaskDropDown(lists: List<TaskListPreview>, onListSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedList by remember { mutableStateOf<TaskList?>(null) }
+    var selectedList by remember { mutableStateOf<TaskListPreview?>(null) }
 
     Box {
         selectedList?.let { listName ->

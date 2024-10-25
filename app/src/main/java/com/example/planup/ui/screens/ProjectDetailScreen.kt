@@ -1,5 +1,6 @@
 package com.example.planup.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -80,6 +82,7 @@ fun ProjectDetailScreen(
         viewModel.getImageForElement(it)
     }?.let { painterResource(it) }
     val backgroundSize = 200.dp
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -131,15 +134,39 @@ fun ProjectDetailScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            project.value?.name?.let {
-                Text(
-                    text = it,
-                    fontSize = 24.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp, 0.dp, 0.dp, 0.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                project.value?.name?.let {
+                    Text(
+                        text = it,
+                        fontSize = 24.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        navController.navigate("create_task_list/$projectId") {
+                            popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AddCircle,
+                        contentDescription = "Adicionar nova lista de tarefas",
+                        tint = Color.White,
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
             }
+
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -159,36 +186,13 @@ fun ProjectDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp, 0.dp, 0.dp, 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp, 0.dp, 0.dp, 0.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Membros", tint = Color.White, modifier = Modifier.size(40.dp))
-                    Text("Time")
-                    Button(onClick = { navController.navigate("member_screen/${projectId}")}) {
-                        Text("Ver membros")
-                    }
-                }
-
-                IconButton(
-                    onClick = {
-                        navController.navigate("create_task_list/$projectId") {
-                            popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AddCircle,
-                        contentDescription = "Adicionar nova lista de tarefas",
-                        tint = Color.White,
-                        modifier = Modifier.size(25.dp)
-                    )
+                Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Membros", tint = Color.White, modifier = Modifier.size(40.dp))
+                Text("Time")
+                Button(onClick = { navController.navigate("member_screen/${projectId}")}) {
+                    Text("Ver membros")
                 }
             }
 
@@ -228,8 +232,8 @@ fun ProjectDetailScreen(
                         items(taskLists) { taskList ->
                             Card(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp, 0.dp),
+                                    .wrapContentSize()
+                                    .padding(10.dp, 0.dp, 0.dp, 10.dp),
                                 elevation = CardDefaults.cardElevation(4.dp),
                                 shape = CardDefaults.shape,
                                 colors = CardDefaults.cardColors(
@@ -363,7 +367,7 @@ fun ProjectDetailScreen(
                                                     ) {
                                                         Button(
                                                             onClick = {
-                                                                navController.navigate("move_task_screen/$projectId/${task._id}/${taskList._id}") {
+                                                                navController.navigate("move_task_screen/$projectId/${task.name}/${task._id}/${project.value?.taskLists}") {
                                                                     popUpTo("project_detail_screen/$projectId") { inclusive = false }
                                                                 }
                                                             },
@@ -381,9 +385,10 @@ fun ProjectDetailScreen(
 
                                                         Button(
                                                             onClick = {
-                                                                navController.navigate("delete_modal_bottom_sheet/$projectId/${taskList._id}/${task._id}") {
+                                                                /*navController.navigate("delete_modal_bottom_sheet/$projectId/${taskList._id}/${task._id}") {
                                                                     popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                                                }
+                                                                }*/
+                                                                Toast.makeText(context, "Ainda não implementado", Toast.LENGTH_SHORT).show()
                                                             },
                                                             shape = ButtonDefaults.textShape,
                                                             colors = ButtonDefaults.buttonColors(
