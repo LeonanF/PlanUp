@@ -15,7 +15,7 @@ class TaskRepository {
 
     private val apiService = RetrofitInstance.apiService
 
-    suspend fun moveTask(
+    fun moveTask(
         projectId: String,
         taskId: String,
         destinationList: String,

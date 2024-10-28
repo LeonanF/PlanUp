@@ -7,6 +7,7 @@ import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.SubtaskRequest
 import com.example.planup.model.Task
+import com.example.planup.model.TaskList
 import com.example.planup.model.TaskListRequest
 import com.example.planup.model.TaskRequest
 import okhttp3.ResponseBody
@@ -22,9 +23,8 @@ interface ApiService {
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
-    // Apagar se não precisar mais
-    //@GET("lists")
-    //fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
+    @GET("lists")
+    fun fetchTaskList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<TaskList>
 
     @GET("projectPreviews")
     fun fetchProjectPreviews(@Query("userId") userId: String): Call<ProjectPreviewResponse>
@@ -53,8 +53,8 @@ interface ApiService {
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
-    @POST("tasks/move")
-    suspend fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
+    @POST("tasks/{move}")
+    fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
 
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
@@ -67,6 +67,9 @@ interface ApiService {
 
     @PUT("tasks/{id}")
     fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
+
+    @PUT("lists/{id}")
+    fun updateTaskList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
     @DELETE("tasks")
     fun deleteTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String): Call<ResponseBody>

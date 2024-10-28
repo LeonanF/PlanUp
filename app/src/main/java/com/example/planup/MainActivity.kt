@@ -14,11 +14,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.planup.ui.components.CreateTaskList
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteAccountScreen
-import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MemberScreen
-import com.example.planup.ui.screens.MoveTaskScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.RegisterScreen
@@ -90,33 +88,15 @@ class MainActivity : ComponentActivity() {
             composable("project_detail_screen/{projectId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 ProjectDetailScreen(navController = navController, projectId = projectId!!)
-                }
-
-            composable("delete_list_screen/{listId}/{projectId}") {
-                backStackEntry ->
-                val listId = backStackEntry.arguments?.getString("listId")
-                val projectId = backStackEntry.arguments?.getString("projectId")
-                DeleteListScreen(listId = listId!!, projectId = projectId!!) {
-                    navController.popBackStack()
-                }
             }
             composable("member_screen/{projectId}") {
                     backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 MemberScreen(projectId = projectId!!, navController = navController)
             }
-            /*composable("move_task_screen/{projectId}/{taskName}/{taskId}/{lists}") { backStackEntry ->
-                val projectId = backStackEntry.arguments?.getString("projectId")
-                val taskname = backStackEntry.arguments?.getString("taskName")
-                val taskId = backStackEntry.arguments?.getString("taskId")
-
-                MoveTaskScreen(projectId = projectId!!, lists)
-            }*/
-
             composable("delete_account_screen") {
                 DeleteAccountScreen(navController = navController)
             }
         }
     }
-
 }
