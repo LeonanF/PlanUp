@@ -47,7 +47,7 @@ fun DeleteTaskListModalBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Deletar Projeto",
+                text = "Deletar Lista",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0XFFF75555) // Vermelho
@@ -56,7 +56,7 @@ fun DeleteTaskListModalBottomSheet(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Você tem certeza que quer deletar o projeto?",
+                text = "Você tem certeza que quer deletar a lista?",
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
