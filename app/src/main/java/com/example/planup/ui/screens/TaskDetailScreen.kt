@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,10 +26,12 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Comment
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.Priority
 import com.example.planup.model.SubtaskStatus
 import com.example.planup.model.Subtask
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.TaskStatus
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
@@ -48,6 +51,12 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     val isEditingName = remember { mutableStateOf(false) }
     val taskName = remember { mutableStateOf("") }
     val commentText = remember { mutableStateOf("") }
+    var taskStatus by remember {
+        mutableStateOf("")
+    }
+    var taskPriority by remember{
+        mutableStateOf("")
+    }
     val user = FirebaseAuth.getInstance().currentUser
     val email = user?.email
     val currentDate = remember {
@@ -73,6 +82,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 descriptionText.value = taskData.description
                 taskName.value = taskData.name
                 comments.clear()
+
+                taskStatus = result.status.toDatabaseString()
+                taskPriority = result.priority?.toDatabaseString() ?: "Sem prioridade"
 
                 taskData.comments.forEach { comment ->
                     val commentRequest = CommentRequest(
@@ -227,17 +239,111 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Text(
-                                text = "Atributos: ",
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 20.sp,
-                                color = Color.White,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(0.dp, 50.dp, 10.dp)
-                            )
+                            Row(modifier = Modifier.fillMaxWidth()
+                                .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically){
+                                Text(
+                                    text = "Status: ",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 20.sp,
+                                    color = Color.White,
+                                    modifier = Modifier
+                                )
 
+                                val status = TaskStatus.entries
+                                var expandedStatus by remember { mutableStateOf(false) }
+
+                                OutlinedButton(
+                                    onClick = { expandedStatus = true }
+                                ) {
+                                    Text(text = when(taskStatus){
+                                        "TODO" -> "A fazer"
+                                        "DOING" -> "Fazendo"
+                                        "DONE" -> "Feita"
+                                        else -> "Status desconhecido"
+                                    })
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expandedStatus,
+                                    onDismissRequest = { expandedStatus = false }
+                                ) {
+                                    status.forEach { status ->
+                                        DropdownMenuItem(text = {
+                                            Text(text = when(status.name){
+                                                "TODO" -> "A fazer"
+                                                "DOING" -> "Fazendo"
+                                                "DONE" -> "Feita"
+                                                else -> "Status desconhecido"
+                                            })
+                                        },
+                                            onClick = {
+                                                taskRepository.updateTaskStatus(projectId, listId, taskId, status)
+                                                taskStatus = status.name
+                                                expandedStatus = false
+                                            })
+                                    }
+                                }
+
+                            }
                             Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(modifier = Modifier.fillMaxWidth()
+                                .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text = "Prioridade: ",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 20.sp,
+                                    color = Color.White
+                                )
+
+                                val priorities = Priority.entries
+                                var expandedPriority by remember { mutableStateOf(false) }
+
+                                OutlinedButton(
+                                    onClick = { expandedPriority = true }
+                                ) {
+                                    Text(text = when(taskPriority){
+                                        "HIGH" -> "Alta"
+                                        "MEDIUM" -> "Média"
+                                        "LOW" -> "Baixa"
+                                        else -> "Sem prioridade"
+                                    })
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expandedPriority,
+                                    onDismissRequest = { expandedPriority = false }
+                                ) {
+                                    priorities.forEach { priority ->
+                                        DropdownMenuItem(text = {
+                                            Text(text = when(priority.name){
+                                                "HIGH" -> "Alta"
+                                                "MEDIUM" -> "Média"
+                                                "LOW" -> "Baixa"
+                                                else -> "Sem prioridade"
+                                            })
+                                                                },
+                                            onClick = {
+                                                taskRepository.updateTaskPriority(projectId, listId, taskId, priority)
+                                                taskPriority = priority.name
+                                                expandedPriority = false
+                                        })
+                                    }
+                                }
+
+
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -386,7 +492,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Button( modifier = Modifier.padding(16.dp).width(180.dp),
+                    Button( modifier = Modifier
+                        .padding(16.dp)
+                        .width(180.dp),
                         onClick = {
                             task.value?.let { currentTask ->
 
