@@ -4,7 +4,6 @@ import android.util.Log
 import com.example.planup.model.CommentRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
-import com.example.planup.network.CommentResponse
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -116,23 +115,6 @@ class TaskRepository {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("PostComment", "Erro ao enviar comentário: ${t.message}")
                 callback(false, t.message)
-                t.printStackTrace()
-            }
-        })
-    }
-
-    fun getComment(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
-        apiService.fetchComment(taskId, listId, projectId).enqueue(object : Callback<CommentResponse> {
-            override fun onResponse(call: Call<CommentResponse>, response: Response<CommentResponse>) {
-                if (response.isSuccessful) {
-                    callback(response.body(), null)
-                } else {
-                    callback(null, response.errorBody()?.string())
-                }
-            }
-
-            override fun onFailure(call: Call<CommentResponse>, t: Throwable) {
-                callback(null, t.message)
                 t.printStackTrace()
             }
         })

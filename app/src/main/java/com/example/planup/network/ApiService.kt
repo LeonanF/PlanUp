@@ -38,9 +38,6 @@ interface ApiService {
     // @GET("userProjects")
     // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
 
-    @GET("comments")
-    fun fetchComment(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String/*, @Query("comment") comment: String*/): Call<CommentResponse>
-
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
@@ -53,7 +50,7 @@ interface ApiService {
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
-    @POST("tasks/{move}")
+    @POST("tasks")
     fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
 
     @POST("subtask")
@@ -65,10 +62,10 @@ interface ApiService {
     @POST("lists")
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
-    @PUT("tasks/{id}")
+    @PUT("tasks")
     fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
-    @PUT("lists/{id}")
+    @PUT("lists")
     fun updateTaskList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
     @DELETE("tasks")

@@ -1,8 +1,9 @@
 package com.example.planup.model
 
-enum class Status {
-    TODO,
-    DONE;
+enum class Priority {
+    HIGH,
+    MEDIUM,
+    LOW;
 
 
     fun toDatabaseString(): String {
@@ -10,7 +11,7 @@ enum class Status {
     }
 
     companion object {
-        fun fromDatabaseString(value: String): Status? {
+        fun fromDatabaseString(value: String): Priority? {
             return entries.find { it.name == value }
         }
     }

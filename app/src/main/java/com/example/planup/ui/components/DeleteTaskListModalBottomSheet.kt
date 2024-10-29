@@ -76,7 +76,7 @@ fun DeleteTaskListModalBottomSheet(
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF246BFD),
+                    containerColor = Color(0XFFF75555),
                     contentColor = Color.White
                 ),
                 modifier = Modifier
@@ -84,7 +84,7 @@ fun DeleteTaskListModalBottomSheet(
                     .height(55.dp)
             ) {
                 Text(
-                    "Sim, Deletar",
+                    "Deletar",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
