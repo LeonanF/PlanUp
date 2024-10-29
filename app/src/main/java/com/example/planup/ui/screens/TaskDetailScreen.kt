@@ -45,6 +45,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     val comments = remember { mutableStateListOf<CommentRequest>() }
     val isEditingDescription = remember { mutableStateOf(false) }
     val descriptionText = remember { mutableStateOf("") }
+    val isEditingName = remember { mutableStateOf(false) }
+    val taskName = remember { mutableStateOf("") }
     val commentText = remember { mutableStateOf("") }
     val user = FirebaseAuth.getInstance().currentUser
     val email = user?.email
@@ -69,6 +71,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             error.value = errorMsg
             result?.let { taskData ->
                 descriptionText.value = taskData.description
+                taskName.value = taskData.name
                 comments.clear()
 
                 taskData.comments.forEach { comment ->
@@ -88,14 +91,30 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
         topBar = {
             TopAppBar(
                 title = {
-                    task.value?.let {
-                        Text(
-                            text = it.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            color = Color.White,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    task.value?.let { it ->
+                        if(isEditingName.value) {
+                            OutlinedTextField(
+                                value = taskName.value,
+                                onValueChange = { taskName.value = it },
+                                label = { Text("Editar Nome da Tarefa") },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = Color.White,
+                                    focusedBorderColor = Color.White,
+                                    unfocusedBorderColor = Color.Gray,
+                                    cursorColor = Color.White
+                                )
+                            )
+                        } else {
+                            Text(
+                                text = it.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                color = Color.White,
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable { isEditingName.value = true }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -157,9 +176,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 Button(
                                     onClick = {
                                         isEditingDescription.value = false
+                                        isEditingName.value = false
 
                                         task.value?.let { updatedTask ->
-                                            task.value = updatedTask.copy(description = descriptionText.value)
+                                            task.value = updatedTask.copy(name = taskName.value ,description = descriptionText.value)
 
                                             val updatedTaskRequest = TaskRequest(
                                                 projectId = projectId,
