@@ -25,7 +25,7 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Comment
 import com.example.planup.model.CommentRequest
-import com.example.planup.model.Status
+import com.example.planup.model.SubtaskStatus
 import com.example.planup.model.Subtask
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
@@ -42,39 +42,26 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
-    val comments = remember { mutableStateListOf<CommentRequest>() } // Altera para armazenar comentários com e-mail
+    val comments = remember { mutableStateListOf<CommentRequest>() }
     val isEditingDescription = remember { mutableStateOf(false) }
     val descriptionText = remember { mutableStateOf("") }
     val commentText = remember { mutableStateOf("") }
     val user = FirebaseAuth.getInstance().currentUser
     val email = user?.email
     val currentDate = remember {
-        SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())//data do sistem
+        SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
     }
+
     val context = LocalContext.current
     val replyText = remember { mutableStateOf("") }
-    val replyingTo = remember { mutableStateOf<Pair<String, String>?>(null) } // Guarda o comentário sendo respondido
-    var showReplies by remember { mutableStateOf(false) } // Estado para controlar a visibilidade das respostas
-    val replies = remember { mutableStateListOf<Pair<String, String>>() } // Definindo a lista de respostas
-    var isReplyFieldVisible by remember { mutableStateOf(false) } // Variável para controlar a visibilidade do campo de resposta
+    val replyingTo = remember { mutableStateOf<Pair<String, String>?>(null) }
+    var showReplies by remember { mutableStateOf(false) }
+    val replies = remember { mutableStateListOf<Pair<String, String>>() }
+    var isReplyFieldVisible by remember { mutableStateOf(false) }
 
     var showCreateSubtask by remember { mutableStateOf(false) }
 
     val taskRepository = remember { TaskRepository() }
-
-    /*LaunchedEffect(taskId) {
-        TaskRepository().fetchTask(taskId, listId, projectId) { result, errorMsg ->
-            task.value = result
-            error.value = errorMsg
-            result?.let { taskData ->
-                descriptionText.value = taskData.description
-                comments.clear()
-                taskData.comments.let { commentList ->
-                    comments.addAll(commentList) // Adiciona comentários se não for nulo
-                }
-            }
-        }
-    }*/
 
     LaunchedEffect(taskId) {
         taskRepository.fetchTask(taskId, listId, projectId) { result, errorMsg ->
@@ -82,17 +69,16 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             error.value = errorMsg
             result?.let { taskData ->
                 descriptionText.value = taskData.description
-                comments.clear() // Limpa a lista de comentários
+                comments.clear()
 
-                // Adiciona os comentários como CommentRequest
                 taskData.comments.forEach { comment ->
                     val commentRequest = CommentRequest(
                         projectId = projectId,
                         listId = listId,
                         taskId = taskId,
-                        comment = comment // Aqui estamos usando o Comment
+                        comment = comment
                     )
-                    comments.add(commentRequest) // Adiciona à lista de CommentRequest
+                    comments.add(commentRequest)
                 }
             }
         }
@@ -173,7 +159,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         isEditingDescription.value = false
 
                                         task.value?.let { updatedTask ->
-                                            // Atualiza a descrição localmente
                                             task.value = updatedTask.copy(description = descriptionText.value)
 
                                             val updatedTaskRequest = TaskRequest(
@@ -219,6 +204,20 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     .fillMaxWidth()
                                     .padding(0.dp, 50.dp, 10.dp)
                             )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "Atributos: ",
+                                fontWeight = FontWeight.Normal,
+                                fontSize = 20.sp,
+                                color = Color.White,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(0.dp, 50.dp, 10.dp)
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -344,7 +343,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     horizontalArrangement = Arrangement.End
                 ){
                     Button(modifier = Modifier
-                        .padding(16.dp),
+                        .padding(16.dp)
+                        .width(180.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF246BFD),
                             contentColor = Color.White
@@ -366,7 +366,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Button(
+                    Button( modifier = Modifier.padding(16.dp).width(180.dp),
                         onClick = {
                             task.value?.let { currentTask ->
 
@@ -439,11 +439,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
-// Dentro do seu método onClick
                         onClick = {
                             if (commentText.value.isNotBlank() && email != null) {
-                                // Criação do comentário
-
                                 val newComment = Comment(
                                     _id = null,
                                     data = currentDate,
@@ -453,20 +450,16 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     replies = listOf()
                                 )
                                 val newCommentRequest = CommentRequest(projectId = projectId,listId = listId,taskId = taskId, comment = newComment)
-                                // Chamada para postComment
                                 taskRepository.postComment(newCommentRequest) { success, errorMsg ->
                                     if (success) {
-                                        // Comentário adicionado com sucesso
-                                        comments.add(newCommentRequest) // Atualiza a lista de comentários
-                                        commentText.value = "" // Limpa o campo de texto
+                                        comments.add(newCommentRequest)
+                                        commentText.value = ""
                                         Toast.makeText(context, "Comentário adicionado com sucesso!", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        // Tratamento de erro
                                         Toast.makeText(context, errorMsg ?: "Erro ao adicionar comentário", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             } else {
-                                // Aviso se o campo de texto estiver vazio
                                 Toast.makeText(context, "Por favor, preencha o comentário.", Toast.LENGTH_SHORT).show()
                             }
                         },
@@ -679,9 +672,9 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
                 )
             }
             Checkbox(
-                checked = status==Status.DONE,
+                checked = status==SubtaskStatus.DONE,
                 onCheckedChange = { isChecked ->
-                    val updatedStatus = if (isChecked) Status.DONE else Status.TODO
+                    val updatedStatus = if (isChecked) SubtaskStatus.DONE else SubtaskStatus.TODO
                     status = updatedStatus
                 },
                 colors = CheckboxDefaults.colors(

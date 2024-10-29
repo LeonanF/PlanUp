@@ -9,6 +9,5 @@ data class Project(
     val owner : String,
     val members : List<String>,
     val taskLists : List<TaskList>,
-    val status : String,
     val taskQuantity : Int = 0
 )
