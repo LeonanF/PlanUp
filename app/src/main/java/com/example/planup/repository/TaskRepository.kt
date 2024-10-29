@@ -1,11 +1,11 @@
 package com.example.planup.repository
 
 import android.util.Log
+import com.example.planup.model.CommentRequest
 import com.example.planup.model.Task
-import com.example.planup.model.TaskPreview
 import com.example.planup.model.TaskRequest
+import com.example.planup.network.CommentResponse
 import com.example.planup.network.RetrofitInstance
-import com.example.planup.network.TaskPreviewResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -15,26 +15,39 @@ class TaskRepository {
 
     private val apiService = RetrofitInstance.apiService
 
-    suspend fun moveTask(projectId: String, taskId: String, destinationList: String) {
-        apiService.moveTask(projectId, taskId, mapOf("destinationList" to destinationList))
-            .enqueue(object: Callback<ResponseBody>{
-                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                    if(response.isSuccessful){
-                        Log.d("MoveTask", "Tarefa movida com sucesso: ${response.body()}")
-                    } else {
-                        Log.d("MoveTask", "Falha ao mover a tarefa: ${response.errorBody()?.string()}")
-                    }
-                }
+    fun moveTask(
+        projectId: String,
+        taskId: String,
+        destinationList: String,
+        onResult: (Boolean) -> Unit,
+    ) {
+        val params = mapOf(
+            "projectId" to projectId,
+            "taskId" to taskId,
+            "destinationList" to destinationList
+        )
 
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Log.e("MoveTask", "Erro ao mover a tarefa: ${t.message}")
-                    t.printStackTrace()
+        apiService.moveTask(params).enqueue(object: Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    onResult(true)
+                    Log.d("MoveTask", "Tarefa movida com sucesso: ${response.body()}")
+                } else {
+                    onResult(false)
+                    Log.d("MoveTask", "Falha ao mover a tarefa: ${response.errorBody()?.string()}")
                 }
-            })
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                onResult(false)
+                Log.e("MoveTask", "Erro ao mover a tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+        })
     }
 
-    fun deleteTask(taskId: String) {
-        apiService.deleteTask(taskId).enqueue(object: Callback<ResponseBody> {
+    fun deleteTask(projectId: String, listId: String, taskId: String) {
+        apiService.deleteTask(projectId, listId, taskId).enqueue(object: Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if(response.isSuccessful){
                     Log.d("DeleteTask", "Tarefa deletada com sucesso: ${response.body()}")
@@ -67,25 +80,6 @@ class TaskRepository {
         })
     }
 
-    fun fetchTaskPreviews(projectId: String, callback: (List<TaskPreview>?, String?) -> Unit){
-        apiService.fetchTaskPreviews(projectId).enqueue(object : Callback<TaskPreviewResponse>{
-            override fun onResponse(
-                call: Call<TaskPreviewResponse>,
-                response: Response<TaskPreviewResponse>
-            ) {
-                if (response.isSuccessful) {
-                    callback(response.body()?.data, null)
-                } else {
-                    callback(null, "Erro: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<TaskPreviewResponse>, t: Throwable) {
-                callback(null, t.message)
-            }
-        })
-    }
-
     fun fetchTask(taskId: String, listId: String, projectId: String, callback: (Task?, String?) -> Unit){
 
         apiService.fetchTasks(taskId, listId, projectId).enqueue(object : Callback<Task>{
@@ -107,7 +101,7 @@ class TaskRepository {
         })
     }
 
-     /*fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
+     fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
         apiService.addComment(commentRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
@@ -125,11 +119,11 @@ class TaskRepository {
                 t.printStackTrace()
             }
         })
-    }*/
+    }
 
-    /*fun getComment(commentId: String, callback: (CommentRequest?, String?) -> Unit) {
-        apiService.fetchComment(commentId).enqueue(object : Callback<CommentRequest> {
-            override fun onResponse(call: Call<CommentRequest>, response: Response<CommentRequest>) {
+    fun getComment(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
+        apiService.fetchComment(taskId, listId, projectId).enqueue(object : Callback<CommentResponse> {
+            override fun onResponse(call: Call<CommentResponse>, response: Response<CommentResponse>) {
                 if (response.isSuccessful) {
                     callback(response.body(), null)
                 } else {
@@ -137,10 +131,27 @@ class TaskRepository {
                 }
             }
 
-            override fun onFailure(call: Call<CommentRequest>, t: Throwable) {
+            override fun onFailure(call: Call<CommentResponse>, t: Throwable) {
                 callback(null, t.message)
                 t.printStackTrace()
             }
         })
-    }*/
+    }
+
+    fun updateTask(taskRequest: TaskRequest) {
+        apiService.updateTask(taskRequest).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("UpdateTask", "Tarefa atualizada com sucesso: ${response.body()}")
+                } else {
+                    Log.d("UpdateTask", "Falha ao atualizar tarefa: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateTask", "Erro ao atualizar tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
 }

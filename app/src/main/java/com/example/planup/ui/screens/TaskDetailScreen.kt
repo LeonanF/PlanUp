@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -22,7 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
+import com.example.planup.model.Comment
+import com.example.planup.model.CommentRequest
+import com.example.planup.model.Status
+import com.example.planup.model.Subtask
 import com.example.planup.model.Task
+import com.example.planup.model.TaskRequest
+import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
@@ -35,8 +42,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
-    //val comments = remember { mutableStateListOf<CommentRequest>() } // Altera para armazenar comentários com e-mail
-    val comments = remember { mutableStateListOf<Pair<String, String>>() } // sem banco de dados
+    val comments = remember { mutableStateListOf<CommentRequest>() } // Altera para armazenar comentários com e-mail
     val isEditingDescription = remember { mutableStateOf(false) }
     val descriptionText = remember { mutableStateOf("") }
     val commentText = remember { mutableStateOf("") }
@@ -49,22 +55,44 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     val replyText = remember { mutableStateOf("") }
     val replyingTo = remember { mutableStateOf<Pair<String, String>?>(null) } // Guarda o comentário sendo respondido
     var showReplies by remember { mutableStateOf(false) } // Estado para controlar a visibilidade das respostas
-    val replies = mutableListOf<Pair<String, String>>() // Definindo a lista de respostas
+    val replies = remember { mutableStateListOf<Pair<String, String>>() } // Definindo a lista de respostas
     var isReplyFieldVisible by remember { mutableStateOf(false) } // Variável para controlar a visibilidade do campo de resposta
 
-    var showCreateSubtask by remember {
-        mutableStateOf(false)
-    }
+    var showCreateSubtask by remember { mutableStateOf(false) }
 
-    LaunchedEffect(taskId) {
+    val taskRepository = remember { TaskRepository() }
+
+    /*LaunchedEffect(taskId) {
         TaskRepository().fetchTask(taskId, listId, projectId) { result, errorMsg ->
             task.value = result
             error.value = errorMsg
             result?.let { taskData ->
                 descriptionText.value = taskData.description
                 comments.clear()
-                taskData.comments?.let { commentList ->
-                    //comments.addAll(commentList) // Adiciona comentários se não for nulo
+                taskData.comments.let { commentList ->
+                    comments.addAll(commentList) // Adiciona comentários se não for nulo
+                }
+            }
+        }
+    }*/
+
+    LaunchedEffect(taskId) {
+        taskRepository.fetchTask(taskId, listId, projectId) { result, errorMsg ->
+            task.value = result
+            error.value = errorMsg
+            result?.let { taskData ->
+                descriptionText.value = taskData.description
+                comments.clear() // Limpa a lista de comentários
+
+                // Adiciona os comentários como CommentRequest
+                taskData.comments.forEach { comment ->
+                    val commentRequest = CommentRequest(
+                        projectId = projectId,
+                        listId = listId,
+                        taskId = taskId,
+                        comment = comment // Aqui estamos usando o Comment
+                    )
+                    comments.add(commentRequest) // Adiciona à lista de CommentRequest
                 }
             }
         }
@@ -143,9 +171,21 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 Button(
                                     onClick = {
                                         isEditingDescription.value = false
-                                        task.value =
-                                            task.value?.copy(description = descriptionText.value)
 
+                                        task.value?.let { updatedTask ->
+                                            // Atualiza a descrição localmente
+                                            task.value = updatedTask.copy(description = descriptionText.value)
+
+                                            val updatedTaskRequest = TaskRequest(
+                                                projectId = projectId,
+                                                listId = listId,
+                                                task = updatedTask
+                                            )
+
+                                            TaskRepository().updateTask(updatedTaskRequest)
+
+                                            Toast.makeText(context, "Tarefa atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+                                        }
                                     },
                                     modifier = Modifier
                                         .align(Alignment.End)
@@ -157,6 +197,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 ) {
                                     Text("Salvar")
                                 }
+
                             } else {
                                 Text(
                                     text = descriptionText.value,
@@ -258,8 +299,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                                             Button(
                                                 onClick = {
-                                                    // Chamar função para atualizar o atributo no banco de dados
-                                                    // Exemplo: updateAttribute(attribute.id, selectedStatus)
                                                 },
                                                 modifier = Modifier.padding(start = 8.dp),
                                                 colors = ButtonDefaults.buttonColors(
@@ -283,7 +322,23 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     }
                 }
             }
+
             item{
+
+                LazyColumn (modifier = Modifier
+                    .heightIn(100.dp, 200.dp)
+                    .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                    task.value?.let {
+                        items(it.subtasks){ subtask->
+                            SubtaskItem(
+                                subtask = subtask,
+                                onDelete = { subtask._id?.let { it1 -> SubtaskRepository().deleteSubtask(projectId = projectId, listId = listId, taskId = taskId, subtaskId = it1) } }
+                            )
+                            }
+                        }
+                    }
 
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -303,10 +358,56 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         showCreateSubtask = false
                     }, projectId = projectId, listId = listId, taskId = taskId)
                 }
+
             }
 
             item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Button(
+                        onClick = {
+                            task.value?.let { currentTask ->
+
+                                val duplicatedTask = currentTask.copy(
+                                    _id = null,
+                                    data = SimpleDateFormat(
+                                        "dd/MM/yyyy",
+                                        Locale.getDefault()
+                                    ).format(Date())
+                                )
+
+                                val duplicatedTaskRequest = TaskRequest(
+                                    projectId = projectId,
+                                    listId = listId,
+                                    task = duplicatedTask.copy(_id = null)
+                                )
+
+                                TaskRepository().postTasks(duplicatedTaskRequest)
+
+                                Toast.makeText(
+                                    context,
+                                    "Tarefa duplicada com sucesso!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF246BFD)),
+                    ) {
+                        Text(text = "Duplicar Tarefa", color = Color.White)
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = "Comentários:",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(16.dp)
+                )
 
                 OutlinedTextField(
                     value = commentText.value,
@@ -332,21 +433,41 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     color = if (commentText.value.length > 500) Color.Red else Color.Gray,
                     modifier = Modifier.padding(start = 16.dp)
                 )
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
+// Dentro do seu método onClick
                         onClick = {
                             if (commentText.value.isNotBlank() && email != null) {
-                                comments.add(Pair(email, commentText.value))
-                                commentText.value = ""
+                                // Criação do comentário
+
+                                val newComment = Comment(
+                                    _id = null,
+                                    data = currentDate,
+                                    email = email,
+                                    userId = null,
+                                    text = commentText.value,
+                                    replies = listOf()
+                                )
+                                val newCommentRequest = CommentRequest(projectId = projectId,listId = listId,taskId = taskId, comment = newComment)
+                                // Chamada para postComment
+                                taskRepository.postComment(newCommentRequest) { success, errorMsg ->
+                                    if (success) {
+                                        // Comentário adicionado com sucesso
+                                        comments.add(newCommentRequest) // Atualiza a lista de comentários
+                                        commentText.value = "" // Limpa o campo de texto
+                                        Toast.makeText(context, "Comentário adicionado com sucesso!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        // Tratamento de erro
+                                        Toast.makeText(context, errorMsg ?: "Erro ao adicionar comentário", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    "Por favor, preencha o comentário.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                // Aviso se o campo de texto estiver vazio
+                                Toast.makeText(context, "Por favor, preencha o comentário.", Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier
@@ -361,18 +482,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 }
             }
 
-
-
             item {
                 if (comments.isNotEmpty()) {
-                    Text(
-                        text = "Comentários:",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        color = Color.White,
-                        modifier = Modifier.padding(16.dp)
-                    )
-
                     comments.forEach { (email, comment) ->
                         Column(
                             modifier = Modifier
@@ -384,7 +495,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     replyingTo.value = Pair(email, comment)
                                 }
                         ) {
-                            // Exibindo o email e o comentário original
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
@@ -412,7 +523,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 )
                             }
 
-                            // Alinhamento dos botões e exibição do campo de resposta
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -420,7 +530,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
 
-                                // Botão para exibir/ocultar respostas à direita
                                 IconButton(onClick = { showReplies = !showReplies }) {
                                     Icon(
                                         painter = painterResource(id = if (showReplies) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down),
@@ -429,14 +538,12 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     )
                                 }
 
-                                // Botão "Responder" para abrir/fechar o campo de resposta
                                 Button(
                                     onClick = {
                                         isReplyFieldVisible =
-                                            !isReplyFieldVisible // Alterna a visibilidade do campo de resposta
+                                            !isReplyFieldVisible
                                         if (isReplyFieldVisible) {
-                                            replyText.value =
-                                                "" // Limpa o campo de texto quando o campo é aberto
+                                            replyText.value = ""
                                         }
                                     },
                                     modifier = Modifier.align(Alignment.CenterVertically),
@@ -449,7 +556,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 }
                             }
 
-                            // Campo de resposta
                             if (isReplyFieldVisible) {
                                 OutlinedTextField(
                                     value = replyText.value,
@@ -469,16 +575,15 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 Button(
                                     onClick = {
                                         if (replyText.value.isNotBlank() && email.isNotBlank()) {
-                                            // Adiciona a resposta à lista de respostas como um par (email, texto da resposta)
                                             replies.add(Pair(email, replyText.value))
-                                            replyText.value = "" // Limpa o campo de texto após enviar
-                                            isReplyFieldVisible = false // Fecha o campo de resposta após enviar
+                                            replyText.value = ""
+                                            isReplyFieldVisible = false
                                         } else {
                                             Toast.makeText(
                                                 context,
                                                 "Por favor, preencha a resposta.",
                                                 Toast.LENGTH_SHORT
-                                            ).show() // Exibe uma mensagem de erro
+                                            ).show()
                                         }
                                     },
                                     modifier = Modifier
@@ -493,7 +598,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 }
                             }
 
-                            // Exibir as respostas se showReplies for verdadeiro
                             if (showReplies) {
                                 replies.forEach { (email, replyText) ->
                                     Column(modifier = Modifier.padding(start = 16.dp, top = 4.dp)) {
@@ -510,7 +614,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         )
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.End // Alinha o conteúdo à direita
+                                            horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
                                                 text = currentDate,
@@ -527,4 +631,72 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             }
         }
     }
+}
+
+@Composable
+fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
+
+    var clicked by remember {
+        mutableStateOf(false)
+    }
+
+    var status by remember{
+        mutableStateOf(subtask.status)
+    }
+
+    Box(
+        modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth(0.9f)
+            .padding(8.dp)
+            .clickable {
+                clicked = !clicked
+            }
+            .background(Color(0xFF1F222A), shape = RoundedCornerShape(15.dp))
+    ) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .padding(30.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = subtask.name,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp
+                )
+                Text(
+                    text = subtask.dueDate,
+                    color = Color.White,
+                    fontSize = 12.sp
+                )
+            }
+            Checkbox(
+                checked = status==Status.DONE,
+                onCheckedChange = { isChecked ->
+                    val updatedStatus = if (isChecked) Status.DONE else Status.TODO
+                    status = updatedStatus
+                },
+                colors = CheckboxDefaults.colors(
+                    checkedColor = Color(0xFF246BFD),
+                    uncheckedColor = Color(0xFF246BFD),
+                    checkmarkColor = Color.White
+                )
+            )
+        }
+    }
+
+    if(clicked){
+        IconButton(modifier = Modifier.padding(16.dp), onClick = {onDelete()}){
+            Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
+        }
+    }
+
 }

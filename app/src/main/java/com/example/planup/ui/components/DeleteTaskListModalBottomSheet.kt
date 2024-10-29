@@ -1,4 +1,4 @@
-package com.example.planup.ui.screens
+package com.example.planup.ui.components
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -26,7 +26,7 @@ import com.example.planup.repository.TaskListRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeleteListScreen(
+fun DeleteTaskListModalBottomSheet(
     listId: String,
     projectId: String,
     onDismiss: () -> Unit
@@ -67,7 +67,7 @@ fun DeleteListScreen(
 
             Button(
                 onClick = {
-                    taskListRepository.deleteList(listId) { result ->
+                    taskListRepository.deleteList(projectId, listId) { result ->
                         if (result) {
                             Toast.makeText(context, "Lista deletada com sucesso", Toast.LENGTH_SHORT).show()
                         } else {

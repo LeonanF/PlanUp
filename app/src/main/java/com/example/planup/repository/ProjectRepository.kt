@@ -5,6 +5,7 @@ import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.ProjectPreview
+import com.example.planup.network.MemberResponse
 import com.example.planup.network.ProjectPreviewResponse
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
@@ -87,6 +88,43 @@ class ProjectRepository{
                 t.printStackTrace()
             }
 
+        })
+    }
+
+    fun deleteMember(projectId: String, memberId:String){
+        apiService.deleteMember(projectId, memberId).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("DeleteMember", "Membro deletado com sucesso: ${response.body()}")
+                } else{
+                    Log.e("DeleteMember", "Falha ao deletar membro: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("DeleteMember", "Erro ao solicitar deletar membro: ${t.message}")
+                t.printStackTrace()
+            }
+
+        })
+    }
+
+    fun fetchMembers(projectId: String, callback: (List<String>?, String?) -> Unit){
+        apiService.fetchMembers(projectId).enqueue(object : Callback<MemberResponse>{
+            override fun onResponse(call: Call<MemberResponse>, response: Response<MemberResponse>) {
+                if(response.isSuccessful){
+                    Log.d("FetchMembers", "Membros: ${response.body()}")
+                    callback(response.body()?.data, null)
+                } else{
+                    Log.e("FetchMembers", "Falha ao buscar membros: ${response.errorBody()?.string()}")
+                    callback(null, response.errorBody()?.string())
+                }
+            }
+
+            override fun onFailure(call: Call<MemberResponse>, t: Throwable) {
+                Log.e("FetchMembers", "Erro ao solicitar membros: ${t.message}")
+                callback(null, t.message)
+            }
         })
     }
 

@@ -4,9 +4,9 @@ import kotlin.collections.List
 
 data class Comment(
     val _id: String?,
-    val data: Long,
+    val data: String,
     val email: String,
-    val userId: String,
+    val userId: String?,
     val text: String,
-    val replies: List<Comment> = mutableListOf()
+    val replies: List<Comment> = listOf()
 )

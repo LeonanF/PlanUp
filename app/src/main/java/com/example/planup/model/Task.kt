@@ -8,5 +8,6 @@ data class Task(
     var description: String,
     val data: String,
     val attributes: List<Attribute>,
-    val comments: List<Comment>?
+    val comments: List<Comment>,
+    val subtasks: List<Subtask>
 )
