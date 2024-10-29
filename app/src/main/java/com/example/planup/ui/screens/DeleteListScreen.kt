@@ -36,39 +36,34 @@ fun DeleteListScreen(
 
     ModalBottomSheet(
         modifier = Modifier
-            .heightIn(450.dp),
+            .heightIn(200.dp),
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF181A20)
-    ){
-        Column (
+        containerColor = Color(0xFF181A20) // Fundo cinza escuro
+    ) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Deletar Lista",
-                fontSize = 24.sp,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(0.dp,0.dp,0.dp,20.dp),
-                color = Color(0XFFF75555)
-            )
-
-            HorizontalDivider(
-                color = Color(0xFF35383F),
-                thickness = 1.dp,
-                modifier = Modifier.padding(20.dp, 0.dp, 20.dp, 0.dp)
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-
             Text(
-                text = "Tem certeza que deseja deletar essa lista?",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "Deletar Projeto",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color(0XFFF75555) // Vermelho
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Você tem certeza que quer deletar o projeto?",
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
                 color = Color.White
             )
-            Spacer(modifier = Modifier.height(40.dp))
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -86,12 +81,16 @@ fun DeleteListScreen(
                 ),
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
-                    .heightIn(55.dp)
-            ){
-                Text("Sim, Deletar", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                    .height(55.dp)
+            ) {
+                Text(
+                    "Sim, Deletar",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { onDismiss() },
@@ -101,9 +100,13 @@ fun DeleteListScreen(
                 ),
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
-                    .heightIn(55.dp)
-            ){
-                Text("Cancelar", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White, style = MaterialTheme.typography.bodyLarge)
+                    .height(55.dp)
+            ) {
+                Text(
+                    "Cancelar",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
