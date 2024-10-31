@@ -10,6 +10,7 @@ import com.example.planup.model.Task
 import com.example.planup.model.TaskList
 import com.example.planup.model.TaskListRequest
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.User
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -38,6 +39,9 @@ interface ApiService {
     // @GET("userProjects")
     // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
 
+    @GET("users")
+    fun fetchUser(@Query("userId") userId: String): Call<User>
+
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
@@ -61,6 +65,9 @@ interface ApiService {
 
     @POST("lists")
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
+
+    @POST("users")
+    fun postUser(@Body newUser: User): Call<ResponseBody>
 
     @PUT("tasks")
     fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>

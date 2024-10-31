@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -242,13 +243,13 @@ fun ProjectDetailScreen(
                     LazyRow(
                         modifier = Modifier
                             .fillMaxSize(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.Top
                     ) {
                         items(taskLists) { taskList ->
                             Card(
                                 modifier = Modifier
-                                    .wrapContentSize()
+                                    .fillMaxWidth()
                                     .padding(10.dp, 0.dp, 0.dp, 10.dp),
                                 elevation = CardDefaults.cardElevation(4.dp),
                                 shape = CardDefaults.shape,
@@ -256,87 +257,107 @@ fun ProjectDetailScreen(
                                     containerColor = Color(0XFF1F222A)
                                 )
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(10.dp, 0.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(10.dp, 10.dp, 10.dp, 0.dp)
+                                        .align(Alignment.CenterHorizontally)
                                 ) {
-                                    Text(
-                                        text = taskList.name,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = Color.White,
-                                        maxLines = 3,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-
-                                    Spacer(modifier = Modifier.width(5.dp))
-
-                                    Box(
+                                    Row(
                                         modifier = Modifier
-                                            .wrapContentSize(Alignment.Center)
-                                            .background(
-                                                Color.Transparent,
-                                            )
-                                            .border(
-                                                1.dp,
-                                                Color(0XFF246BFD),
-                                                shape = RoundedCornerShape(20.dp)
-                                            )
+                                            .fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Text(
-                                            text = taskList.tasks.size.toString(),
-                                            modifier = Modifier.padding(12.dp, 0.dp,12.dp, 0.dp),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = Color(0XFF246BFD),
-                                            fontWeight = FontWeight.Bold
+                                            text = taskList.name,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = Color.White,
+                                            maxLines = 3,
+                                            overflow = TextOverflow.Ellipsis,
                                         )
-                                    }
 
-                                    IconButton(
-                                        onClick = {
-                                            showDeleteList = true
-                                            listId = taskList._id!!
+                                        Spacer(modifier = Modifier.width(5.dp))
+
+                                        Box(
+                                            modifier = Modifier
+                                                .wrapContentSize(Alignment.Center)
+                                                .background(
+                                                    Color.Transparent,
+                                                )
+                                                .border(
+                                                    1.dp,
+                                                    Color(0XFF246BFD),
+                                                    shape = RoundedCornerShape(20.dp)
+                                                )
+                                        ) {
+                                            Text(
+                                                text = taskList.tasks.size.toString(),
+                                                modifier = Modifier.padding(12.dp, 0.dp,12.dp, 0.dp),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color(0XFF246BFD),
+                                                fontWeight = FontWeight.Bold
+                                            )
                                         }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = "Excluir lista",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(20.dp)
-                                        )
                                     }
+                                }
 
-                                    IconButton(
-                                        onClick = {
-                                            showEditList = true
-                                            listId = taskList._id!!
-                                        }
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.CenterHorizontally)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .wrapContentWidth(),
+                                        horizontalArrangement = Arrangement.End,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Build,
-                                            contentDescription = "Excluir lista",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                    }
-
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate("create_task_screen/$projectId/${taskList._id}") {
-                                                popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                                        IconButton(
+                                            onClick = {
+                                                showDeleteList = true
+                                                listId = taskList._id!!
                                             }
-                                            project.value!!.taskQuantity + 1
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Delete,
+                                                contentDescription = "Excluir lista",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(20.dp)
+                                            )
                                         }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Add,
-                                            contentDescription = "Adicionar nova tarefa",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(20.dp)
-                                        )
+
+                                        IconButton(
+                                            onClick = {
+                                                showEditList = true
+                                                listId = taskList._id!!
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Build,
+                                                contentDescription = "Excluir lista",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(15.dp)
+                                            )
+                                        }
+
+                                        IconButton(
+                                            onClick = {
+                                                navController.navigate("create_task_screen/$projectId/${taskList._id}") {
+                                                    popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                                                }
+                                                project.value!!.taskQuantity + 1
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Add,
+                                                contentDescription = "Adicionar nova tarefa",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
                                     }
-                                } // Fim da estilização das listas de tarefas
+                                }
+                                // Fim da estilização das listas de tarefas
 
                                 // Estilização das tarefas
                                 LazyColumn(
@@ -349,6 +370,7 @@ fun ProjectDetailScreen(
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
+                                                .padding(start = 20.dp, top = 5.dp, end = 20.dp, bottom = 5.dp)
                                                 .clickable(
                                                     onClick = {
                                                         task._id?.let { taskId ->
