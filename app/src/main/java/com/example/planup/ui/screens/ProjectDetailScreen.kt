@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -39,9 +40,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -59,6 +60,11 @@ import com.example.planup.R
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.ProjectViewModel
 import com.example.planup.repository.ProjectRepository
+import com.example.planup.ui.components.CreateTaskList
+import com.example.planup.ui.components.DeleteModalBottomSheet
+import com.example.planup.ui.components.DeleteTaskListModalBottomSheet
+import com.example.planup.ui.components.EditTaskListModalBottomSheet
+import com.example.planup.ui.components.MoveTaskModalBottomSheet
 
 @Composable
 fun ProjectDetailScreen(
@@ -67,8 +73,13 @@ fun ProjectDetailScreen(
 ) {
     val project = remember { mutableStateOf<ProjectDetailPreview?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
+    var showMoveTask by remember { mutableStateOf(false) }
+    var showCreateList by remember { mutableStateOf(false) }
+    var showDeleteList by remember { mutableStateOf(false) }
+    var showEditList by remember { mutableStateOf(false) }
+    var showDeleteTask by remember { mutableStateOf(false) }
 
-    LaunchedEffect(projectId) {
+    LaunchedEffect(projectId, showMoveTask, showCreateList, showDeleteList, showDeleteTask) {
         ProjectRepository().fetchProjectPreview(projectId) { result, errorMsg ->
             project.value = result
             error.value = errorMsg
@@ -80,6 +91,16 @@ fun ProjectDetailScreen(
         viewModel.getImageForElement(it)
     }?.let { painterResource(it) }
     val backgroundSize = 200.dp
+
+    var taskId by remember {
+        mutableStateOf("")
+    }
+    var taskName by remember {
+        mutableStateOf("")
+    }
+    var listId by remember {
+        mutableStateOf("")
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -131,15 +152,37 @@ fun ProjectDetailScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            project.value?.name?.let {
-                Text(
-                    text = it,
-                    fontSize = 24.sp,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(20.dp, 0.dp, 0.dp, 0.dp)
-                )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp, 0.dp, 0.dp, 0.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                project.value?.name?.let {
+                    Text(
+                        text = it,
+                        fontSize = 24.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        showCreateList = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AddCircle,
+                        contentDescription = "Adicionar nova lista de tarefas",
+                        tint = Color.White,
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
             }
+
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -159,36 +202,13 @@ fun ProjectDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp, 0.dp, 0.dp, 0.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp, 0.dp, 0.dp, 0.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Membros", tint = Color.White, modifier = Modifier.size(40.dp))
-                    Text("Time")
-                    Button(onClick = { navController.navigate("member_screen/${projectId}")}) {
-                        Text("Ver membros")
-                    }
-                }
-
-                IconButton(
-                    onClick = {
-                        navController.navigate("create_task_list/$projectId") {
-                            popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AddCircle,
-                        contentDescription = "Adicionar nova lista de tarefas",
-                        tint = Color.White,
-                        modifier = Modifier.size(25.dp)
-                    )
+                Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Membros", tint = Color.White, modifier = Modifier.size(40.dp))
+                Text("Time")
+                Button(onClick = { navController.navigate("member_screen/${projectId}")}) {
+                    Text("Ver membros")
                 }
             }
 
@@ -202,6 +222,7 @@ fun ProjectDetailScreen(
             }
 
             project.value?.taskLists?.let { taskLists ->
+                // Estilização das listas de tarefas
                 if (taskLists.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -222,89 +243,123 @@ fun ProjectDetailScreen(
                     LazyRow(
                         modifier = Modifier
                             .fillMaxSize(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.Top
                     ) {
                         items(taskLists) { taskList ->
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp, 0.dp),
+                                    .padding(10.dp, 0.dp, 0.dp, 10.dp),
                                 elevation = CardDefaults.cardElevation(4.dp),
                                 shape = CardDefaults.shape,
                                 colors = CardDefaults.cardColors(
                                     containerColor = Color(0XFF1F222A)
                                 )
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(10.dp, 0.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(10.dp, 10.dp, 10.dp, 0.dp)
+                                        .align(Alignment.CenterHorizontally)
                                 ) {
-                                    Text(
-                                        text = taskList.name,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = Color.White,
-                                        maxLines = 3,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-
-                                    Spacer(modifier = Modifier.width(5.dp))
-
-                                    Box(
+                                    Row(
                                         modifier = Modifier
-                                            .wrapContentSize(Alignment.Center)
-                                            .background(
-                                                Color.Transparent,
-                                            )
-                                            .border(
-                                                1.dp,
-                                                Color(0XFF246BFD),
-                                                shape = RoundedCornerShape(20.dp)
-                                            )
+                                            .fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Text(
-                                            text = taskList.tasks.size.toString(),
-                                            modifier = Modifier.padding(12.dp, 0.dp,12.dp, 0.dp),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = Color(0XFF246BFD),
-                                            fontWeight = FontWeight.Bold
+                                            text = taskList.name,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = Color.White,
+                                            maxLines = 3,
+                                            overflow = TextOverflow.Ellipsis,
                                         )
-                                    }
-                                    Spacer(modifier = Modifier.width(45.dp))
 
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate("delete_list_screen/${taskList._id}/$projectId") {
-                                                popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Delete,
-                                            contentDescription = "Excluir lista",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(20.dp)
-                                        )
-                                    }
+                                        Spacer(modifier = Modifier.width(5.dp))
 
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigate("create_task_screen/$projectId/${taskList._id}") {
-                                                popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                            }
+                                        Box(
+                                            modifier = Modifier
+                                                .wrapContentSize(Alignment.Center)
+                                                .background(
+                                                    Color.Transparent,
+                                                )
+                                                .border(
+                                                    1.dp,
+                                                    Color(0XFF246BFD),
+                                                    shape = RoundedCornerShape(20.dp)
+                                                )
+                                        ) {
+                                            Text(
+                                                text = taskList.tasks.size.toString(),
+                                                modifier = Modifier.padding(12.dp, 0.dp,12.dp, 0.dp),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = Color(0XFF246BFD),
+                                                fontWeight = FontWeight.Bold
+                                            )
                                         }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.Add,
-                                            contentDescription = "Adicionar nova tarefa",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(20.dp)
-                                        )
                                     }
                                 }
 
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .align(Alignment.CenterHorizontally)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .wrapContentWidth(),
+                                        horizontalArrangement = Arrangement.End,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        IconButton(
+                                            onClick = {
+                                                showDeleteList = true
+                                                listId = taskList._id!!
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Delete,
+                                                contentDescription = "Excluir lista",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+
+                                        IconButton(
+                                            onClick = {
+                                                showEditList = true
+                                                listId = taskList._id!!
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Build,
+                                                contentDescription = "Excluir lista",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(15.dp)
+                                            )
+                                        }
+
+                                        IconButton(
+                                            onClick = {
+                                                navController.navigate("create_task_screen/$projectId/${taskList._id}") {
+                                                    popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                                                }
+                                                project.value!!.taskQuantity + 1
+                                            }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Filled.Add,
+                                                contentDescription = "Adicionar nova tarefa",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                                // Fim da estilização das listas de tarefas
+
+                                // Estilização das tarefas
                                 LazyColumn(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -315,6 +370,7 @@ fun ProjectDetailScreen(
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
+                                                .padding(start = 20.dp, top = 5.dp, end = 20.dp, bottom = 5.dp)
                                                 .clickable(
                                                     onClick = {
                                                         task._id?.let { taskId ->
@@ -329,7 +385,8 @@ fun ProjectDetailScreen(
                                             )
                                         ) {
                                             Column(
-                                                modifier = Modifier.fillMaxWidth()
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
                                                     .padding(16.dp),
                                                 horizontalAlignment = Alignment.Start
                                             ) {
@@ -363,9 +420,9 @@ fun ProjectDetailScreen(
                                                     ) {
                                                         Button(
                                                             onClick = {
-                                                                navController.navigate("move_task_screen/$projectId/${task._id}/${taskList._id}") {
-                                                                    popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                                                }
+                                                                showMoveTask = true
+                                                                taskId = task._id!!
+                                                                taskName = task.name!!
                                                             },
                                                             shape = ButtonDefaults.textShape,
                                                             colors = ButtonDefaults.buttonColors(
@@ -381,9 +438,8 @@ fun ProjectDetailScreen(
 
                                                         Button(
                                                             onClick = {
-                                                                navController.navigate("delete_modal_bottom_sheet/$projectId/${taskList._id}/${task._id}") {
-                                                                    popUpTo("project_detail_screen/$projectId") { inclusive = false }
-                                                                }
+                                                                showDeleteTask = true
+                                                                project.value!!.taskQuantity - 1
                                                             },
                                                             shape = ButtonDefaults.textShape,
                                                             colors = ButtonDefaults.buttonColors(
@@ -401,10 +457,55 @@ fun ProjectDetailScreen(
                                         Spacer(modifier = Modifier.height(10.dp))
                                     }
                                 }
+                                // Fim da estilização das tarefas
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+    if (showDeleteTask) {
+        DeleteModalBottomSheet(projectId = projectId, listId = listId ,taskId = taskId) {
+            showDeleteTask = false
+            navController.navigate("project_detail_screen/$projectId") {
+                popUpTo("project_detail_screen/$projectId") { inclusive = true }
+            }
+        }
+    }
+
+    if (showMoveTask) {
+        MoveTaskModalBottomSheet(projectId, taskId, taskName) {
+            showMoveTask = false
+            navController.navigate("project_detail_screen/$projectId") {
+                popUpTo("project_detail_screen/$projectId") { inclusive = true }
+            }
+        }
+    }
+
+    if (showCreateList) {
+        CreateTaskList(projectId = projectId) {
+            showCreateList = false
+            navController.navigate("project_detail_screen/$projectId") {
+                popUpTo("project_detail_screen/$projectId") { inclusive = true }
+            }
+        }
+    }
+
+    if (showEditList) {
+        EditTaskListModalBottomSheet(projectId = projectId, listId = listId) {
+            showEditList = false
+            navController.navigate("project_detail_screen/$projectId") {
+                popUpTo("project_detail_screen/$projectId") { inclusive = true }
+            }
+        }
+    }
+
+    if (showDeleteList) {
+        DeleteTaskListModalBottomSheet(listId = listId, projectId = projectId) {
+            showCreateList = false
+            navController.navigate("project_detail_screen/$projectId") {
+                popUpTo("project_detail_screen/$projectId") { inclusive = true }
             }
         }
     }

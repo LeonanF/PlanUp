@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.planup.R
 import com.example.planup.model.ApiSubtask
-import com.example.planup.model.Status
+import com.example.planup.model.SubtaskStatus
 import com.example.planup.model.SubtaskRequest
 import com.example.planup.repository.SubtaskRepository
 import java.time.Instant
@@ -103,7 +103,7 @@ fun CreateSubtaskModalBottomSheet(
                 Button(onClick = {
                     if(name.value.isNotBlank() && dueDate.value.isNotBlank()){
                         val subtask = SubtaskRequest(projectId = projectId, listId = listId, taskId = taskId,
-                            ApiSubtask(name = name.value, status = Status.TODO.toDatabaseString(), dueDate = dueDate.value))
+                            ApiSubtask(name = name.value, status = SubtaskStatus.TODO.toDatabaseString(), dueDate = dueDate.value))
                         SubtaskRepository().postSubTask(subtask)
                         onDismiss.invoke()
                     }},

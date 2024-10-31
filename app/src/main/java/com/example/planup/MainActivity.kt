@@ -12,12 +12,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.planup.ui.components.CreateTaskList
+import com.example.planup.ui.screens.CreateProfileScreen
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteAccountScreen
-import com.example.planup.ui.screens.DeleteListScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MemberScreen
+import com.example.planup.ui.screens.ProfileScreen
 import com.example.planup.ui.screens.ProjectDetailScreen
 import com.example.planup.ui.screens.ProjectListScreen
 import com.example.planup.ui.screens.RegisterScreen
@@ -89,32 +90,24 @@ class MainActivity : ComponentActivity() {
             composable("project_detail_screen/{projectId}") { backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 ProjectDetailScreen(navController = navController, projectId = projectId!!)
-                }
-
-            composable("delete_list_screen/{listId}/{projectId}") {
-                backStackEntry ->
-                val listId = backStackEntry.arguments?.getString("listId")
-                val projectId = backStackEntry.arguments?.getString("projectId")
-                DeleteListScreen(listId = listId!!, projectId = projectId!!) {
-                    navController.popBackStack()
-                }
             }
             composable("member_screen/{projectId}") {
                     backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 MemberScreen(projectId = projectId!!, navController = navController)
             }
-/*            composable("move_task_screen/{projectId}/{taskId}") { backStackEntry ->
-                val projectId = backStackEntry.arguments?.getString("projectId")
-                val taskId = backStackEntry.arguments?.getString("taskId")
-
-                MoveTaskScreen(projectId = projectId!!, taskId = taskId!!)
-            }*/
-
             composable("delete_account_screen") {
                 DeleteAccountScreen(navController = navController)
             }
+            composable("create_profile_screen") {
+                CreateProfileScreen(navController = navController)
+            }
+            composable("profile_screen/{userId}/{qtdProject}/{qtdTask}") { backStackEntry ->
+                val userId = backStackEntry.arguments?.getString("userId")
+                val qtdProject = backStackEntry.arguments?.getString("qtdProject")?.toIntOrNull()
+                val qtdTask = backStackEntry.arguments?.getString("qtdTask")?.toIntOrNull()
+                ProfileScreen(navController = navController, userId = userId, qtdProjects = qtdProject, qtdTasks = qtdTask)
+            }
         }
     }
-
 }

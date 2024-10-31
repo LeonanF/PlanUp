@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,10 +26,12 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Comment
 import com.example.planup.model.CommentRequest
-import com.example.planup.model.Status
+import com.example.planup.model.Priority
+import com.example.planup.model.SubtaskStatus
 import com.example.planup.model.Subtask
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.TaskStatus
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
@@ -42,39 +45,34 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
-    val comments = remember { mutableStateListOf<CommentRequest>() } // Altera para armazenar comentários com e-mail
+    val comments = remember { mutableStateListOf<CommentRequest>() }
     val isEditingDescription = remember { mutableStateOf(false) }
     val descriptionText = remember { mutableStateOf("") }
+    val isEditingName = remember { mutableStateOf(false) }
+    val taskName = remember { mutableStateOf("") }
     val commentText = remember { mutableStateOf("") }
+    var taskStatus by remember {
+        mutableStateOf("")
+    }
+    var taskPriority by remember{
+        mutableStateOf("")
+    }
     val user = FirebaseAuth.getInstance().currentUser
     val email = user?.email
     val currentDate = remember {
-        SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())//data do sistem
+        SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
     }
+
     val context = LocalContext.current
     val replyText = remember { mutableStateOf("") }
-    val replyingTo = remember { mutableStateOf<Pair<String, String>?>(null) } // Guarda o comentário sendo respondido
-    var showReplies by remember { mutableStateOf(false) } // Estado para controlar a visibilidade das respostas
-    val replies = remember { mutableStateListOf<Pair<String, String>>() } // Definindo a lista de respostas
-    var isReplyFieldVisible by remember { mutableStateOf(false) } // Variável para controlar a visibilidade do campo de resposta
+    val replyingTo = remember { mutableStateOf<Pair<String, String>?>(null) }
+    var showReplies by remember { mutableStateOf(false) }
+    val replies = remember { mutableStateListOf<Pair<String, String>>() }
+    var isReplyFieldVisible by remember { mutableStateOf(false) }
 
     var showCreateSubtask by remember { mutableStateOf(false) }
 
     val taskRepository = remember { TaskRepository() }
-
-    /*LaunchedEffect(taskId) {
-        TaskRepository().fetchTask(taskId, listId, projectId) { result, errorMsg ->
-            task.value = result
-            error.value = errorMsg
-            result?.let { taskData ->
-                descriptionText.value = taskData.description
-                comments.clear()
-                taskData.comments.let { commentList ->
-                    comments.addAll(commentList) // Adiciona comentários se não for nulo
-                }
-            }
-        }
-    }*/
 
     LaunchedEffect(taskId) {
         taskRepository.fetchTask(taskId, listId, projectId) { result, errorMsg ->
@@ -82,17 +80,20 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             error.value = errorMsg
             result?.let { taskData ->
                 descriptionText.value = taskData.description
-                comments.clear() // Limpa a lista de comentários
+                taskName.value = taskData.name
+                comments.clear()
 
-                // Adiciona os comentários como CommentRequest
+                taskStatus = result.status.toDatabaseString()
+                taskPriority = result.priority?.toDatabaseString() ?: "Sem prioridade"
+
                 taskData.comments.forEach { comment ->
                     val commentRequest = CommentRequest(
                         projectId = projectId,
                         listId = listId,
                         taskId = taskId,
-                        comment = comment // Aqui estamos usando o Comment
+                        comment = comment
                     )
-                    comments.add(commentRequest) // Adiciona à lista de CommentRequest
+                    comments.add(commentRequest)
                 }
             }
         }
@@ -102,14 +103,30 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
         topBar = {
             TopAppBar(
                 title = {
-                    task.value?.let {
-                        Text(
-                            text = it.name,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            color = Color.White,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                    task.value?.let { it ->
+                        if(isEditingName.value) {
+                            OutlinedTextField(
+                                value = taskName.value,
+                                onValueChange = { taskName.value = it },
+                                label = { Text("Editar Nome da Tarefa") },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = Color.White,
+                                    focusedBorderColor = Color.White,
+                                    unfocusedBorderColor = Color.Gray,
+                                    cursorColor = Color.White
+                                )
+                            )
+                        } else {
+                            Text(
+                                text = it.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                color = Color.White,
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable { isEditingName.value = true }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -171,9 +188,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 Button(
                                     onClick = {
                                         isEditingDescription.value = false
+                                        isEditingName.value = false
 
                                         task.value?.let { updatedTask ->
-                                            task.value = updatedTask.copy(description = descriptionText.value)
+                                            task.value = updatedTask.copy(name = taskName.value ,description = descriptionText.value)
 
                                             val updatedTaskRequest = TaskRequest(
                                                 projectId = projectId,
@@ -218,6 +236,114 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     .fillMaxWidth()
                                     .padding(0.dp, 50.dp, 10.dp)
                             )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(modifier = Modifier.fillMaxWidth()
+                                .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically){
+                                Text(
+                                    text = "Status: ",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 20.sp,
+                                    color = Color.White,
+                                    modifier = Modifier
+                                )
+
+                                val status = TaskStatus.entries
+                                var expandedStatus by remember { mutableStateOf(false) }
+
+                                OutlinedButton(
+                                    onClick = { expandedStatus = true }
+                                ) {
+                                    Text(text = when(taskStatus){
+                                        "TODO" -> "A fazer"
+                                        "DOING" -> "Fazendo"
+                                        "DONE" -> "Feita"
+                                        else -> "Status desconhecido"
+                                    })
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expandedStatus,
+                                    onDismissRequest = { expandedStatus = false }
+                                ) {
+                                    status.forEach { status ->
+                                        DropdownMenuItem(text = {
+                                            Text(text = when(status.name){
+                                                "TODO" -> "A fazer"
+                                                "DOING" -> "Fazendo"
+                                                "DONE" -> "Feita"
+                                                else -> "Status desconhecido"
+                                            })
+                                        },
+                                            onClick = {
+                                                taskRepository.updateTaskStatus(projectId, listId, taskId, status)
+                                                taskStatus = status.name
+                                                expandedStatus = false
+                                            })
+                                    }
+                                }
+
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Row(modifier = Modifier.fillMaxWidth()
+                                .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(
+                                    text = "Prioridade: ",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 20.sp,
+                                    color = Color.White
+                                )
+
+                                val priorities = Priority.entries
+                                var expandedPriority by remember { mutableStateOf(false) }
+
+                                OutlinedButton(
+                                    onClick = { expandedPriority = true }
+                                ) {
+                                    Text(text = when(taskPriority){
+                                        "HIGH" -> "Alta"
+                                        "MEDIUM" -> "Média"
+                                        "LOW" -> "Baixa"
+                                        else -> "Sem prioridade"
+                                    })
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowDropDown,
+                                        contentDescription = null
+                                    )
+                                }
+
+                                DropdownMenu(
+                                    expanded = expandedPriority,
+                                    onDismissRequest = { expandedPriority = false }
+                                ) {
+                                    priorities.forEach { priority ->
+                                        DropdownMenuItem(text = {
+                                            Text(text = when(priority.name){
+                                                "HIGH" -> "Alta"
+                                                "MEDIUM" -> "Média"
+                                                "LOW" -> "Baixa"
+                                                else -> "Sem prioridade"
+                                            })
+                                                                },
+                                            onClick = {
+                                                taskRepository.updateTaskPriority(projectId, listId, taskId, priority)
+                                                taskPriority = priority.name
+                                                expandedPriority = false
+                                        })
+                                    }
+                                }
+
+
+                            }
 
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -357,7 +483,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     horizontalArrangement = Arrangement.End
                 ){
                     Button(modifier = Modifier
-                        .padding(16.dp),
+                        .padding(16.dp)
+                        .width(180.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF246BFD),
                             contentColor = Color.White
@@ -379,7 +506,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    Button(
+                    Button( modifier = Modifier
+                        .padding(16.dp)
+                        .width(180.dp),
                         onClick = {
                             task.value?.let { currentTask ->
 
@@ -463,7 +592,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     replies = listOf()
                                 )
                                 val newCommentRequest = CommentRequest(projectId = projectId,listId = listId,taskId = taskId, comment = newComment)
-
                                 taskRepository.postComment(newCommentRequest) { success, errorMsg ->
                                     if (success) {
                                         comments.add(newCommentRequest)
@@ -686,9 +814,9 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
                 )
             }
             Checkbox(
-                checked = status==Status.DONE,
+                checked = status==SubtaskStatus.DONE,
                 onCheckedChange = { isChecked ->
-                    val updatedStatus = if (isChecked) Status.DONE else Status.TODO
+                    val updatedStatus = if (isChecked) SubtaskStatus.DONE else SubtaskStatus.TODO
                     status = updatedStatus
                 },
                 colors = CheckboxDefaults.colors(

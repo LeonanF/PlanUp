@@ -2,10 +2,12 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.Priority
 import com.example.planup.model.Reply
 import com.example.planup.model.ReplyRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.TaskStatus
 import com.example.planup.network.CommentResponse
 import com.example.planup.network.ReplyResponse
 import com.example.planup.network.RetrofitInstance
@@ -18,7 +20,7 @@ class TaskRepository {
 
     private val apiService = RetrofitInstance.apiService
 
-    suspend fun moveTask(
+    fun moveTask(
         projectId: String,
         taskId: String,
         destinationList: String,
@@ -195,6 +197,43 @@ class TaskRepository {
                 Log.e("FetchReplies", "Erro ao buscar respostas: ${t.message}")
                 t.printStackTrace()
             }
+        })
+    }
+
+
+    fun updateTaskStatus(projectId: String, listId: String, taskId: String, status: TaskStatus){
+        apiService.updateTaskStatus(projectId, listId, taskId, status.toDatabaseString()).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("UpdateTaskStatus", "Status atualizado com sucesso: ${response.body()}")
+                } else{
+                    Log.d("UpdateTaskStatus", "Falha ao atualizar status: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateTaskStatus", "Erro ao atualizar status de tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+
+        })
+    }
+
+    fun updateTaskPriority(projectId: String, listId: String, taskId: String, priority: Priority){
+        apiService.updateTaskPriority(projectId, listId, taskId, priority.toDatabaseString()).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("UpdateTaskPriority", "Prioridade atualizada com sucesso: ${response.body()}")
+                } else{
+                    Log.d("UpdateTaskPriority", "Falha ao atualizar prioridade: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateTaskPriority", "Erro ao atualizar prioridade de tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+
         })
     }
 

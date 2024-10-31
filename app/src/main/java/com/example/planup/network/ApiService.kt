@@ -8,8 +8,10 @@ import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.ReplyRequest
 import com.example.planup.model.SubtaskRequest
 import com.example.planup.model.Task
+import com.example.planup.model.TaskList
 import com.example.planup.model.TaskListRequest
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.User
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
@@ -30,7 +32,7 @@ interface ApiService {
     fun fetchReplies(@Query("taskId") taskId: String,@Query("commentId") commentId: String): Call<ReplyResponse>
 
     @GET("lists")
-    fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
+    fun fetchTaskList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<TaskList>
 
     @GET("projectPreviews")
     fun fetchProjectPreviews(@Query("userId") userId: String): Call<ProjectPreviewResponse>
@@ -44,6 +46,9 @@ interface ApiService {
     // @GET("userProjects")
     // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
 
+    @GET("users")
+    fun fetchUser(@Query("userId") userId: String): Call<User>
+
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
 
@@ -56,8 +61,8 @@ interface ApiService {
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
-    @POST("tasks/move")
-    suspend fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
+    @POST("tasks")
+    fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
 
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
@@ -71,8 +76,20 @@ interface ApiService {
     @POST("lists")
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
-    @PUT("tasks/{id}")
+    @POST("users")
+    fun postUser(@Body newUser: User): Call<ResponseBody>
+
+    @PUT("tasks")
     fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
+
+    @PUT("taskStatus")
+    fun updateTaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("status") status: String) : Call<ResponseBody>
+
+    @PUT("taskPriority")
+    fun updateTaskPriority(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("priority") priority: String) : Call<ResponseBody>
+
+    @PUT("lists")
+    fun updateTaskList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
 
     @DELETE("tasks")
     fun deleteTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String): Call<ResponseBody>

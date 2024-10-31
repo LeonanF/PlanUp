@@ -19,6 +19,7 @@ import androidx.navigation.NavHostController
 import com.example.planup.R
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.TaskStatus
 import com.example.planup.repository.TaskRepository
 import java.util.Date
 import java.util.Locale
@@ -136,6 +137,8 @@ fun CreateTaskScreen(navController: NavHostController, projectId: String, listId
                             name = title,
                             description = description,
                             data = currentDate,
+                            priority = null,
+                            status  = TaskStatus.TODO,
                             attributes = emptyList(),
                             comments = emptyList(),
                             subtasks = emptyList()

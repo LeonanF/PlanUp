@@ -111,8 +111,7 @@ fun CreateProjectModalBottomSheet(
                                 description = projectDescription.value,
                                 owner = userid,
                                 taskLists = emptyList(),
-                                members = listOf(userid),
-                                status = ""
+                                members = listOf(userid)
                             )
                         )
                     onDismiss.invoke()

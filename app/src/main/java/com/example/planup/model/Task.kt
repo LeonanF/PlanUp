@@ -7,7 +7,9 @@ data class Task(
     val name: String,
     var description: String,
     val data: String,
-    val attributes: List<Attribute>,
-    val comments: List<Comment>,
-    val subtasks: List<Subtask>
+    val priority: Priority?,
+    val status: TaskStatus,
+    val attributes: List<Attribute> = listOf(),
+    val comments: List<Comment> = listOf(),
+    val subtasks: List<Subtask> = listOf()
 )

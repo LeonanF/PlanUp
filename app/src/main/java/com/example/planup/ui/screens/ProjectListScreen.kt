@@ -109,7 +109,11 @@ fun ProjectListScreen(navController: NavHostController) {
                             showCreateProject = true
                         })
                         BottomBarItem(iconRes = R.drawable.inbox, label = "Inbox", onClick = {})
-                        BottomBarItem(iconRes = R.drawable.person, label = "Perfil", onClick = {})
+                        BottomBarItem(iconRes = R.drawable.person, label = "Perfil", onClick = {
+                            navController.navigate("profile_screen/$userId/${projects.value?.size}/${projects.value?.sumOf { it.taskQuantity }}") {
+                                popUpTo("project_list_screen"){ inclusive = false }
+                            }
+                        })
                     }
                 },
                     modifier = Modifier.fillMaxWidth(),

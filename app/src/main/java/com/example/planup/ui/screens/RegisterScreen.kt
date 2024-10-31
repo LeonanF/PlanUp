@@ -236,7 +236,7 @@ fun RegisterScreen(navController: NavHostController? = null) {
           } else {
             EmailAndPasswordAuth().signUpWithEmailAndPassword(email, senha) { result ->
               if (result) {
-                navController!!.navigate("home_screen"){
+                navController!!.navigate("create_profile_screen"){
                   popUpTo("register_screen"){inclusive = true}
                 }
               } else {
