@@ -2,9 +2,12 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.Reply
+import com.example.planup.model.ReplyRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
 import com.example.planup.network.CommentResponse
+import com.example.planup.network.ReplyResponse
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -121,7 +124,7 @@ class TaskRepository {
         })
     }
 
-    fun getComment(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
+    fun fetchComment(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
         apiService.fetchComment(taskId, listId, projectId).enqueue(object : Callback<CommentResponse> {
             override fun onResponse(call: Call<CommentResponse>, response: Response<CommentResponse>) {
                 if (response.isSuccessful) {
@@ -154,4 +157,45 @@ class TaskRepository {
             }
         })
     }
+
+    fun postReply(replyRequest: ReplyRequest, callback: (Boolean, String?) -> Unit) {
+        apiService.postReply(replyRequest).enqueue(object : Callback<ReplyResponse> {
+            override fun onResponse(call: Call<ReplyResponse>, response: Response<ReplyResponse>) {
+                if (response.isSuccessful) {
+                    Log.d("PostReply", "Resposta adicionada com sucesso")
+                    callback(true, null)
+                } else {
+                    Log.d("PostReply", "Falha ao adicionar resposta: ${response.errorBody()?.string()}")
+                    callback(false, response.errorBody()?.string())
+                }
+            }
+
+            override fun onFailure(call: Call<ReplyResponse>, t: Throwable) {
+                Log.e("PostReply", "Erro ao enviar resposta: ${t.message}")
+                callback(false, t.message)
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun fetchReplies(taskId: String,listId: String, projectId: String, commentId: String, callback: (List<Reply>?, String?) -> Unit) {
+        apiService.fetchReplies(taskId, commentId).enqueue(object : Callback<ReplyResponse> {
+            override fun onResponse(call: Call<ReplyResponse>, response: Response<ReplyResponse>) {
+                if (response.isSuccessful) {
+                    callback(response.body()?.data, null)
+                    Log.d("FetchReplies", "Respostas encontradas: ${response.body()?.data}")
+                } else {
+                    callback(null, response.errorBody()?.string())
+                    Log.e("FetchReplies", "Erro ao buscar respostas: ${response.errorBody()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ReplyResponse>, t: Throwable) {
+                callback(null, t.message)
+                Log.e("FetchReplies", "Erro ao buscar respostas: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
+
 }

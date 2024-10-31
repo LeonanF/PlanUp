@@ -173,7 +173,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         isEditingDescription.value = false
 
                                         task.value?.let { updatedTask ->
-                                            // Atualiza a descrição localmente
                                             task.value = updatedTask.copy(description = descriptionText.value)
 
                                             val updatedTaskRequest = TaskRequest(
@@ -184,7 +183,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                                             TaskRepository().updateTask(updatedTaskRequest)
 
-                                            Toast.makeText(context, "Tarefa atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Descrição atualizada com sucesso!", Toast.LENGTH_SHORT).show()
                                         }
                                     },
                                     modifier = Modifier
@@ -299,6 +298,20 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                                             Button(
                                                 onClick = {
+                                                    task.value?.let { updatedTask ->
+
+                                                        task.value = updatedTask.copy(description = descriptionText.value)
+
+                                                        val updatedTaskRequest = TaskRequest(
+                                                            projectId = projectId,
+                                                            listId = listId,
+                                                            task = updatedTask
+                                                        )
+
+                                                        TaskRepository().updateTask(updatedTaskRequest)
+
+                                                        Toast.makeText(context, "Atributo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
+                                                    }
                                                 },
                                                 modifier = Modifier.padding(start = 8.dp),
                                                 colors = ButtonDefaults.buttonColors(
@@ -439,11 +452,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     horizontalArrangement = Arrangement.End
                 ) {
                     Button(
-// Dentro do seu método onClick
                         onClick = {
                             if (commentText.value.isNotBlank() && email != null) {
-                                // Criação do comentário
-
                                 val newComment = Comment(
                                     _id = null,
                                     data = currentDate,
@@ -453,20 +463,17 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     replies = listOf()
                                 )
                                 val newCommentRequest = CommentRequest(projectId = projectId,listId = listId,taskId = taskId, comment = newComment)
-                                // Chamada para postComment
+
                                 taskRepository.postComment(newCommentRequest) { success, errorMsg ->
                                     if (success) {
-                                        // Comentário adicionado com sucesso
-                                        comments.add(newCommentRequest) // Atualiza a lista de comentários
-                                        commentText.value = "" // Limpa o campo de texto
+                                        comments.add(newCommentRequest)
+                                        commentText.value = ""
                                         Toast.makeText(context, "Comentário adicionado com sucesso!", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        // Tratamento de erro
                                         Toast.makeText(context, errorMsg ?: "Erro ao adicionar comentário", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             } else {
-                                // Aviso se o campo de texto estiver vazio
                                 Toast.makeText(context, "Por favor, preencha o comentário.", Toast.LENGTH_SHORT).show()
                             }
                         },

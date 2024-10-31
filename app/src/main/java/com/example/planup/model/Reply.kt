@@ -4,5 +4,5 @@ data class Reply(
     val text: String,
     val email: String,
     val data: Long,
-    val userId: String
+    val userId: String?
 )

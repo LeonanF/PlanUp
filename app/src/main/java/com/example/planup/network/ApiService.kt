@@ -5,6 +5,7 @@ import com.example.planup.model.CommentRequest
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
+import com.example.planup.model.ReplyRequest
 import com.example.planup.model.SubtaskRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskListRequest
@@ -22,6 +23,12 @@ interface ApiService {
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
+    @GET("comments")
+    fun fetchComment(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String/*, @Query("comment") comment: String*/): Call<CommentResponse>
+
+    @GET("replies")
+    fun fetchReplies(@Query("taskId") taskId: String,@Query("commentId") commentId: String): Call<ReplyResponse>
+
     @GET("lists")
     fun fetchLists(@Query("projectId") projectId: String): Call<TaskListResponse>
 
@@ -36,9 +43,6 @@ interface ApiService {
 
     // @GET("userProjects")
     // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
-
-    @GET("comments")
-    fun fetchComment(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String/*, @Query("comment") comment: String*/): Call<CommentResponse>
 
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
@@ -60,6 +64,9 @@ interface ApiService {
 
     @POST("comments")
     fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
+
+    @POST("replies")
+    fun postReply(@Body replyRequest: ReplyRequest): Call<ReplyResponse>
 
     @POST("lists")
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
