@@ -1,13 +1,33 @@
 package com.example.planup.ui.components
 
+import android.widget.Toast
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.planup.auth.EmailAndPasswordAuth
 import com.example.planup.repository.TaskRepository
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeleteModalBottomSheet(
     projectId: String,
@@ -15,41 +35,88 @@ fun DeleteModalBottomSheet(
     taskId: String,
     onDismiss: () -> Unit
 ) {
-    var isLoading by remember { mutableStateOf(false) }
-    val deleteSuccess by remember { mutableStateOf<Boolean?>(null) }
     val taskRepository = TaskRepository()
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
-    // Exibição do modal de alerta
-    AlertDialog(
+    ModalBottomSheet(
+        modifier = Modifier
+            .heightIn(200.dp),
         onDismissRequest = onDismiss,
-        title = {
-            Text(text = "Deseja realmente deletar?", color = Color.Red)
-        },
-        confirmButton = {
+        containerColor = Color(0xFF181A20)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Deletar Tarefa",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0XFFF75555)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            HorizontalDivider(color = Color(0xFF35383F), thickness = 1.dp, modifier = Modifier.padding(20.dp, 0.dp))
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Text(
+                text = "Deseja mesmo deletar esta tarefa?",
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.White
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             Button(
                 onClick = {
-                    isLoading = true
-                    scope.launch {
-                        taskRepository.deleteTask(projectId, listId, taskId)
-                        isLoading = false
-                        onDismiss()
+                    TaskRepository().deleteTask(projectId, listId, taskId) { success->
+                        if (success) {
+                            Toast.makeText(context, "Tarefa deletada com sucesso!", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        } else {
+                            Toast.makeText(context, "Erro ao deletar tarefa!", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 },
-                enabled = !isLoading
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF246BFD),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(55.dp)
             ) {
-                Text(text = "Excluir", color = Color.White)
+                Text(
+                    "Sim, Deletar",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text(text = "Cancelar", color = Color.White)
-            }
-        },
-        text = {
-            if (deleteSuccess == false) {
-                Text(text = "Erro ao excluir a tarefa", color = Color.Red)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { onDismiss() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF35383F),
+                    contentColor = Color.White
+                ),
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(55.dp)
+            ) {
+                Text(
+                    "Cancelar",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
-    )
+    }
 }

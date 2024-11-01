@@ -17,7 +17,7 @@ plugins {
 
 android {
     namespace = "com.example.planup"
-    compileSdk = 34
+    compileSdk = 35
 
     buildFeatures {
         buildConfig = true
@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.example.planup"
         minSdk = 33
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "API_KEY", "\"$apiKey\"")

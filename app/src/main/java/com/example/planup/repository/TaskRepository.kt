@@ -51,19 +51,22 @@ class TaskRepository {
         })
     }
 
-    fun deleteTask(projectId: String, listId: String, taskId: String) {
+    fun deleteTask(projectId: String, listId: String, taskId: String, callback: (Boolean) -> Unit) {
         apiService.deleteTask(projectId, listId, taskId).enqueue(object: Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if(response.isSuccessful){
+                    callback(true)
                     Log.d("DeleteTask", "Tarefa deletada com sucesso: ${response.body()}")
                 } else {
+                    callback(false)
                     Log.d("DeleteTask", "Falha ao deletar tarefa: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Log.e("DeleteTask", "Erro ao deletar tarefa: ${t.message}")
-                    t.printStackTrace()
+                callback(false)
+                Log.e("DeleteTask", "Erro ao deletar tarefa: ${t.message}")
+                t.printStackTrace()
             }
         })
     }

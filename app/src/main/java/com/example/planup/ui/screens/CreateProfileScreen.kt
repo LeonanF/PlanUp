@@ -54,9 +54,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import coil.transform.CircleCropTransformation
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.request.transformations
+import coil3.transform.CircleCropTransformation
 import com.example.planup.R
 import com.example.planup.auth.EmailAndPasswordAuth
 import com.example.planup.model.User
@@ -80,12 +81,10 @@ fun CreateProfileScreen(navController: NavHostController? = null) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    // Inicializa o seletor de imagens da galeria
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
-            // Salva a imagem no armazenamento local e atualiza o URI da imagem
             val result = UserRepository().saveImageToInternalStorage(context, uri)
             if (result.success) {
                 imageUri = result.uri

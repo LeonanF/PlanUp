@@ -1,27 +1,29 @@
 [versions]
 agp = "8.5.2"
 bsonKotlinx = "5.1.4"
+coilCompose = "3.0.0-rc02"
 converterGson = "2.11.0"
-firebaseBom = "33.3.0"
+firebaseBom = "33.5.1"
 kotlin = "2.0.20"
-coreKtx = "1.13.1"
+coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.2"
-composeBom = "2024.09.02"
-fragmentKtx = "1.8.3"
+lifecycleRuntimeKtx = "2.8.7"
+activityCompose = "1.9.3"
+composeBom = "2024.10.01"
+fragmentKtx = "1.8.5"
 appcompat = "1.7.0"
 mongodbDriverKotlinCoroutine = "5.1.4"
-navigationRuntimeKtx = "2.8.1"
-navigationCompose = "2.8.1"
+navigationRuntimeKtx = "2.8.3"
+navigationCompose = "2.8.3"
 retrofit = "2.11.0"
 roomKtx = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 bson-kotlinx = { module = "org.mongodb:bson-kotlinx", version.ref = "bsonKotlinx" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 com-google-firebase-firebase-auth-ktx = { module = "com.google.firebase:firebase-auth-ktx" }
 com-google-firebase-firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }

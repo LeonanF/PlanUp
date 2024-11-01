@@ -50,9 +50,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
-import com.example.planup.auth.EmailAndPasswordAuth
 import com.example.planup.model.User
 import com.example.planup.repository.UserRepository
+import com.example.planup.ui.components.SignOutModalBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,6 +60,7 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
     val user = remember { mutableStateOf<User?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val showSignOutModalBottomSheet = remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     // Carrega a imagem salva ao iniciar a tela
@@ -240,7 +241,8 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
-                    modifier = Modifier.wrapContentSize()
+                    modifier = Modifier
+                        .wrapContentSize()
                         .clickable {
                             /* TODO NOT YET IMPLEMENTED */
                         }
@@ -256,18 +258,17 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                         color = Color.White,
                         fontSize = 14.sp,
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
-                        modifier = Modifier.padding(start = 30.dp)
+                        modifier = Modifier
+                            .padding(start = 30.dp)
                             .align(Alignment.CenterEnd)
                     )
                 }
 
                 Box(
-                    modifier = Modifier.wrapContentSize()
+                    modifier = Modifier
+                        .wrapContentSize()
                         .clickable {
-                            EmailAndPasswordAuth().signOutEmailAndPassword()
-                            navController?.navigate("login_screen") {
-                                popUpTo("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {inclusive = true}
-                            }
+                            showSignOutModalBottomSheet.value = true
                         }
                 ) {
                     Icon(
@@ -281,13 +282,14 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                         color = Color(0XFFF75555),
                         fontSize = 14.sp,
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Normal),
-                        modifier = Modifier.padding(start = 30.dp)
+                        modifier = Modifier
+                            .padding(start = 30.dp)
                             .align(Alignment.CenterEnd)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -303,7 +305,8 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                         containerColor = Color(0XFFF75555),
                         contentColor = Color.White
                     ),
-                    modifier = Modifier.heightIn(55.dp)
+                    modifier = Modifier
+                        .heightIn(55.dp)
                         .fillMaxWidth()
                         .padding(20.dp, 0.dp)
                 ) {
@@ -314,6 +317,43 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold)
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                Alignment.Center
+            ) {
+                Button(
+                    onClick = {
+                        navController?.popBackStack()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF35383F),
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .heightIn(55.dp)
+                        .fillMaxWidth()
+                        .padding(20.dp, 0.dp)
+                ) {
+                    Text(
+                        text = "Voltar",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.ExtraBold)
+                    )
+                }
+            }
+        }
+    }
+
+    if(showSignOutModalBottomSheet.value) {
+        SignOutModalBottomSheet(navController) {
+            showSignOutModalBottomSheet.value = false
+            navController?.navigate("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {
+                popUpTo("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {inclusive = true}
             }
         }
     }
