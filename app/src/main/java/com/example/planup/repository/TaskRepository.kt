@@ -126,7 +126,7 @@ class TaskRepository {
         })
     }
 
-    fun fetchComment(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
+    fun getComments(taskId: String, listId: String, projectId: String, callback: (CommentResponse?, String?) -> Unit) {
         apiService.fetchComment(taskId, listId, projectId).enqueue(object : Callback<CommentResponse> {
             override fun onResponse(call: Call<CommentResponse>, response: Response<CommentResponse>) {
                 if (response.isSuccessful) {
@@ -180,7 +180,7 @@ class TaskRepository {
         })
     }
 
-    fun fetchReplies(taskId: String,listId: String, projectId: String, commentId: String, callback: (List<Reply>?, String?) -> Unit) {
+    fun getReplies(taskId: String,listId: String, projectId: String, commentId: String, callback: (List<Reply>?, String?) -> Unit) {
         apiService.fetchReplies(taskId, commentId).enqueue(object : Callback<ReplyResponse> {
             override fun onResponse(call: Call<ReplyResponse>, response: Response<ReplyResponse>) {
                 if (response.isSuccessful) {

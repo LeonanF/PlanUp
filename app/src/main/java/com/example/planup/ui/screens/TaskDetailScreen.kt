@@ -9,8 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -191,7 +191,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         isEditingName.value = false
 
                                         task.value?.let { updatedTask ->
-                                            task.value = updatedTask.copy(name = taskName.value ,description = descriptionText.value)
+                                            task.value = updatedTask.copy(
+                                                name = taskName.value,
+                                                description = descriptionText.value
+                                            )
 
                                             val updatedTaskRequest = TaskRequest(
                                                 projectId = projectId,
@@ -201,7 +204,11 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                                             TaskRepository().updateTask(updatedTaskRequest)
 
-                                            Toast.makeText(context, "Descrição atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(
+                                                context,
+                                                "Descrição atualizada com sucesso!",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
                                         }
                                     },
                                     modifier = Modifier
@@ -239,9 +246,11 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Row(modifier = Modifier.fillMaxWidth()
-                                .padding(0.dp, 50.dp, 10.dp),
-                                verticalAlignment = Alignment.CenterVertically){
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Text(
                                     text = "Status: ",
                                     fontWeight = FontWeight.Normal,
@@ -256,12 +265,14 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 OutlinedButton(
                                     onClick = { expandedStatus = true }
                                 ) {
-                                    Text(text = when(taskStatus){
-                                        "TODO" -> "A fazer"
-                                        "DOING" -> "Fazendo"
-                                        "DONE" -> "Feita"
-                                        else -> "Status desconhecido"
-                                    })
+                                    Text(
+                                        text = when (taskStatus) {
+                                            "TODO" -> "A fazer"
+                                            "DOING" -> "Fazendo"
+                                            "DONE" -> "Feita"
+                                            else -> "Status desconhecido"
+                                        }
+                                    )
                                     Icon(
                                         imageVector = Icons.Default.ArrowDropDown,
                                         contentDescription = null
@@ -274,15 +285,22 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 ) {
                                     status.forEach { status ->
                                         DropdownMenuItem(text = {
-                                            Text(text = when(status.name){
-                                                "TODO" -> "A fazer"
-                                                "DOING" -> "Fazendo"
-                                                "DONE" -> "Feita"
-                                                else -> "Status desconhecido"
-                                            })
+                                            Text(
+                                                text = when (status.name) {
+                                                    "TODO" -> "A fazer"
+                                                    "DOING" -> "Fazendo"
+                                                    "DONE" -> "Feita"
+                                                    else -> "Status desconhecido"
+                                                }
+                                            )
                                         },
                                             onClick = {
-                                                taskRepository.updateTaskStatus(projectId, listId, taskId, status)
+                                                taskRepository.updateTaskStatus(
+                                                    projectId,
+                                                    listId,
+                                                    taskId,
+                                                    status
+                                                )
                                                 taskStatus = status.name
                                                 expandedStatus = false
                                             })
@@ -292,10 +310,11 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                             }
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Row(modifier = Modifier.fillMaxWidth()
-                                .padding(0.dp, 50.dp, 10.dp),
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(0.dp, 50.dp, 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 Text(
                                     text = "Prioridade: ",
                                     fontWeight = FontWeight.Normal,
@@ -309,12 +328,14 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 OutlinedButton(
                                     onClick = { expandedPriority = true }
                                 ) {
-                                    Text(text = when(taskPriority){
-                                        "HIGH" -> "Alta"
-                                        "MEDIUM" -> "Média"
-                                        "LOW" -> "Baixa"
-                                        else -> "Sem prioridade"
-                                    })
+                                    Text(
+                                        text = when (taskPriority) {
+                                            "HIGH" -> "Alta"
+                                            "MEDIUM" -> "Média"
+                                            "LOW" -> "Baixa"
+                                            else -> "Sem prioridade"
+                                        }
+                                    )
                                     Icon(
                                         imageVector = Icons.Default.ArrowDropDown,
                                         contentDescription = null
@@ -327,18 +348,25 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 ) {
                                     priorities.forEach { priority ->
                                         DropdownMenuItem(text = {
-                                            Text(text = when(priority.name){
-                                                "HIGH" -> "Alta"
-                                                "MEDIUM" -> "Média"
-                                                "LOW" -> "Baixa"
-                                                else -> "Sem prioridade"
-                                            })
-                                                                },
+                                            Text(
+                                                text = when (priority.name) {
+                                                    "HIGH" -> "Alta"
+                                                    "MEDIUM" -> "Média"
+                                                    "LOW" -> "Baixa"
+                                                    else -> "Sem prioridade"
+                                                }
+                                            )
+                                        },
                                             onClick = {
-                                                taskRepository.updateTaskPriority(projectId, listId, taskId, priority)
+                                                taskRepository.updateTaskPriority(
+                                                    projectId,
+                                                    listId,
+                                                    taskId,
+                                                    priority
+                                                )
                                                 taskPriority = priority.name
                                                 expandedPriority = false
-                                        })
+                                            })
                                     }
                                 }
 
@@ -347,115 +375,112 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Text(
-                                text = "Atributos: ",
-                                fontWeight = FontWeight.Normal,
-                                fontSize = 20.sp,
-                                color = Color.White,
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(0.dp, 50.dp, 10.dp)
-                            )
+                                    .fillMaxSize()
+                            ) {
+                                Text(
+                                    text = "Atributos:",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 20.sp,
+                                    color = Color.White,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(0.dp, 50.dp, 10.dp)
+                                )
 
-                            task.value?.attributes?.let { attributes ->
-                                attributes.forEach { attribute ->
+                                task.value?.attributes?.let { attributes ->
+                                    attributes.forEach { attribute ->
+                                        var attributeName by remember {
+                                            mutableStateOf(
+                                                attribute.attributeName ?: "Atributo sem nome"
+                                            )
+                                        }
+                                        var attributeDescription by remember {
+                                            mutableStateOf(
+                                                attribute.attributeDescription
+                                                    ?: "Atributo sem descrição"
+                                            )
+                                        }
 
-                                    var selectedStatus by remember {
-                                        mutableStateOf(
-                                            attribute.attributeName ?: "Atributo sem nome"
-                                        )
-                                    }
-                                    var expanded by remember { mutableStateOf(false) }
-
-                                    Column(
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                            .background(Color.Gray)
-                                            .fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = attribute.attributeName ?: "Atributo sem nome",
-                                            fontSize = 18.sp,
-                                            color = Color.White
-                                        )
-
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(
-                                                text = selectedStatus,
-                                                fontSize = 16.sp,
-                                                color = Color.LightGray,
-                                                modifier = Modifier.padding(end = 8.dp)
+                                        Column(
+                                            modifier = Modifier
+                                                .padding(8.dp)
+                                                .background(Color.Gray)
+                                                .fillMaxWidth()
+                                        ) {
+                                            OutlinedTextField(
+                                                value = attributeName,
+                                                onValueChange = { newName ->
+                                                    attributeName = newName
+                                                },
+                                                label = { Text("Nome do Atributo") },
+                                                modifier = Modifier.fillMaxWidth()
                                             )
 
-                                            IconButton(onClick = { expanded = true }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Edit,
-                                                    contentDescription = "Editar",
-                                                    tint = Color.White
-                                                )
-                                            }
-
-                                            DropdownMenu(
-                                                expanded = expanded,
-                                                onDismissRequest = { expanded = false }
-                                            ) {
-                                                DropdownMenuItem(
-                                                    text = { Text("Não Iniciado") },
-                                                    onClick = {
-                                                        selectedStatus = "Não Iniciado"
-                                                        expanded = false
-                                                    }
-                                                )
-                                                DropdownMenuItem(
-                                                    text = { Text("Em Andamento") },
-                                                    onClick = {
-                                                        selectedStatus = "Em Andamento"
-                                                        expanded = false
-                                                    }
-                                                )
-                                                DropdownMenuItem(
-                                                    text = { Text("Concluída") },
-                                                    onClick = {
-                                                        selectedStatus = "Concluída"
-                                                        expanded = false
-                                                    }
-                                                )
-                                            }
+                                            OutlinedTextField(
+                                                value = attributeDescription,
+                                                onValueChange = { newDescription ->
+                                                    attributeDescription = newDescription
+                                                },
+                                                label = { Text("Descrição do Atributo") },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(top = 8.dp)
+                                            )
 
                                             Button(
                                                 onClick = {
-                                                    task.value?.let { updatedTask ->
-
-                                                        task.value = updatedTask.copy(description = descriptionText.value)
-
-                                                        val updatedTaskRequest = TaskRequest(
-                                                            projectId = projectId,
-                                                            listId = listId,
-                                                            task = updatedTask
+                                                    task.value = task.value?.copy(
+                                                        attributes = attributes.map {
+                                                            if (it == attribute) {
+                                                                it.copy(
+                                                                    attributeName = attributeName,
+                                                                    attributeDescription = attributeDescription
+                                                                )
+                                                            } else it
+                                                        }
+                                                    )
+                                                    /*taskRepository.updateTaskAttribute(
+                                                        projectId,
+                                                        listId,
+                                                        taskId,
+                                                        attribute.copy(
+                                                            attributeName = attributeName,
+                                                            attributeDescription = attributeDescription
                                                         )
-
-                                                        TaskRepository().updateTask(updatedTaskRequest)
-
-                                                        Toast.makeText(context, "Atributo atualizado com sucesso!", Toast.LENGTH_SHORT).show()
-                                                    }
+                                                    )*/
                                                 },
-                                                modifier = Modifier.padding(start = 8.dp),
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = Color(0xFF246BFD),
-                                                    contentColor = Color.White
-                                                )
+                                                modifier = Modifier.padding(top = 8.dp)
                                             ) {
-                                                Text("Salvar")
+                                                Text("Salvar Alterações")
                                             }
                                         }
                                     }
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 16.dp),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        IconButton(
+                                            onClick = { /*navController.navigate("task_attribute_screen")*/ }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Add,
+                                                contentDescription = "Adicionar Atributo",
+                                                tint = Color(0xFF246BFD)
+                                            )
+                                        }
+                                    }
+                                } ?: run {
+                                    Text(
+                                        text = "Nenhum atributo disponível.",
+                                        color = Color.White,
+                                        fontSize = 16.sp
+                                    )
                                 }
-                            } ?: run {
-                                Text(
-                                    text = "Nenhum atributo disponível.",
-                                    color = Color.White,
-                                    fontSize = 16.sp
-                                )
                             }
                         }
                     }
