@@ -20,18 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.planup.repository.TaskListRepository
+import androidx.navigation.NavHostController
+import com.example.planup.auth.EmailAndPasswordAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeleteTaskListModalBottomSheet(
-    listId: String,
-    projectId: String,
-    onDismiss: () -> Unit
-) {
-    val taskListRepository = TaskListRepository()
+fun SignOutModalBottomSheet(navController: NavHostController? = null, onDismiss: () -> Unit) {
     val context = LocalContext.current
 
     ModalBottomSheet(
@@ -47,7 +44,7 @@ fun DeleteTaskListModalBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Deletar Lista",
+                text = "Sair da Conta",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0XFFF75555)
@@ -60,7 +57,7 @@ fun DeleteTaskListModalBottomSheet(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Você tem certeza que quer deletar a lista?",
+                text = "Deseja mesmo sair da sua conta?",
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Normal,
@@ -71,12 +68,10 @@ fun DeleteTaskListModalBottomSheet(
 
             Button(
                 onClick = {
-                    taskListRepository.deleteList(projectId, listId) { result ->
-                        if (result) {
-                            Toast.makeText(context, "Lista deletada com sucesso", Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(context, "Erro ao deletar a lista", Toast.LENGTH_SHORT).show()
-                        }
+                    EmailAndPasswordAuth().signOutEmailAndPassword()
+                    Toast.makeText(context, "Deslogado com sucesso!", Toast.LENGTH_SHORT).show()
+                    navController?.navigate("login_screen") {
+                        popUpTo("signout_modal_bottom_sheet") { inclusive = true }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -88,7 +83,7 @@ fun DeleteTaskListModalBottomSheet(
                     .height(55.dp)
             ) {
                 Text(
-                    "Sim, Deletar",
+                    "Sim, Sair",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -114,4 +109,10 @@ fun DeleteTaskListModalBottomSheet(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun PreviewSignOutModalBottomSheet() {
+    SignOutModalBottomSheet(onDismiss = {})
 }
