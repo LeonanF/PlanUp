@@ -27,6 +27,22 @@ class SubtaskRepository {
         })
     }
 
+    fun updateSubtaskStatus(projectId: String, listId: String, taskId: String, subtaskId: String, status: String){
+        apiService.updateSubtaskStatus(projectId, listId, taskId, subtaskId, status).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("UpdateSubtaskStatus", "Status atualizado com sucesso: ${response.body()}")
+                } else{
+                    Log.d("UpdateSubtaskStatus", "Falha ao atualizar status: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateSubtaskStatus", "Erro ao atualizar status: ${t.message}")
+            }
+        })
+    }
+
     fun deleteSubtask(projectId: String, listId: String, taskId: String, subtaskId :String){
 
         apiService.deleteSubtask(projectId = projectId, listId = listId, taskId = taskId, subtaskId = subtaskId).enqueue(object : Callback<ResponseBody>{

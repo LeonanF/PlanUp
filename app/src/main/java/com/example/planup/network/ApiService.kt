@@ -41,9 +41,6 @@ interface ApiService {
     @GET("projectMembers")
     fun fetchMembers(@Query("projectId") projectId: String): Call<MemberResponse>
 
-    // @GET("userProjects")
-    // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
-
     @GET("users")
     fun fetchUser(@Query("userId") userId: String): Call<User>
 
@@ -82,6 +79,9 @@ interface ApiService {
 
     @PUT("taskStatus")
     fun updateTaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("status") status: String) : Call<ResponseBody>
+
+    @PUT("subtask")
+    fun updateSubtaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId: String, @Query("status") status: String) : Call<ResponseBody>
 
     @PUT("taskPriority")
     fun updateTaskPriority(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("priority") priority: String) : Call<ResponseBody>
