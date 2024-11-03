@@ -244,7 +244,7 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                     modifier = Modifier
                         .wrapContentSize()
                         .clickable {
-                            /* TODO NOT YET IMPLEMENTED */
+                            navController?.navigate("edit_profile_screen")
                         }
                 ) {
                     Icon(

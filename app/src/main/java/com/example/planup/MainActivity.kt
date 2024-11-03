@@ -15,6 +15,7 @@ import com.example.planup.ui.components.CreateTaskList
 import com.example.planup.ui.screens.CreateProfileScreen
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteAccountScreen
+import com.example.planup.ui.screens.EditProfileScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MemberScreen
@@ -101,6 +102,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("create_profile_screen") {
                 CreateProfileScreen(navController = navController)
+            }
+            composable("edit_profile_screen") {
+                EditProfileScreen(navController = navController)
             }
             composable("profile_screen/{userId}/{qtdProject}/{qtdTask}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId")

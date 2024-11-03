@@ -1,5 +1,7 @@
 package com.example.planup.network
 
+import com.example.planup.model.Attachments
+import com.example.planup.model.AttachmentsRequest
 import com.example.planup.model.AttributeRequest
 import com.example.planup.model.CommentRequest
 import com.example.planup.model.MemberRequest
@@ -25,11 +27,14 @@ interface ApiService {
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
+    @GET("attachments")
+    fun fetchAttachments(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Attachments>
+
     @GET("comments")
     fun fetchComment(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String/*, @Query("comment") comment: String*/): Call<CommentResponse>
 
     @GET("replies")
-    fun fetchReplies(@Query("taskId") taskId: String,@Query("commentId") commentId: String): Call<ReplyResponse>
+    fun fetchReplies(@Query("taskId") taskId: String,listId: String, @Query("projectId") projectId: String,@Query("commentId") commentId: String): Call<ReplyResponse>
 
     @GET("lists")
     fun fetchTaskList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<TaskList>
@@ -58,6 +63,9 @@ interface ApiService {
     @POST("attribute")
     fun postAttribute(@Body attributeReq: AttributeRequest): Call<ResponseBody>
 
+    @POST("attachments")
+    fun postAttachments(@Body attachmentsRequest: AttachmentsRequest): Call<ResponseBody>
+
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
@@ -71,7 +79,7 @@ interface ApiService {
     fun addComment(@Body comment: CommentRequest): Call<ResponseBody>
 
     @POST("replies")
-    fun postReply(@Body replyRequest: ReplyRequest): Call<ReplyResponse>
+    fun postReply(@Body replyRequest: ReplyRequest): Call<ResponseBody>
 
     @POST("lists")
     fun postList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
@@ -81,6 +89,9 @@ interface ApiService {
 
     @PUT("tasks")
     fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
+
+    @PUT("updateAttribute")
+    fun updateAttribute(@Body attributeRequest: AttributeRequest): Call<ResponseBody>
 
     @PUT("taskStatus")
     fun updateTaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("status") status: String) : Call<ResponseBody>

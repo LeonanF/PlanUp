@@ -1,6 +1,8 @@
 package com.example.planup.repository
 
 import android.util.Log
+import com.example.planup.model.Attachments
+import com.example.planup.model.AttachmentsRequest
 import com.example.planup.model.CommentRequest
 import com.example.planup.model.Priority
 import com.example.planup.model.Reply
@@ -109,21 +111,52 @@ class TaskRepository {
         })
     }
 
-     fun postComment(commentRequest: CommentRequest, callback: (Boolean, String?) -> Unit) {
+    fun postAttachments(attachmentsRequest: AttachmentsRequest) {
+        apiService.postAttachments(attachmentsRequest).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("PostAttachments", "Anexos adicionados com sucesso")
+                } else {
+                    Log.d("PostAttachments", "Falha ao adicionar anexos: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("PostAttachments", "Erro ao enviar anexos: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun getAttachments(taskId: String, listId: String, projectId: String, callback: (Attachments?, String?) -> Unit) {
+        apiService.fetchAttachments(taskId, listId, projectId).enqueue(object : Callback<Attachments> {
+            override fun onResponse(call: Call<Attachments>, response: Response<Attachments>) {
+                if (response.isSuccessful) {
+                    callback(response.body(), null)
+                } else {
+                    callback(null, response.errorBody()?.string())
+                }
+            }
+
+            override fun onFailure(call: Call<Attachments>, t: Throwable) {
+                callback(null, t.message)
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun postComment(commentRequest: CommentRequest) {
         apiService.addComment(commentRequest).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("PostComment", "Comentário adicionado com sucesso")
-                    callback(true, null)
                 } else {
                     Log.d("PostComment", "Falha ao adicionar comentário: ${response.errorBody()?.string()}")
-                    callback(false, response.errorBody()?.string())
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("PostComment", "Erro ao enviar comentário: ${t.message}")
-                callback(false, t.message)
                 t.printStackTrace()
             }
         })
@@ -163,28 +196,25 @@ class TaskRepository {
         })
     }
 
-    fun postReply(replyRequest: ReplyRequest, callback: (Boolean, String?) -> Unit) {
-        apiService.postReply(replyRequest).enqueue(object : Callback<ReplyResponse> {
-            override fun onResponse(call: Call<ReplyResponse>, response: Response<ReplyResponse>) {
+    fun postReply(replyRequest: ReplyRequest) {
+        apiService.postReply(replyRequest).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("PostReply", "Resposta adicionada com sucesso")
-                    callback(true, null)
                 } else {
                     Log.d("PostReply", "Falha ao adicionar resposta: ${response.errorBody()?.string()}")
-                    callback(false, response.errorBody()?.string())
                 }
             }
 
-            override fun onFailure(call: Call<ReplyResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("PostReply", "Erro ao enviar resposta: ${t.message}")
-                callback(false, t.message)
                 t.printStackTrace()
             }
         })
     }
 
     fun getReplies(taskId: String,listId: String, projectId: String, commentId: String, callback: (List<Reply>?, String?) -> Unit) {
-        apiService.fetchReplies(taskId, commentId).enqueue(object : Callback<ReplyResponse> {
+        apiService.fetchReplies(taskId,listId, projectId, commentId).enqueue(object : Callback<ReplyResponse> {
             override fun onResponse(call: Call<ReplyResponse>, response: Response<ReplyResponse>) {
                 if (response.isSuccessful) {
                     callback(response.body()?.data, null)
