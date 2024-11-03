@@ -95,9 +95,6 @@ fun ProjectDetailScreen(
     var taskId by remember {
         mutableStateOf("")
     }
-    var taskName by remember {
-        mutableStateOf("")
-    }
     var listId by remember {
         mutableStateOf("")
     }
@@ -250,7 +247,7 @@ fun ProjectDetailScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp, 0.dp, 0.dp, 10.dp),
+                                    .padding(10.dp, 0.dp, 10.dp, 10.dp),
                                 elevation = CardDefaults.cardElevation(4.dp),
                                 shape = CardDefaults.shape,
                                 colors = CardDefaults.cardColors(
@@ -334,7 +331,7 @@ fun ProjectDetailScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Filled.Build,
-                                                contentDescription = "Excluir lista",
+                                                contentDescription = "Editar lista",
                                                 tint = Color.White,
                                                 modifier = Modifier.size(15.dp)
                                             )
@@ -421,8 +418,12 @@ fun ProjectDetailScreen(
                                                         Button(
                                                             onClick = {
                                                                 showMoveTask = true
-                                                                taskId = task._id!!
-                                                                taskName = task.name!!
+                                                                task._id?.let { id ->
+                                                                    taskId = id
+                                                                }
+                                                                taskList._id?.let { id ->
+                                                                    listId = id
+                                                                }
                                                             },
                                                             shape = ButtonDefaults.textShape,
                                                             colors = ButtonDefaults.buttonColors(
@@ -439,6 +440,12 @@ fun ProjectDetailScreen(
                                                         Button(
                                                             onClick = {
                                                                 showDeleteTask = true
+                                                                taskList._id?.let { id ->
+                                                                    listId = id
+                                                                }
+                                                                task._id?.let { id ->
+                                                                    taskId = id
+                                                                }
                                                                 project.value!!.taskQuantity - 1
                                                             },
                                                             shape = ButtonDefaults.textShape,
@@ -475,7 +482,7 @@ fun ProjectDetailScreen(
     }
 
     if (showMoveTask) {
-        MoveTaskModalBottomSheet(projectId, taskId, taskName) {
+        MoveTaskModalBottomSheet(projectId, taskId, listId) {
             showMoveTask = false
             navController.navigate("project_detail_screen/$projectId") {
                 popUpTo("project_detail_screen/$projectId") { inclusive = true }

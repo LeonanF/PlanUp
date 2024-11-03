@@ -39,6 +39,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +69,7 @@ import com.example.planup.ui.components.formatMillisToDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProfileScreen(navController: NavHostController? = null) {
+    val currentUser = EmailAndPasswordAuth().getCurrentUser()
     var nome by remember { mutableStateOf("") }
     var nomeUsuario by remember { mutableStateOf("") }
     var dataNascimento by remember { mutableStateOf("") }
@@ -92,6 +94,12 @@ fun CreateProfileScreen(navController: NavHostController? = null) {
             } else {
                 errorMessage = result.errorMessage
             }
+        }
+    }
+
+    LaunchedEffect(key1 = currentUser) {
+        currentUser?.let {
+            email = it.email.toString()
         }
     }
 
@@ -410,7 +418,8 @@ fun CreateProfileScreen(navController: NavHostController? = null) {
                         containerColor = if(activeButton.value) Color(0XFF246BFD) else Color(0xFF476EBE),
                         contentColor = Color.White
                     ),
-                    modifier = Modifier.heightIn(50.dp)
+                    modifier = Modifier
+                        .heightIn(50.dp)
                         .padding(bottom = 10.dp)
                 ) {
                     Text(

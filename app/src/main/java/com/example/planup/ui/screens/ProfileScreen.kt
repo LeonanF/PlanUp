@@ -45,7 +45,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -56,7 +55,7 @@ import com.example.planup.ui.components.SignOutModalBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavHostController? = null, userId: String? = null, qtdProjects: Int? = null, qtdTasks: Int? = null) {
+fun ProfileScreen(navController: NavHostController, userId: String, qtdProjects: Int, qtdTasks: Int) {
     val user = remember { mutableStateOf<User?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -67,10 +66,8 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
     LaunchedEffect(key1 = Unit, key2 = userId) {
         imageUri = UserRepository().loadImageFromInternalStorage(context)
 
-        if (userId != null) {
-            UserRepository().fetchUser(userId) { result ->
-                user.value = result
-            }
+        UserRepository().fetchUser(userId) { result ->
+            user.value = result
         }
     }
 
@@ -191,14 +188,14 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Text(
-                    text = qtdProjects?.toString() ?: "0",
+                    text = qtdProjects.toString(),
                     color = Color.White,
                     fontSize = 24.sp,
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W700)
                 )
 
                 Text(
-                    text = qtdTasks?.toString() ?: "0",
+                    text = qtdTasks.toString(),
                     color = Color.White,
                     fontSize = 24.sp,
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.W700)
@@ -297,7 +294,7 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
             ) {
                 Button(
                     onClick = {
-                        navController?.navigate("delete_account_screen") {
+                        navController.navigate("delete_account_screen") {
                             popUpTo("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {inclusive = true}
                         }
                     },
@@ -327,7 +324,7 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
             ) {
                 Button(
                     onClick = {
-                        navController?.popBackStack()
+                        navController.popBackStack()
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF35383F),
@@ -352,15 +349,15 @@ fun ProfileScreen(navController: NavHostController? = null, userId: String? = nu
     if(showSignOutModalBottomSheet.value) {
         SignOutModalBottomSheet(navController) {
             showSignOutModalBottomSheet.value = false
-            navController?.navigate("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {
+            navController.navigate("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {
                 popUpTo("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {inclusive = true}
             }
         }
     }
 }
 
-@Composable
-@Preview
-fun ProfileScreenPreview() {
-    ProfileScreen()
-}
+//@Composable
+//@Preview
+//fun ProfileScreenPreview() {
+//    ProfileScreen()
+//}

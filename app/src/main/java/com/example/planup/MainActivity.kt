@@ -104,9 +104,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("profile_screen/{userId}/{qtdProject}/{qtdTask}") { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId")
-                val qtdProject = backStackEntry.arguments?.getString("qtdProject")?.toIntOrNull()
-                val qtdTask = backStackEntry.arguments?.getString("qtdTask")?.toIntOrNull()
-                ProfileScreen(navController = navController, userId = userId, qtdProjects = qtdProject, qtdTasks = qtdTask)
+                val qtdProject = backStackEntry.arguments?.getString("qtdProject")?.toInt()
+                val qtdTask = backStackEntry.arguments?.getString("qtdTask")?.toInt()
+                ProfileScreen(navController = navController, userId = userId!!, qtdProjects = qtdProject!!, qtdTasks = qtdTask!!)
             }
         }
     }

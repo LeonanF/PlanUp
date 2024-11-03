@@ -1,5 +1,6 @@
 package com.example.planup.ui.components
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,9 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.planup.model.ProjectDetailPreview
-import com.example.planup.model.TaskList
 import com.example.planup.model.TaskListPreview
-import com.example.planup.model.TaskListRequest
+import com.example.planup.model.TaskListUpdateRequest
 import com.example.planup.repository.ProjectRepository
 import com.example.planup.repository.TaskListRepository
 
@@ -42,24 +42,28 @@ fun EditTaskListModalBottomSheet(
     listId: String,
     onDismiss: () -> Unit
 ) {
-    val taskList = remember { mutableStateOf<TaskList?>(null) }
+    val project = remember { mutableStateOf<ProjectDetailPreview?>(null) }
     val context = LocalContext.current
     val listName = remember {
         mutableStateOf("")
+    }
+    val taskListSelected = remember {
+        mutableStateOf<TaskListPreview?>(null)
     }
     var activeButton by remember {
         mutableStateOf(false)
     }
 
-    LaunchedEffect(key1 = projectId, listId) {
-        TaskListRepository().fetchTaskList(projectId, listId) { result, error ->
-            if (error != null) {
-                Toast.makeText(context, "Erro ao buscar a lista: $error", Toast.LENGTH_SHORT).show()
-            } else {
-                taskList.value = result
-            }
-            result?.let { listData ->
-                listName.value = listData.name
+    LaunchedEffect(key1 = projectId) {
+        ProjectRepository().fetchProjectPreview(projectId) { result, _ ->
+            project.value = result
+            result?.let { projectData ->
+                projectData.taskLists.forEach { taskList ->
+                    if (taskList._id == listId) {
+                        listName.value = taskList.name
+                        taskListSelected.value = taskList
+                    }
+                }
             }
         }
     }
@@ -107,20 +111,19 @@ fun EditTaskListModalBottomSheet(
 
             Button(
                 onClick = {
-                    taskList.value?.let { updateTaskList ->
-                        taskList.value = updateTaskList.copy(name = listName.value)
+                    val taskListUpdateRequest = TaskListUpdateRequest(
+                        projectId = projectId,
+                        listId = listId,
+                        newName = listName.value
+                    )
 
-                        val updatedTaskListRequest = TaskListRequest(
-                            projectId = projectId,
-                            taskList = updateTaskList
-                        )
-
-                        TaskListRepository().updateTaskList(updatedTaskListRequest) { result ->
-                            if (result) {
-                                Toast.makeText(context, "Lista atualizada com sucesso!", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Não foi possível atualizar a lista.", Toast.LENGTH_SHORT).show()
-                            }
+                    TaskListRepository().updateTaskList(taskListUpdateRequest) { result ->
+                        Log.d("TaskListRepository", "Mudando o nome da lista para ${listName.value}")
+                        if (result) {
+                            Toast.makeText(context, "Lista atualizada com sucesso!", Toast.LENGTH_SHORT).show()
+                            onDismiss()
+                        } else {
+                            Toast.makeText(context, "Não foi possível atualizar a lista.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 },

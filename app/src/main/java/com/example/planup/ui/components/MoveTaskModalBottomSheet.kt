@@ -1,5 +1,6 @@
 package com.example.planup.ui.components
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -29,16 +31,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.planup.model.MoveTaskRequest
 import com.example.planup.model.ProjectDetailPreview
+import com.example.planup.model.Task
 import com.example.planup.repository.ProjectRepository
 import com.example.planup.repository.TaskRepository
 
@@ -47,18 +51,31 @@ import com.example.planup.repository.TaskRepository
 fun MoveTaskModalBottomSheet(
     projectId: String,
     taskId: String,
-    taskName: String,
+    originListId: String,
     onDismiss: () -> Unit
 ) {
     val project = remember { mutableStateOf<ProjectDetailPreview?>(null) }
+    val task = remember { mutableStateOf<Task?>(null) }
+    val error = remember { mutableStateOf<String?>(null) }
     var selectedList by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf("") }
+    var selectedTaskId by remember { mutableStateOf("") }
     var listName by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = projectId, selectedList, isLoading) {
+    LaunchedEffect(key1 = projectId, key2 = taskId) {
         ProjectRepository().fetchProjectPreview(projectId) { result, _ ->
             project.value = result
+        }
+
+        TaskRepository().fetchTask(taskId, originListId, projectId) { result, erro ->
+            task.value = result
+            error.value = erro
+            result?.let { taskData ->
+                taskName = taskData.name
+                selectedTaskId = taskData._id.toString()
+            }
         }
     }
 
@@ -68,6 +85,8 @@ fun MoveTaskModalBottomSheet(
         onDismissRequest = onDismiss,
         containerColor = Color(0xFF181A20)
     ) {
+        Log.d("MoveTask", "Movendo tarefa $taskId da lista $originListId do projeto $projectId")
+
         Column (
             modifier = Modifier
                 .fillMaxWidth(),
@@ -89,8 +108,10 @@ fun MoveTaskModalBottomSheet(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
-                    .padding(0.dp,0.dp,0.dp,20.dp),
-                color = Color.White
+                    .padding(0.dp, 0.dp, 0.dp, 20.dp)
+                    .width(380.dp),
+                color = Color.White,
+                overflow = TextOverflow.Ellipsis
             )
 
             HorizontalDivider(
@@ -102,32 +123,35 @@ fun MoveTaskModalBottomSheet(
 
             project.value?.taskLists?.let { taskLists ->
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(20.dp, 0.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Top
                 ) {
                     items(taskLists) { list ->
-                        Box(
-                            modifier = Modifier.fillMaxWidth()
-                                .background(Color(0xFF35383F))
-                                .padding(0.dp, 5.dp),
-                            Alignment.Center
-                        ) {
-                            Text(
-                                text = list.name,
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-                                color = Color.White,
-                                modifier = Modifier.clickable {
-                                    list._id?.let { listId ->
-                                        selectedList = listId
+                        if(list._id != originListId) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color(0xFF35383F))
+                                    .padding(0.dp, 5.dp),
+                                Alignment.Center
+                            ) {
+                                Text(
+                                    text = list.name,
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                                    color = Color.White,
+                                    modifier = Modifier.clickable {
+                                        list._id?.let { listId ->
+                                            selectedList = listId
+                                        }
+                                        listName = list.name
                                     }
-                                    listName = list.name
-                                }
-                            )
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(5.dp))
                         }
-
-                        Spacer(modifier = Modifier.height(5.dp))
                     }
                 }
             }
@@ -139,10 +163,17 @@ fun MoveTaskModalBottomSheet(
                     if (selectedList.isNotEmpty()) {
                         isLoading = true
 
-                        TaskRepository().moveTask(
+                        val moveTaskRequest = MoveTaskRequest(
                             projectId = projectId,
-                            taskId = taskId,
+                            taskId = selectedTaskId,
+                            sourceList = originListId,
                             destinationList = selectedList
+                        )
+
+                        Log.d("MoveTask", "Movendo tarefa ${task.value?._id} da lista $originListId para a lista $selectedList")
+
+                        TaskRepository().moveTask(
+                            moveTaskRequest
                         ) { success ->
                             isLoading = false
 
@@ -150,6 +181,7 @@ fun MoveTaskModalBottomSheet(
                                 Toast.makeText(context, "Erro ao mover a tarefa", Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(context, "Tarefa movida com sucesso", Toast.LENGTH_SHORT).show()
+                                onDismiss()
                             }
                         }
                     } else {
