@@ -74,6 +74,7 @@ fun DeleteTaskListModalBottomSheet(
                     taskListRepository.deleteList(projectId, listId) { result ->
                         if (result) {
                             Toast.makeText(context, "Lista deletada com sucesso", Toast.LENGTH_SHORT).show()
+                            onDismiss()
                         } else {
                             Toast.makeText(context, "Erro ao deletar a lista", Toast.LENGTH_SHORT).show()
                         }

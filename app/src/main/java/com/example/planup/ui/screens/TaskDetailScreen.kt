@@ -172,7 +172,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         Column {
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            if (isEditingDescription.value) {
+                            if (isEditingDescription.value || isEditingName.value) {
                                 OutlinedTextField(
                                     value = descriptionText.value,
                                     onValueChange = { descriptionText.value = it },

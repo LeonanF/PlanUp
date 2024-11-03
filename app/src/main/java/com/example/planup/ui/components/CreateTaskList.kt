@@ -68,7 +68,8 @@ fun CreateTaskList (projectId: String, onDismiss: () -> Unit) {
                     focusedContainerColor = Color(0xFF1F222A),
                     focusedTextColor = Color.LightGray,
                     unfocusedTextColor = Color.LightGray
-                )
+                ),
+                maxLines = 1
             )
 
             Spacer(modifier = Modifier.height(25.dp))

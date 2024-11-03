@@ -2,6 +2,7 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.MoveTaskRequest
 import com.example.planup.model.Priority
 import com.example.planup.model.Reply
 import com.example.planup.model.ReplyRequest
@@ -20,19 +21,8 @@ class TaskRepository {
 
     private val apiService = RetrofitInstance.apiService
 
-    fun moveTask(
-        projectId: String,
-        taskId: String,
-        destinationList: String,
-        onResult: (Boolean) -> Unit,
-    ) {
-        val params = mapOf(
-            "projectId" to projectId,
-            "taskId" to taskId,
-            "destinationList" to destinationList
-        )
-
-        apiService.moveTask(params).enqueue(object: Callback<ResponseBody>{
+    fun moveTask(moveTaskRequest: MoveTaskRequest, onResult: (Boolean) -> Unit) {
+        apiService.moveTask(moveTaskRequest).enqueue(object: Callback<ResponseBody>{
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if(response.isSuccessful){
                     onResult(true)
