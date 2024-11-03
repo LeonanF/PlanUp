@@ -222,7 +222,6 @@ fun ProjectDetailScreen(
             }
 
             project.value?.taskLists?.let { taskLists ->
-                // Estilização das listas de tarefas
                 if (taskLists.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -457,7 +456,6 @@ fun ProjectDetailScreen(
                                         Spacer(modifier = Modifier.height(10.dp))
                                     }
                                 }
-                                // Fim da estilização das tarefas
                             }
                         }
                     }
