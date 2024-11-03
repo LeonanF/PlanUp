@@ -49,13 +49,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
+import com.example.planup.auth.EmailAndPasswordAuth
 import com.example.planup.model.User
 import com.example.planup.repository.UserRepository
 import com.example.planup.ui.components.SignOutModalBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavHostController, userId: String, qtdProjects: Int, qtdTasks: Int) {
+fun ProfileScreen(navController: NavHostController, qtdProjects: Int, qtdTasks: Int) {
+    val currentUser = EmailAndPasswordAuth().getCurrentUser()
+    val email = currentUser?.email
     val user = remember { mutableStateOf<User?>(null) }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -63,11 +66,13 @@ fun ProfileScreen(navController: NavHostController, userId: String, qtdProjects:
     val context = LocalContext.current
 
     // Carrega a imagem salva ao iniciar a tela
-    LaunchedEffect(key1 = Unit, key2 = userId) {
+    LaunchedEffect(key1 = Unit, key2 = email) {
         imageUri = UserRepository().loadImageFromInternalStorage(context)
 
-        UserRepository().fetchUser(userId) { result ->
-            user.value = result
+        if (email != null) {
+            UserRepository().fetchUser(email) { result ->
+                user.value = result
+            }
         }
     }
 
@@ -295,7 +300,7 @@ fun ProfileScreen(navController: NavHostController, userId: String, qtdProjects:
                 Button(
                     onClick = {
                         navController.navigate("delete_account_screen") {
-                            popUpTo("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {inclusive = true}
+                            popUpTo("profile_screen/${qtdProjects}/${qtdTasks}") {inclusive = true}
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
@@ -349,8 +354,8 @@ fun ProfileScreen(navController: NavHostController, userId: String, qtdProjects:
     if(showSignOutModalBottomSheet.value) {
         SignOutModalBottomSheet(navController) {
             showSignOutModalBottomSheet.value = false
-            navController.navigate("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {
-                popUpTo("profile_screen/${userId}/${qtdProjects}/${qtdTasks}") {inclusive = true}
+            navController.navigate("profile_screen/${qtdProjects}/${qtdTasks}") {
+                popUpTo("profile_screen/${qtdProjects}/${qtdTasks}") {inclusive = true}
             }
         }
     }

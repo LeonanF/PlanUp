@@ -42,7 +42,7 @@ interface ApiService {
     fun fetchMembers(@Query("projectId") projectId: String): Call<MemberResponse>
 
     @GET("users")
-    fun fetchUser(@Query("userId") userId: String): Call<User>
+    fun fetchUser(@Query("email") email: String): Call<User>
 
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
