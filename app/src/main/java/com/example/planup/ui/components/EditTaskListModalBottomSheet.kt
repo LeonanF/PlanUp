@@ -114,7 +114,7 @@ fun EditTaskListModalBottomSheet(
                     val taskListUpdateRequest = TaskListUpdateRequest(
                         projectId = projectId,
                         listId = listId,
-                        newName = listName.value
+                        name = listName.value
                     )
 
                     TaskListRepository().updateTaskList(taskListUpdateRequest) { result ->

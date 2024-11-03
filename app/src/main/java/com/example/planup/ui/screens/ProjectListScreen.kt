@@ -1,5 +1,6 @@
 package com.example.planup.ui.screens
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +28,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -73,14 +77,6 @@ fun ProjectListScreen(navController: NavHostController) {
             topBar = {
                 TopAppBar(
                     title = { Text("Meus projetos", fontWeight = FontWeight.Bold, fontSize = 26.sp) },
-                    actions = {
-                        IconButton(onClick = { }, modifier = Modifier.padding(10.dp)) {
-                            Icon(
-                                painterResource(R.drawable.search_icon),
-                                contentDescription = "Buscar"
-                            )
-                        }
-                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color(0xFF181A20),
                         titleContentColor = Color.White,
@@ -105,10 +101,6 @@ fun ProjectListScreen(navController: NavHostController) {
                                 popUpTo("project_list_screen"){ inclusive = true }
                             }
                         })
-                        BottomBarItem(iconRes = R.drawable.createbtn, label = "", 45.dp, onClick = {
-                            showCreateProject = true
-                        })
-                        BottomBarItem(iconRes = R.drawable.inbox, label = "Inbox", onClick = {})
                         BottomBarItem(iconRes = R.drawable.person, label = "Perfil", onClick = {
                             navController.navigate("profile_screen/${projects.value?.size}/${projects.value?.sumOf { it.taskQuantity }}") {
                                 popUpTo("project_list_screen"){ inclusive = false }
@@ -120,8 +112,9 @@ fun ProjectListScreen(navController: NavHostController) {
                     containerColor = Color.Transparent
                 )
             }},
-        containerColor = Color(0xFF181A20))
-    {
+        containerColor = Color(0xFF181A20),
+        modifier = Modifier.fillMaxSize()
+    ) {
         innerPadding ->
         Column(modifier = Modifier
             .padding(innerPadding)
@@ -173,6 +166,34 @@ fun ProjectListScreen(navController: NavHostController) {
                         contentAlignment = Alignment.Center
                     ){
                         CircularProgressIndicator(modifier = Modifier.padding(innerPadding))
+                    }
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 20.dp, end = 20.dp),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.End
+            ) {
+                Surface(
+                    color = Color(0XFF246BFD),
+                    shape = RoundedCornerShape(25.dp),
+                    modifier = Modifier.size(50.dp),
+                    shadowElevation = 4.dp
+                ) {
+                    IconButton(
+                        onClick = {
+                            showCreateProject = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Criar novo projeto",
+                            tint = Color.White,
+                            modifier = Modifier.size(50.dp)
+                        )
                     }
                 }
             }
