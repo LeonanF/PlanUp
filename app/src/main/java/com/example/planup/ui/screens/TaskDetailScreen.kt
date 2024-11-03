@@ -130,7 +130,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 24.sp,
                                 color = Color.White,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .clickable { isEditingName.value = true }
                             )
                         }
@@ -178,7 +179,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         Column {
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            if (isEditingDescription.value) {
+                            if (isEditingDescription.value || isEditingName.value) {
                                 OutlinedTextField(
                                     value = descriptionText.value,
                                     onValueChange = { descriptionText.value = it },
@@ -254,7 +255,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Row(
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(0.dp, 50.dp, 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -302,13 +304,29 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                             )
                                         },
                                             onClick = {
-                                                taskRepository.updateTaskStatus(
-                                                    projectId,
-                                                    listId,
-                                                    taskId,
-                                                    status
-                                                )
-                                                taskStatus = status.name
+                                                if (status.name == "DONE") {
+                                                    val allSubtasksCompleted = task.value!!.validateCompletedSubtasks()
+
+                                                    if (allSubtasksCompleted) {
+                                                        taskRepository.updateTaskStatus(
+                                                            projectId,
+                                                            listId,
+                                                            taskId,
+                                                            status
+                                                        )
+                                                        taskStatus = status.name
+                                                    } else {
+                                                        Toast.makeText(context, "Todas as subtarefas devem estar concluídas para marcar a tarefa como 'Feita'.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                } else {
+                                                    taskRepository.updateTaskStatus(
+                                                        projectId,
+                                                        listId,
+                                                        taskId,
+                                                        status
+                                                    )
+                                                    taskStatus = status.name
+                                                }
                                                 expandedStatus = false
                                             })
                                     }
@@ -318,7 +336,8 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Row(
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(0.dp, 50.dp, 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -610,23 +629,42 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 }
             }
 
-            item{
 
-                LazyColumn (modifier = Modifier
-                    .heightIn(100.dp, 200.dp)
-                    .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                    task.value?.let {
-                        items(it.subtasks){ subtask->
-                            SubtaskItem(
-                                subtask = subtask,
-                                onDelete = { subtask._id?.let { it1 -> SubtaskRepository().deleteSubtask(projectId = projectId, listId = listId, taskId = taskId, subtaskId = it1) } }
-                            )
+            task.value?.let {
+                    items(it.subtasks) { subtask ->
+                        SubtaskItem(
+                            subtask = subtask,
+                            onDelete = {
+                                subtask._id?.let { it1 ->
+                                    SubtaskRepository().deleteSubtask(
+                                        projectId = projectId,
+                                        listId = listId,
+                                        taskId = taskId,
+                                        subtaskId = it1
+                                    )
+                                }
+                                navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}"){
+                                    popUpTo("task_detail_screen"){inclusive = true}
+                                }
+                            },
+                            onChecked = { status ->
+                                subtask._id?.let{ it1 ->
+                                    SubtaskRepository().updateSubtaskStatus(
+                                        projectId = projectId,
+                                        listId = listId,
+                                        taskId = taskId,
+                                        subtaskId = it1,
+                                        status = status
+                                    )
+                                }
+
+                                subtask.status = SubtaskStatus.fromDatabaseString(status)!!
                             }
-                        }
+                        )
                     }
+            }
 
+            item{
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ){
@@ -644,6 +682,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 if(showCreateSubtask){
                     CreateSubtaskModalBottomSheet(onDismiss = {
                         showCreateSubtask = false
+
+                        navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}"){
+                            popUpTo("task_detail_screen"){inclusive = true}
+                        }
                     }, projectId = projectId, listId = listId, taskId = taskId)
                 }
 
@@ -937,7 +979,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     }
 
 @Composable
-fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
+fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : String)->Unit) {
 
     var clicked by remember {
         mutableStateOf(false)
@@ -950,7 +992,7 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
     Box(
         modifier = Modifier
             .height(100.dp)
-            .fillMaxWidth(0.9f)
+            .fillMaxWidth()
             .padding(8.dp)
             .clickable {
                 clicked = !clicked
@@ -984,8 +1026,10 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
             Checkbox(
                 checked = status==SubtaskStatus.DONE,
                 onCheckedChange = { isChecked ->
+                    print("Caralho")
                     val updatedStatus = if (isChecked) SubtaskStatus.DONE else SubtaskStatus.TODO
                     status = updatedStatus
+                    onChecked(updatedStatus.toDatabaseString())
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = Color(0xFF246BFD),
@@ -997,7 +1041,7 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit) {
     }
 
     if(clicked){
-        IconButton(modifier = Modifier.padding(16.dp), onClick = {onDelete()}){
+        IconButton(modifier = Modifier.padding(16.dp), onClick = onDelete){
             Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
         }
     }

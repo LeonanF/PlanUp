@@ -3,6 +3,7 @@ package com.example.planup.repository
 import android.util.Log
 import com.example.planup.model.TaskList
 import com.example.planup.model.TaskListRequest
+import com.example.planup.model.TaskListUpdateRequest
 import com.example.planup.network.RetrofitInstance
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -53,28 +54,8 @@ class TaskListRepository {
         })
     }
 
-    fun fetchTaskList(projectId: String, listId: String, callback: (TaskList?, String?) -> Unit) {
-        apiService.fetchTaskList(projectId, listId).enqueue(object : Callback<TaskList> {
-            override fun onResponse(call: Call<TaskList>, response: Response<TaskList>) {
-                if (response.isSuccessful){
-                    callback(response.body(), null)
-                    Log.d("FetchTaskList", "Lista encontrada: ${response.body()}")
-                }
-                else{
-                    callback(null, response.errorBody()?.string())
-                    Log.e("FetchTaskList", "Erro ao buscar a lista: ${response.errorBody()}")
-                }
-            }
-
-            override fun onFailure(call: Call<TaskList>, t: Throwable) {
-                callback(null, t.message)
-                t.printStackTrace()
-            }
-        })
-    }
-
-    fun updateTaskList(taskListReq: TaskListRequest, callback: (Boolean) -> Unit) {
-        apiService.updateTaskList(taskListReq).enqueue(object : Callback<ResponseBody>{
+    fun updateTaskList(taskListUpdateRequest: TaskListUpdateRequest, callback: (Boolean) -> Unit) {
+        apiService.updateTaskList(taskListUpdateRequest).enqueue(object : Callback<ResponseBody>{
             override fun onResponse(p0: Call<ResponseBody>, p1: Response<ResponseBody>) {
                 if(p1.isSuccessful){
                     callback(true)

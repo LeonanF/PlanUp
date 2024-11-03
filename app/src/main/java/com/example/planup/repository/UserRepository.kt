@@ -36,21 +36,21 @@ class UserRepository {
         })
     }
 
-    fun fetchUser(userId: String, callback: (User?) -> Unit) {
-        apiService.fetchUser(userId).enqueue(object : Callback<User>{
+    fun fetchUser(email: String, callback: (User?) -> Unit) {
+        apiService.fetchUser(email).enqueue(object : Callback<User>{
             override fun onResponse(p0: Call<User>, p1: Response<User>) {
                 if (p1.isSuccessful) {
                     callback(p1.body())
-                    Log.d("UserRepository", "Usuário carregado com sucesso")
+                    Log.d("UserRepository", "Usuario carregado com sucesso")
                 } else {
                     callback(null)
-                    Log.e("UserRepository", "Erro ao carregar usuário: ${p1.code()}")
+                    Log.e("UserRepository", "Erro ao carregar usuario: ${p1.code()}")
                 }
             }
 
             override fun onFailure(p0: Call<User>, p1: Throwable) {
                 callback(null)
-                Log.e("UserRepository", "Falha ao carregar usuário: ${p1.message}")
+                Log.e("UserRepository", "Falha ao carregar usuario: ${p1.message}")
             }
         })
     }
