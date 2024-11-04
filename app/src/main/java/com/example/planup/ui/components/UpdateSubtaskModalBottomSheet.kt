@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.planup.model.SubtaskStatus
 import com.example.planup.model.Task
 import com.example.planup.model.UpdateSubtaskRequest
 import com.example.planup.repository.SubtaskRepository
@@ -48,9 +47,6 @@ fun UpdateSubtaskModalBottomSheet(
 ) {
     val name = remember { mutableStateOf("") }
     val date = remember { mutableStateOf("") }
-    val status = remember {
-        mutableStateOf("")
-    }
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
     val showDatePicker = remember { mutableStateOf(false) }
@@ -68,7 +64,6 @@ fun UpdateSubtaskModalBottomSheet(
                 }?.let { subtask ->
                     name.value = subtask.name
                     date.value = subtask.dueDate
-                    status.value = subtask.status.name
                 }
             }
         }
@@ -149,7 +144,6 @@ fun UpdateSubtaskModalBottomSheet(
                         listId =  listId,
                         taskId =  taskId,
                         subtaskId =  subtaskId,
-                        status = status.value,
                         name = name.value,
                         dueDate =  date.value
                     )

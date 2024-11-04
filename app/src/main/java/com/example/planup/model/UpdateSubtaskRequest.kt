@@ -5,7 +5,6 @@ data class UpdateSubtaskRequest(
     val listId: String,
     val taskId: String,
     val subtaskId: String,
-    val status: String,
     val name: String,
     val dueDate: String
 )
