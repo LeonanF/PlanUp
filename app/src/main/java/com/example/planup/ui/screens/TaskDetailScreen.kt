@@ -520,7 +520,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         subtaskId = it1
                                     )
                                 }
-                                navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}"){
+                                navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
                                     popUpTo("task_detail_screen"){inclusive = true}
                                 }
                             },
@@ -547,7 +547,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 ){
                     Button(modifier = Modifier
                         .padding(16.dp)
-                        .width(180.dp),
+                        .fillMaxWidth(0.5f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF246BFD),
                             contentColor = Color.White
@@ -560,7 +560,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     CreateSubtaskModalBottomSheet(onDismiss = {
                         showCreateSubtask = false
 
-                        navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}"){
+                        navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
                             popUpTo("task_detail_screen"){inclusive = true}
                         }
                     }, projectId = projectId, listId = listId, taskId = taskId)
@@ -575,7 +575,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 ) {
                     Button( modifier = Modifier
                         .padding(16.dp)
-                        .width(180.dp),
+                        .fillMaxWidth(0.5f),
                         onClick = {
                             task.value?.let { currentTask ->
 
@@ -607,6 +607,29 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         Text(text = "Duplicar Tarefa", color = Color.White)
                     }
                 }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+
+                        Button(modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(0.5f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF246BFD),
+                                contentColor = Color.White
+                            ), onClick = {
+                                navController.navigate("create_document_screen/$projectId/$listId/$taskId"){
+                                    popUpTo("task_detail_screen"){
+                                        inclusive = true
+                                    }
+                                }
+                            }){
+                            Text(text = "Adicionar documento")
+                        }
+                    }
+
 
                 Spacer(modifier = Modifier.height(15.dp))
 

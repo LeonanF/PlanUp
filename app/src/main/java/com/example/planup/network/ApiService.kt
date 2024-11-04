@@ -2,6 +2,7 @@ package com.example.planup.network
 
 import com.example.planup.model.AttributeRequest
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.DocumentRequest
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.MoveTaskRequest
 import com.example.planup.model.Project
@@ -55,6 +56,9 @@ interface ApiService {
 
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
+
+    @POST("document")
+    fun postDocument(@Body documentRequest: DocumentRequest): Call<ResponseBody>
 
     @POST("moveTask")
     fun moveTask(@Body moveTaskReq: MoveTaskRequest): Call<ResponseBody>

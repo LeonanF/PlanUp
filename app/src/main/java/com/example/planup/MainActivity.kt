@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.planup.ui.components.CreateTaskList
+import com.example.planup.ui.screens.CreateDocumentScreen
 import com.example.planup.ui.screens.CreateProfileScreen
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteAccountScreen
@@ -65,11 +66,11 @@ class MainActivity : ComponentActivity() {
                 val listId = backStackEntry.arguments!!.getString("listId")
                 CreateTaskScreen(navController = navController, projectId = projectId!!, listId = listId!!)
             }
-            composable("task_detail_screen/{taskId}/{projectId}/{listId}") {
+            composable("task_detail_screen/{projectId}/{listId}/{taskId}") {
                 backStackEntry ->
-                val taskId = backStackEntry.arguments?.getString("taskId")
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 val listId = backStackEntry.arguments?.getString("listId")
+                val taskId = backStackEntry.arguments?.getString("taskId")
                 TaskDetailScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!)
             }
             composable("project_list_screen"){ ProjectListScreen(navController = navController) }
@@ -106,6 +107,14 @@ class MainActivity : ComponentActivity() {
                 val qtdProject = backStackEntry.arguments?.getString("qtdProject")?.toInt()
                 val qtdTask = backStackEntry.arguments?.getString("qtdTask")?.toInt()
                 ProfileScreen(navController = navController, qtdProjects = qtdProject!!, qtdTasks = qtdTask!!)
+            }
+
+            composable("create_document_screen/{projectId}/{listId}/{taskId}") {
+                    backStackEntry ->
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                val listId = backStackEntry.arguments?.getString("listId")
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                CreateDocumentScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!)
             }
         }
     }

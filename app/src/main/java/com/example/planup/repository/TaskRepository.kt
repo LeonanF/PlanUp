@@ -2,6 +2,7 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.DocumentRequest
 import com.example.planup.model.MoveTaskRequest
 import com.example.planup.model.Priority
 import com.example.planup.model.Reply
@@ -56,6 +57,23 @@ class TaskRepository {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 callback(false)
                 Log.e("DeleteTask", "Erro ao deletar tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun postDocument(documentRequest: DocumentRequest){
+        apiService.postDocument(documentRequest).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("PostDocument", "Documento criado com sucesso: ${response.body()}")
+                } else{
+                    Log.d("PostDocument", "Falha ao criar documento: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("PostDocument", "Erro ao criar documento: ${t.message}")
                 t.printStackTrace()
             }
         })
