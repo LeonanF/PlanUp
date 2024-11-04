@@ -51,7 +51,7 @@ fun TaskAttributeScreen(navController: NavHostController? = null, taskId:String?
                 .padding(innerPadding)
         ) {
             Button(
-                onClick = {},
+                onClick = { navController?.popBackStack() },
                 colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.White

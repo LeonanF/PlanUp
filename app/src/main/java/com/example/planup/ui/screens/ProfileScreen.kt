@@ -246,7 +246,7 @@ fun ProfileScreen(navController: NavHostController, qtdProjects: Int, qtdTasks: 
                     modifier = Modifier
                         .wrapContentSize()
                         .clickable {
-                            /* TODO NOT YET IMPLEMENTED */
+                            navController?.navigate("edit_profile_screen")
                         }
                 ) {
                     Icon(

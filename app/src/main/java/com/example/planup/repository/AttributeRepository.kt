@@ -25,4 +25,21 @@ class AttributeRepository {
             }
         })
     }
+
+    fun updateAttribute(attributeRequest: AttributeRequest) {
+        apiService.updateAttribute(attributeRequest).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("UpdateAttribute", "Atributo atualizado com sucesso: ${response.body()}")
+                } else {
+                    Log.e("UpdateAttribute", "Falha ao atualizar atributo: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateAttribute", "Erro ao enviar a atualização do atributo: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
 }
