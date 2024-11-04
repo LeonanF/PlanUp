@@ -728,10 +728,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         .padding(16.dp)
                         .fillMaxWidth(0.5f),
                         onClick = {
-
-                            navController.popBackStack()
-                            navController.navigate("task_datail_screen/{projectId}/{listId}/{taskId}")
-
                             task.value?.let { currentTask ->
 
                                 val duplicatedTask = currentTask.copy(
@@ -755,6 +751,13 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     "Tarefa duplicada com sucesso!",
                                     Toast.LENGTH_SHORT
                                 ).show()
+
+                                navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
+                                    popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                        inclusive = true
+                                    }
+                                }
+
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF246BFD)),
@@ -1116,7 +1119,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     if(showEditSubtask) {
         UpdateSubtaskModalBottomSheet(projectId, listId, taskId, selectedSubtask) {
             showEditSubtask = false
-            navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}") {
+            navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}") {
                 popUpTo("task_detail_screen") { inclusive = true }
             }
         }

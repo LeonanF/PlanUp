@@ -164,7 +164,7 @@ fun MemberScreen(
                     items(members){ member ->
                         Row(modifier = Modifier.fillMaxWidth().padding(10.dp, 0.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
                             Icon(painter = painterResource(id = R.drawable.person), contentDescription = "Membro", tint = Color.Gray, modifier = Modifier.size(60.dp))
-                            Text(member.nome, color = Color.White, fontSize = 14.sp)
+                            Text(member.nome, color = Color.White, fontSize = 20.sp)
                             if(member.id!=owner) {
                                 IconButton(onClick = {
                                     ProjectRepository().deleteMember(
@@ -173,8 +173,8 @@ fun MemberScreen(
                                         memberId = member.id
                                     ) { success ->
                                         if (success) {
-                                            navController.navigate("member_screen/$projectId") {
-                                                popUpTo("member_screen/$projectId") {
+                                            navController.navigate("member_screen/$projectId/$owner") {
+                                                popUpTo("member_screen/$projectId/$owner") {
                                                     inclusive = true
                                                 }
                                             }
@@ -192,6 +192,13 @@ fun MemberScreen(
                                         tint = Color.Red
                                     )
                                 }
+                            } else{
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_crown),
+                                    contentDescription = "Dono do projeto",
+                                    tint = Color(0xFFFFD700),
+                                    modifier = Modifier.size(60.dp)
+                                )
                             }
                         }
                     }
@@ -203,8 +210,8 @@ fun MemberScreen(
     if(showAddMember){
         AddMemberModalBottomSheet(projectId, onDismiss = {
             showAddMember=false
-            navController.navigate("member_screen/$projectId"){
-                popUpTo("member_screen/$projectId"){
+            navController.navigate("member_screen/$projectId/$owner"){
+                popUpTo("member_screen/$projectId/$owner"){
                     inclusive = true
                 }
             }
