@@ -570,6 +570,22 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 }
                             }
 
+                            links.forEach { (url, description) ->
+                                TextButton(
+                                    onClick = { /* Lógica para abrir o link em um navegador */ },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = description.ifBlank { url.take(50) },
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -714,7 +730,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         onClick = {
 
                             navController.popBackStack()
-                            navController.navigate("task_datail_screen/{taskId}/{projectId}/{listId}")
+                            navController.navigate("task_datail_screen/{projectId}/{listId}/{taskId}")
 
                             task.value?.let { currentTask ->
 

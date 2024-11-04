@@ -108,11 +108,10 @@ class MainActivity : ComponentActivity() {
             composable("edit_profile_screen") {
                 EditProfileScreen(navController = navController)
             }
-            composable("profile_screen/{userId}/{qtdProject}/{qtdTask}") { backStackEntry ->
-                val userId = backStackEntry.arguments?.getString("userId")
-                val qtdProject = backStackEntry.arguments?.getString("qtdProject")?.toIntOrNull()
-                val qtdTask = backStackEntry.arguments?.getString("qtdTask")?.toIntOrNull()
-                ProfileScreen(navController = navController, userId = userId, qtdProjects = qtdProject, qtdTasks = qtdTask)
+            composable("profile_screen/{qtdProject}/{qtdTask}") { backStackEntry ->
+                val qtdProject = backStackEntry.arguments?.getString("qtdProject")?.toInt()
+                val qtdTask = backStackEntry.arguments?.getString("qtdTask")?.toInt()
+                ProfileScreen(navController = navController, qtdProjects = qtdProject!!, qtdTasks = qtdTask!!)
             }
 
             composable("create_document_screen/{projectId}/{listId}/{taskId}") {
