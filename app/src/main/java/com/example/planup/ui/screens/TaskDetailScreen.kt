@@ -612,6 +612,13 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     "Tarefa duplicada com sucesso!",
                                     Toast.LENGTH_SHORT
                                 ).show()
+
+                                navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
+                                    popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                        inclusive = true
+                                    }
+                                }
+
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF246BFD)),
@@ -714,7 +721,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                     Button(modifier = Modifier
                         .padding(16.dp)
-                        .fillMaxWidth(0.5f),
+                        .fillMaxWidth(0.6f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF246BFD),
                             contentColor = Color.White
@@ -958,7 +965,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     if(showEditSubtask) {
         UpdateSubtaskModalBottomSheet(projectId, listId, taskId, selectedSubtask) {
             showEditSubtask = false
-            navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}") {
+            navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}") {
                 popUpTo("task_detail_screen") { inclusive = true }
             }
         }

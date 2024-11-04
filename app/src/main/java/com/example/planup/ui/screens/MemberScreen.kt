@@ -1,7 +1,7 @@
 package com.example.planup.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,6 +28,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,25 +41,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
+import com.example.planup.auth.EmailAndPasswordAuth
+import com.example.planup.model.User
 import com.example.planup.repository.ProjectRepository
+import com.example.planup.repository.UserRepository
 import com.example.planup.ui.components.AddMemberModalBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MemberScreen(
     navController: NavHostController,
-    projectId : String
+    projectId : String,
+    owner : String
 ){
 
-    var members by remember { mutableStateOf<List<String>?>(null) }
+    val members = remember { mutableStateListOf<User>() }
+    var membersId by remember { mutableStateOf<List<String>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
     var showAddMember by remember { mutableStateOf(false)}
 
     LaunchedEffect(projectId) {
-        ProjectRepository().fetchMembers(projectId){ result, errorMsg ->
-            members = result
+        ProjectRepository().fetchMembers(projectId) { result, errorMsg ->
+            membersId = result
             error = errorMsg
+        }
+    }
+
+    LaunchedEffect(membersId) {
+        membersId?.forEach { memberId ->
+            UserRepository().fetchUserById(memberId) { user ->
+                user?.let { members.add(it) }
+            }
         }
     }
 
@@ -86,7 +99,7 @@ fun MemberScreen(
                         Spacer(modifier = Modifier.size(24.dp))
                         
                         Text(
-                            "Membros do time (${if (!members.isNullOrEmpty()) members?.size else 0})",
+                            "Membros do time (${if (!members.isEmpty()) members.size else 0})",
                             fontWeight = FontWeight.Bold,
                             fontSize = 26.sp
                         )
@@ -144,34 +157,50 @@ fun MemberScreen(
                 Text("Erro: $it", color = Color.Red)
             }
 
-            members?.let { members ->
+            members.let { members ->
                 LazyColumn (modifier = Modifier
                     .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally){
                     items(members){ member ->
                         Row(modifier = Modifier.fillMaxWidth().padding(10.dp, 0.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween){
                             Icon(painter = painterResource(id = R.drawable.person), contentDescription = "Membro", tint = Color.Gray, modifier = Modifier.size(60.dp))
-                            Text(member, color = Color.White, fontSize = 14.sp)
-                            IconButton(onClick = {
-                                ProjectRepository().deleteMember(memberId = member, projectId = projectId)
-                                navController.navigate("member_screen/$projectId"){
-                                    navController.popBackStack()
+                            Text(member.nome, color = Color.White, fontSize = 20.sp)
+                            if(member.id!=owner) {
+                                IconButton(onClick = {
+                                    ProjectRepository().deleteMember(
+                                        projectId = projectId,
+                                        actualMemberId = EmailAndPasswordAuth().getCurrentUser()?.uid!!,
+                                        memberId = member.id
+                                    ) { success ->
+                                        if (success) {
+                                            navController.navigate("member_screen/$projectId/$owner") {
+                                                popUpTo("member_screen/$projectId/$owner") {
+                                                    inclusive = true
+                                                }
+                                            }
+                                        } else {
+                                            Log.e(
+                                                "MemberScreen",
+                                                "Erro ao tentar deletar o membro."
+                                            )
+                                        }
+                                    }
+                                }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_trash),
+                                        contentDescription = "Deletar membro",
+                                        tint = Color.Red
+                                    )
                                 }
-                            }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Deletar membro", tint = Color.Red)
+                            } else{
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_crown),
+                                    contentDescription = "Dono do projeto",
+                                    tint = Color(0xFFFFD700),
+                                    modifier = Modifier.size(60.dp)
+                                )
                             }
                         }
-                    }
-                }
-            } ?: run {
-                Scaffold(
-                    containerColor = Color(0xFF181A20)
-                ) { innerPadding ->
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        CircularProgressIndicator(modifier = Modifier.padding(innerPadding))
                     }
                 }
             }
@@ -179,7 +208,14 @@ fun MemberScreen(
     }
 
     if(showAddMember){
-        AddMemberModalBottomSheet(projectId, onDismiss = {showAddMember=false})
+        AddMemberModalBottomSheet(projectId, onDismiss = {
+            showAddMember=false
+            navController.navigate("member_screen/$projectId/$owner"){
+                popUpTo("member_screen/$projectId/$owner"){
+                    inclusive = true
+                }
+            }
+        })
     }
 
 }

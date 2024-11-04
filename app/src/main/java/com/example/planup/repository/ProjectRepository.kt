@@ -73,39 +73,43 @@ class ProjectRepository{
         })
     }
 
-    fun postMember(memberReq : MemberRequest){
-        apiService.postMember(memberReq).enqueue(object : Callback<ResponseBody>{
+    fun postMember(memberReq: MemberRequest, callback: (Boolean) -> Unit) {
+        apiService.postMember(memberReq).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if(response.isSuccessful){
+                if (response.isSuccessful) {
                     Log.d("AddMember", "Membro adicionado com sucesso: ${response.body()}")
-                } else{
+                    callback(true)
+                } else {
                     Log.e("AddMember", "Falha ao adicionar membro: ${response.errorBody()?.string()}")
+                    callback(false)
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("AddMember", "Erro ao enviar membro: ${t.message}")
                 t.printStackTrace()
+                callback(false)
             }
-
         })
     }
 
-    fun deleteMember(projectId: String, memberId:String){
-        apiService.deleteMember(projectId, memberId).enqueue(object : Callback<ResponseBody>{
+    fun deleteMember(projectId: String, actualMemberId: String, memberId: String, callback: (Boolean) -> Unit) {
+        apiService.deleteMember(projectId, actualMemberId, memberId).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if(response.isSuccessful){
-                    Log.d("DeleteMember", "Membro deletado com sucesso: ${response.body()}")
-                } else{
+                if (response.isSuccessful) {
+                    Log.d("DeleteMember", "Membro deletado com sucesso")
+                    callback(true)
+                } else {
                     Log.e("DeleteMember", "Falha ao deletar membro: ${response.errorBody()?.string()}")
+                    callback(false)
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("DeleteMember", "Erro ao solicitar deletar membro: ${t.message}")
                 t.printStackTrace()
+                callback(false)
             }
-
         })
     }
 

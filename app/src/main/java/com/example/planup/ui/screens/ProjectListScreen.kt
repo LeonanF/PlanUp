@@ -1,6 +1,5 @@
 package com.example.planup.ui.screens
 
-import android.graphics.drawable.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -91,11 +90,6 @@ fun ProjectListScreen(navController: NavHostController) {
                     Row (
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly) {
-                        BottomBarItem(iconRes = R.drawable.home, label = "Home", onClick = {
-                            navController.navigate("home_screen"){
-                                popUpTo("project_list_screen"){ inclusive = true }
-                            }
-                        })
                         BottomBarItem(iconRes = R.drawable.projects, label = "Projetos", onClick = {
                             navController.navigate("project_list_screen"){
                                 popUpTo("project_list_screen"){ inclusive = true }

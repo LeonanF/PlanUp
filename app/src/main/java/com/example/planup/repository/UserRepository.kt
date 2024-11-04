@@ -90,7 +90,6 @@ class UserRepository {
         })
     }
 
-    // Função para salvar a imagem no armazenamento interno com detecção de erro
     fun saveImageToInternalStorage(context: Context, uri: Uri): ImageSaveResult {
         return try {
             val imageFile = File(context.filesDir, "profile_image.jpg")
@@ -110,7 +109,6 @@ class UserRepository {
         }
     }
 
-    // Função para carregar a imagem salva do armazenamento interno
     fun loadImageFromInternalStorage(context: Context): Uri? {
         val imageFile = File(context.filesDir, "profile_image.jpg")
         return if (imageFile.exists()) Uri.fromFile(imageFile) else null

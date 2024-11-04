@@ -78,11 +78,13 @@ fun ProjectDetailScreen(
     var showDeleteList by remember { mutableStateOf(false) }
     var showEditList by remember { mutableStateOf(false) }
     var showDeleteTask by remember { mutableStateOf(false) }
+    val owner = remember { mutableStateOf("") }
 
     LaunchedEffect(projectId, showMoveTask, showCreateList, showDeleteList, showDeleteTask) {
         ProjectRepository().fetchProjectPreview(projectId) { result, errorMsg ->
             project.value = result
             error.value = errorMsg
+            owner.value = result!!.owner
         }
     }
 
@@ -204,7 +206,7 @@ fun ProjectDetailScreen(
             ) {
                 Icon(painter = painterResource(id = R.drawable.ic_team), contentDescription = "Membros", tint = Color.White, modifier = Modifier.size(40.dp))
                 Text("Time")
-                Button(onClick = { navController.navigate("member_screen/${projectId}")}) {
+                Button(onClick = { navController.navigate("member_screen/${projectId}/${owner.value}")}) {
                     Text("Ver membros")
                 }
             }
@@ -254,7 +256,8 @@ fun ProjectDetailScreen(
                                 )
                             ) {
                                 Box(
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
                                         .padding(10.dp, 10.dp, 10.dp, 0.dp)
                                         .align(Alignment.CenterHorizontally)
                                 ) {
@@ -364,7 +367,12 @@ fun ProjectDetailScreen(
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(start = 20.dp, top = 5.dp, end = 20.dp, bottom = 5.dp)
+                                                .padding(
+                                                    start = 20.dp,
+                                                    top = 5.dp,
+                                                    end = 20.dp,
+                                                    bottom = 5.dp
+                                                )
                                                 .clickable(
                                                     onClick = {
                                                         task._id?.let { taskId ->

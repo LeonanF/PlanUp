@@ -94,10 +94,11 @@ class MainActivity : ComponentActivity() {
                 val projectId = backStackEntry.arguments?.getString("projectId")
                 ProjectDetailScreen(navController = navController, projectId = projectId!!)
             }
-            composable("member_screen/{projectId}") {
+            composable("member_screen/{projectId}/{owner}") {
                     backStackEntry ->
                 val projectId = backStackEntry.arguments?.getString("projectId")
-                MemberScreen(projectId = projectId!!, navController = navController)
+                val owner = backStackEntry.arguments?.getString("owner")
+                MemberScreen(projectId = projectId!!, navController = navController, owner = owner!!)
             }
             composable("delete_account_screen") {
                 DeleteAccountScreen(navController = navController)

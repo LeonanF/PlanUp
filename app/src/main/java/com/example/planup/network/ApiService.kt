@@ -53,7 +53,7 @@ interface ApiService {
     fun fetchMembers(@Query("projectId") projectId: String): Call<MemberResponse>
 
     @GET("usersId")
-    fun fetchUserById(@Query("userId") userId: String): Call<User>
+    fun fetchUserById(@Query("id") userId: String): Call<User>
 
     @GET("usersEmail")
     fun fetchUserByEmail(@Query("email") email: String): Call<User>
@@ -125,7 +125,7 @@ interface ApiService {
     fun deleteSubtask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId :String) : Call<ResponseBody>
 
     @DELETE("projectMember")
-    fun deleteMember(@Query("projectId") projectId: String, @Query("memberId") memberId:String): Call<ResponseBody>
+    fun deleteMember(@Query("projectId") projectId: String, @Query("actualMemberId") actualMemberId :String, @Query("memberId") memberId:String): Call<ResponseBody>
 
     @DELETE("users")
     fun deleteUSer(@Query("userId") userId: String): Call<ResponseBody>
