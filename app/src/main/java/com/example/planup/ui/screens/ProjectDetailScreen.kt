@@ -95,9 +95,6 @@ fun ProjectDetailScreen(
     var taskId by remember {
         mutableStateOf("")
     }
-    var taskName by remember {
-        mutableStateOf("")
-    }
     var listId by remember {
         mutableStateOf("")
     }
@@ -222,7 +219,6 @@ fun ProjectDetailScreen(
             }
 
             project.value?.taskLists?.let { taskLists ->
-                // Estilização das listas de tarefas
                 if (taskLists.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -250,7 +246,7 @@ fun ProjectDetailScreen(
                             Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp, 0.dp, 0.dp, 10.dp),
+                                    .padding(10.dp, 0.dp, 10.dp, 10.dp),
                                 elevation = CardDefaults.cardElevation(4.dp),
                                 shape = CardDefaults.shape,
                                 colors = CardDefaults.cardColors(
@@ -334,7 +330,7 @@ fun ProjectDetailScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Filled.Build,
-                                                contentDescription = "Excluir lista",
+                                                contentDescription = "Editar lista",
                                                 tint = Color.White,
                                                 modifier = Modifier.size(15.dp)
                                             )
@@ -343,7 +339,7 @@ fun ProjectDetailScreen(
                                         IconButton(
                                             onClick = {
                                                 navController.navigate("create_task_screen/$projectId/${taskList._id}") {
-                                                    popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                                                    popUpTo("project_detail_screen") { inclusive = false }
                                                 }
                                                 project.value!!.taskQuantity + 1
                                             }
@@ -357,9 +353,7 @@ fun ProjectDetailScreen(
                                         }
                                     }
                                 }
-                                // Fim da estilização das listas de tarefas
 
-                                // Estilização das tarefas
                                 LazyColumn(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -374,7 +368,7 @@ fun ProjectDetailScreen(
                                                 .clickable(
                                                     onClick = {
                                                         task._id?.let { taskId ->
-                                                            navController.navigate("task_detail_screen/$taskId/$projectId/${taskList._id}")
+                                                            navController.navigate("task_detail_screen/$projectId/${taskList._id}/$taskId")
                                                         }
                                                     }
                                                 ),
@@ -421,8 +415,12 @@ fun ProjectDetailScreen(
                                                         Button(
                                                             onClick = {
                                                                 showMoveTask = true
-                                                                taskId = task._id!!
-                                                                taskName = task.name!!
+                                                                task._id?.let { id ->
+                                                                    taskId = id
+                                                                }
+                                                                taskList._id?.let { id ->
+                                                                    listId = id
+                                                                }
                                                             },
                                                             shape = ButtonDefaults.textShape,
                                                             colors = ButtonDefaults.buttonColors(
@@ -439,6 +437,12 @@ fun ProjectDetailScreen(
                                                         Button(
                                                             onClick = {
                                                                 showDeleteTask = true
+                                                                taskList._id?.let { id ->
+                                                                    listId = id
+                                                                }
+                                                                task._id?.let { id ->
+                                                                    taskId = id
+                                                                }
                                                                 project.value!!.taskQuantity - 1
                                                             },
                                                             shape = ButtonDefaults.textShape,
@@ -457,7 +461,6 @@ fun ProjectDetailScreen(
                                         Spacer(modifier = Modifier.height(10.dp))
                                     }
                                 }
-                                // Fim da estilização das tarefas
                             }
                         }
                     }
@@ -475,7 +478,7 @@ fun ProjectDetailScreen(
     }
 
     if (showMoveTask) {
-        MoveTaskModalBottomSheet(projectId, taskId, taskName) {
+        MoveTaskModalBottomSheet(projectId, taskId, listId) {
             showMoveTask = false
             navController.navigate("project_detail_screen/$projectId") {
                 popUpTo("project_detail_screen/$projectId") { inclusive = true }

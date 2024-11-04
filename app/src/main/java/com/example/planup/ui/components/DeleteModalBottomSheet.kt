@@ -1,5 +1,6 @@
 package com.example.planup.ui.components
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,7 +36,6 @@ fun DeleteModalBottomSheet(
     taskId: String,
     onDismiss: () -> Unit
 ) {
-    val taskRepository = TaskRepository()
     val context = LocalContext.current
 
     ModalBottomSheet(
@@ -75,6 +75,7 @@ fun DeleteModalBottomSheet(
 
             Button(
                 onClick = {
+                    Log.d("DeleteTask", "Deletando tarefa com ID: $taskId e projectId: $projectId e listId: $listId")
                     TaskRepository().deleteTask(projectId, listId, taskId) { success->
                         if (success) {
                             Toast.makeText(context, "Tarefa deletada com sucesso!", Toast.LENGTH_SHORT).show()

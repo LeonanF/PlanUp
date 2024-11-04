@@ -11,5 +11,18 @@ data class Task(
     val status: TaskStatus,
     val attributes: List<Attribute> = listOf(),
     val comments: List<Comment> = listOf(),
-    val subtasks: List<Subtask> = listOf()
-)
+    val subtasks: List<Subtask> = listOf(),
+    val documents: List<Document> = listOf()
+){
+
+    fun validateCompletedSubtasks(): Boolean{
+        if(subtasks.isNotEmpty()){
+            for (subtask in subtasks) {
+                if(subtask.status!=SubtaskStatus.DONE)
+                    return false
+            }
+        }
+        return true
+    }
+
+}

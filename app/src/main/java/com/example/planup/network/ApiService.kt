@@ -2,15 +2,19 @@ package com.example.planup.network
 
 import com.example.planup.model.AttributeRequest
 import com.example.planup.model.CommentRequest
+import com.example.planup.model.Document
+import com.example.planup.model.DocumentRequest
 import com.example.planup.model.MemberRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.ReplyRequest
 import com.example.planup.model.SubtaskRequest
 import com.example.planup.model.Task
-import com.example.planup.model.TaskList
 import com.example.planup.model.TaskListRequest
+import com.example.planup.model.TaskListUpdateRequest
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.UpdateDocumentRequest
+import com.example.planup.model.UpdateSubtaskRequest
 import com.example.planup.model.User
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -25,14 +29,14 @@ interface ApiService {
     @GET("tasks")
     fun fetchTasks(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String): Call<Task>
 
+    @GET("document")
+    fun fetchDocument(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("documentId") documentId : String) : Call<Document>
+
     @GET("comments")
     fun fetchComment(@Query("taskId") taskId: String,@Query("listId") listId: String, @Query("projectId") projectId: String/*, @Query("comment") comment: String*/): Call<CommentResponse>
 
     @GET("replies")
     fun fetchReplies(@Query("taskId") taskId: String,@Query("commentId") commentId: String): Call<ReplyResponse>
-
-    @GET("lists")
-    fun fetchTaskList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<TaskList>
 
     @GET("projectPreviews")
     fun fetchProjectPreviews(@Query("userId") userId: String): Call<ProjectPreviewResponse>
@@ -43,11 +47,8 @@ interface ApiService {
     @GET("projectMembers")
     fun fetchMembers(@Query("projectId") projectId: String): Call<MemberResponse>
 
-    // @GET("userProjects")
-    // fun fetchUserProjects(@Query("userId") userId: String): Call<ProjectResponse>
-
     @GET("users")
-    fun fetchUser(@Query("userId") userId: String): Call<User>
+    fun fetchUser(@Query("email") email: String): Call<User>
 
     @POST("projects")
     fun postProject(@Body newProject: Project): Call<ResponseBody>
@@ -61,8 +62,8 @@ interface ApiService {
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
-    @POST("tasks")
-    fun moveTask(@Body params: Map<String, String>): Call<ResponseBody>
+    @POST("document")
+    fun postDocument(@Body documentRequest: DocumentRequest): Call<ResponseBody>
 
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
@@ -85,11 +86,20 @@ interface ApiService {
     @PUT("taskStatus")
     fun updateTaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("status") status: String) : Call<ResponseBody>
 
+    @PUT("subtaskStatus")
+    fun updateSubtaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId: String, @Query("status") status: String) : Call<ResponseBody>
+
     @PUT("taskPriority")
     fun updateTaskPriority(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("priority") priority: String) : Call<ResponseBody>
 
+    @PUT("subtask")
+    fun updateSubtask(@Body updateSubtaskRequest: UpdateSubtaskRequest) : Call<ResponseBody>
+
     @PUT("lists")
-    fun updateTaskList(@Body taskListReq: TaskListRequest): Call<ResponseBody>
+    fun updateTaskList(@Body taskListUpdateRequest: TaskListUpdateRequest): Call<ResponseBody>
+
+    @PUT("document")
+    fun updateDocument(@Body documentRequest: UpdateDocumentRequest): Call <ResponseBody>
 
     @DELETE("tasks")
     fun deleteTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String): Call<ResponseBody>
@@ -102,5 +112,13 @@ interface ApiService {
 
     @DELETE("lists")
     fun deleteList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<ResponseBody>
+
+    @DELETE("document")
+    fun deleteDocument(
+        @Query("projectId") projectId: String,
+        @Query("listId") listId: String,
+        @Query("taskId") taskId: String,
+        @Query("documentId") documentId: String
+    ): Call<ResponseBody>
 
 }
