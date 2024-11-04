@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,19 +26,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.planup.model.Document
-import com.example.planup.model.DocumentRequest
+import com.example.planup.model.UpdateDocumentRequest
 import com.example.planup.repository.TaskRepository
 
 @Composable
-fun CreateDocumentScreen(
+fun EditDocumentScreen(
+    navController : NavHostController,
     projectId : String,
     listId : String,
     taskId : String,
-    navController : NavHostController
-) {
+    documentId : String
+){
     var documentTitle by remember { mutableStateOf("") }
     var documentText by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(documentId) {
+        TaskRepository().fetchDocument(
+            projectId = projectId,
+            listId = listId,
+            taskId = taskId,
+            documentId = documentId
+        ) { document, error ->
+            if (document != null) {
+                documentTitle = document.title
+                documentText = document.text
+            } else if (error != null) {
+                errorMessage = error
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -47,7 +65,7 @@ fun CreateDocumentScreen(
 
         IconButton(modifier = Modifier.padding(top = 32.dp), onClick = {
             navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
-                popUpTo("create_document_screen"){
+                popUpTo("edit_document_screen/$projectId/$listId/$taskId/$documentId"){
                     inclusive = true
                 }
             }
@@ -67,7 +85,7 @@ fun CreateDocumentScreen(
                     documentTitle = newTitle
                 }
             },
-            label = { Text("Novo documento") },
+            label = { Text("Documento") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp, bottom = 16.dp),
@@ -82,7 +100,7 @@ fun CreateDocumentScreen(
         TextField(
             value = documentText,
             onValueChange = { newText : String -> documentText = newText },
-            placeholder = {Text("Digite o conteúdo do documento aqui...")},
+            placeholder = { Text("Digite o conteúdo do documento aqui...") },
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
@@ -99,7 +117,7 @@ fun CreateDocumentScreen(
             Button(
                 onClick = {
                     navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
-                        popUpTo("create_document_screen/$projectId/$listId/$taskId"){
+                        popUpTo("edit_document_screen/$projectId/$listId/$taskId/$documentId"){
                             inclusive = true
                         }
                         launchSingleTop = true
@@ -110,18 +128,18 @@ fun CreateDocumentScreen(
                 Text("Descartar")
             }
             Button(onClick = {
-                TaskRepository().postDocument(DocumentRequest(
+                TaskRepository().updateDocument(UpdateDocumentRequest(
                     projectId = projectId,
                     listId = listId,
                     taskId = taskId,
-                    document = Document(
-                        _id = null,
-                        title = documentTitle.ifEmpty { "Novo documento" },
-                        text = documentText
-                    )
-                ))
+                    documentId = documentId,
+                    title = documentTitle,
+                    text = documentText
+                )
+                )
                 navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
-                    popUpTo("create_document_screen/$projectId/$listId/$taskId"){
+
+                    popUpTo("edit_document_screen/$projectId/$listId/$taskId/$documentId"){
                         inclusive = true
                     }
                     launchSingleTop = true

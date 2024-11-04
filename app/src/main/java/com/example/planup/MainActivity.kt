@@ -16,6 +16,7 @@ import com.example.planup.ui.screens.CreateDocumentScreen
 import com.example.planup.ui.screens.CreateProfileScreen
 import com.example.planup.ui.screens.CreateTaskScreen
 import com.example.planup.ui.screens.DeleteAccountScreen
+import com.example.planup.ui.screens.EditDocumentScreen
 import com.example.planup.ui.screens.HomeScreen
 import com.example.planup.ui.screens.LoginScreen
 import com.example.planup.ui.screens.MemberScreen
@@ -116,6 +117,16 @@ class MainActivity : ComponentActivity() {
                 val taskId = backStackEntry.arguments?.getString("taskId")
                 CreateDocumentScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!)
             }
+
+            composable("edit_document_screen/{projectId}/{listId}/{taskId}/{documentId}") {
+                    backStackEntry ->
+                val projectId = backStackEntry.arguments?.getString("projectId")
+                val listId = backStackEntry.arguments?.getString("listId")
+                val taskId = backStackEntry.arguments?.getString("taskId")
+                val documentId = backStackEntry.arguments?.getString("documentId")
+                EditDocumentScreen(navController = navController, taskId = taskId!!,projectId = projectId!!, listId = listId!!, documentId = documentId!!)
+            }
+
         }
     }
 }

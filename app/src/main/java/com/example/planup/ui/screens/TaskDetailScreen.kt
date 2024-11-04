@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -619,28 +620,114 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     }
                 }
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
 
-                        Button(modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(0.5f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF246BFD),
-                                contentColor = Color.White
-                            ), onClick = {
-                                navController.navigate("create_document_screen/$projectId/$listId/$taskId"){
-                                    popUpTo("task_detail_screen"){
-                                        inclusive = true
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = "Documentos:",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                task.value?.documents?.let { documents ->
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        items(documents) { document ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .width(200.dp)
+                                        .height(150.dp)
+                                        .clickable {
+                                            navController.navigate("edit_document_screen/$projectId/$listId/$taskId/${document._id}"){
+                                                popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                                    inclusive = true
+                                                }
+                                            }
+                                        },
+                                    elevation = CardDefaults.cardElevation(4.dp),
+                                    shape = CardDefaults.shape,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0XFF1F222A)
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(20.dp)
+                                            .fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = document.title,
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            modifier = Modifier.padding(bottom = 4.dp),
+                                            color = Color.White
+                                        )
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        IconButton(onClick = {
+                                            TaskRepository().deleteDocument(
+                                                projectId = projectId,
+                                                listId = listId,
+                                                taskId = taskId,
+                                                documentId = document._id!!
+                                            )
+                                            navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
+                                                popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        }) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_trash),
+                                                contentDescription = "Excluir documento",
+                                                tint = Color.Red,
+                                                modifier = Modifier.size(40.dp)
+                                            )
+                                        }
                                     }
                                 }
-                            }){
-                            Text(text = "Adicionar documento")
+                            }
                         }
                     }
+                } ?: Text("Nenhum documento disponível.", color = Color.White)
 
+
+                Spacer(modifier = Modifier.height(15.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+
+                    Button(modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(0.5f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF246BFD),
+                            contentColor = Color.White
+                        ), onClick = {
+                            navController.navigate("create_document_screen/$projectId/$listId/$taskId"){
+                                popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                    inclusive = true
+                                }
+                            }
+                        }){
+                        Text(text = "Adicionar documento")
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(15.dp))
 
