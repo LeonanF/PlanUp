@@ -3,7 +3,6 @@ package com.example.planup.network
 import com.example.planup.model.AttributeRequest
 import com.example.planup.model.CommentRequest
 import com.example.planup.model.MemberRequest
-import com.example.planup.model.MoveTaskRequest
 import com.example.planup.model.Project
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.ReplyRequest
@@ -12,6 +11,7 @@ import com.example.planup.model.Task
 import com.example.planup.model.TaskListRequest
 import com.example.planup.model.TaskListUpdateRequest
 import com.example.planup.model.TaskRequest
+import com.example.planup.model.UpdateSubtaskRequest
 import com.example.planup.model.User
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -56,9 +56,6 @@ interface ApiService {
     @POST("tasks")
     fun postTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
-    @POST("moveTask")
-    fun moveTask(@Body moveTaskReq: MoveTaskRequest): Call<ResponseBody>
-
     @POST("subtask")
     fun postSubTask(@Body subtaskReq: SubtaskRequest): Call<ResponseBody>
 
@@ -87,7 +84,7 @@ interface ApiService {
     fun updateTaskPriority(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("priority") priority: String) : Call<ResponseBody>
 
     @PUT("subtask")
-    fun updateSubtask(@Body subtaskReq: SubtaskRequest) : Call<ResponseBody>
+    fun updateSubtask(@Body updateSubtaskRequest: UpdateSubtaskRequest) : Call<ResponseBody>
 
     @PUT("lists")
     fun updateTaskList(@Body taskListUpdateRequest: TaskListUpdateRequest): Call<ResponseBody>

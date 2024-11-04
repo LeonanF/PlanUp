@@ -36,13 +36,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.planup.model.MoveTaskRequest
 import com.example.planup.model.ProjectDetailPreview
 import com.example.planup.model.Task
+import com.example.planup.model.TaskRequest
 import com.example.planup.repository.ProjectRepository
 import com.example.planup.repository.TaskRepository
 
@@ -99,19 +100,29 @@ fun MoveTaskModalBottomSheet(
                         append(taskName)
                     }
                     append(" para a lista ")
-                    withStyle(style = SpanStyle(color = Color(0XFFF75555), fontWeight = FontWeight.Bold)) {
-                        append(listName)
-                    }
-                    if(selectedList.isNotBlank()) append("?")
                 },
                 fontSize = 18.sp,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier
-                    .padding(0.dp, 0.dp, 0.dp, 20.dp)
+                    .padding(20.dp, 0.dp, 20.dp, 5.dp)
                     .width(380.dp),
                 color = Color.White,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = if(selectedList.isNotBlank()) listName else "",
+                fontSize = 18.sp,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(20.dp, 0.dp, 20.dp, 5.dp)
+                    .width(380.dp),
+                color = Color(0XFFF75555),
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
             )
 
             HorizontalDivider(
@@ -156,6 +167,10 @@ fun MoveTaskModalBottomSheet(
                 }
             }
 
+            if (isLoading) {
+                CircularProgressIndicator()
+            }
+
             Spacer(modifier = Modifier.height(5.dp))
 
             Button(
@@ -163,26 +178,31 @@ fun MoveTaskModalBottomSheet(
                     if (selectedList.isNotEmpty()) {
                         isLoading = true
 
-                        val moveTaskRequest = MoveTaskRequest(
-                            projectId = projectId,
-                            taskId = selectedTaskId,
-                            sourceList = originListId,
-                            destinationList = selectedList
+                        val movedTask = Task(
+                            _id = task.value?._id,
+                            name = taskName,
+                            description = task.value?.description!!,
+                            data = task.value?.data!!,
+                            priority = task.value?.priority,
+                            status = task.value?.status!!,
+                            attributes = task.value?.attributes!!,
+                            comments = task.value?.comments!!,
+                            subtasks = task.value?.subtasks!!
+                        )
+
+                        TaskRepository().postTasks(
+                            TaskRequest(
+                                projectId = projectId,
+                                listId = selectedList,
+                                task = movedTask
+                            )
                         )
 
                         Log.d("MoveTask", "Movendo tarefa ${task.value?._id} da lista $originListId para a lista $selectedList")
 
-                        TaskRepository().moveTask(
-                            moveTaskRequest
-                        ) { success ->
+                        TaskRepository().deleteTask(projectId, originListId, taskId) {
                             isLoading = false
-
-                            if (!success) {
-                                Toast.makeText(context, "Erro ao mover a tarefa", Toast.LENGTH_SHORT).show()
-                            } else {
-                                Toast.makeText(context, "Tarefa movida com sucesso", Toast.LENGTH_SHORT).show()
-                                onDismiss()
-                            }
+                            onDismiss()
                         }
                     } else {
                         Toast.makeText(context, "Selecione uma lista", Toast.LENGTH_SHORT).show()
@@ -197,10 +217,6 @@ fun MoveTaskModalBottomSheet(
                     .heightIn(45.dp)
             ){
                 Text("Mover tarefa", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White, style = MaterialTheme.typography.bodyLarge)
-            }
-
-            if (isLoading) {
-                CircularProgressIndicator()
             }
 
             Spacer(modifier = Modifier.height(5.dp))
