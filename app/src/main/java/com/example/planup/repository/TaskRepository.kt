@@ -239,5 +239,21 @@ class TaskRepository {
 
         })
     }
+    fun postMemberTask(projectId: String, listId: String, taskId: String, memberId: String) {
+        apiService.postMemberTask(projectId, listId, taskId, memberId).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("PostMemberTask", "Membro adicionado à tarefa com sucesso: ${response.body()}")
+                } else {
+                    Log.d("PostMemberTask", "Falha ao adicionar membro à tarefa: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("PostMemberTask", "Erro ao adicionar membro à tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
 
 }

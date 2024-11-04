@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,7 @@ import com.example.planup.model.TaskStatus
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
+import com.example.planup.ui.components.MemberSelectionModal
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
 import java.util.Locale
@@ -74,6 +76,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
     val taskRepository = remember { TaskRepository() }
 
+    var showMemberSelection by remember { mutableStateOf(false) }
+    var selectedMemberName by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(taskId) {
         taskRepository.fetchTask(taskId, listId, projectId) { result, errorMsg ->
             task.value = result
@@ -109,7 +114,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                 value = taskName.value,
                                 onValueChange = { taskName.value = it },
                                 label = { Text("Editar Nome da Tarefa") },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().testTag("nameField"),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedTextColor = Color.White,
                                     focusedBorderColor = Color.White,
@@ -176,7 +181,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     value = descriptionText.value,
                                     onValueChange = { descriptionText.value = it },
                                     label = { Text("Editar Descrição da Tarefa") },
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().testTag("descriptionField"),
                                     colors = OutlinedTextFieldDefaults.colors(
                                         focusedTextColor = Color.White,
                                         focusedBorderColor = Color.White,
@@ -485,8 +490,54 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         }
                     }
                 }
-            }
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            onClick = { showMemberSelection = true },
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text("Selecionar Responsável")
+                            IconButton(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(20.dp), //tamanho
+                                onClick = { showMemberSelection = true }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.usermember),
+                                    contentDescription = "Selecionar Responsável",
+                                    tint = Color(0xFF246BFD)
+                                )
+                            }
+                        }
+                    }
 
+                    selectedMemberName?.let {
+                        Text(
+                            text = "Responsável: $it",
+                            modifier = Modifier.padding(20.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 18.sp,
+                            color = Color.White
+                        )
+                    }
+                    if (showMemberSelection) {
+                        MemberSelectionModal(
+                            projectId = projectId,
+                            listId = listId,
+                            taskId = taskId,
+                            onMemberSelected = { member ->
+                                selectedMemberName = member
+                            },
+                            onDismiss = {
+                                showMemberSelection = false
+                            }
+                        )
+                    }
+                }
+            }
             item{
 
                 LazyColumn (modifier = Modifier
