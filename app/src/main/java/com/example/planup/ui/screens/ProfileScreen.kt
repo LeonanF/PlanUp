@@ -70,7 +70,7 @@ fun ProfileScreen(navController: NavHostController, qtdProjects: Int, qtdTasks: 
         imageUri = UserRepository().loadImageFromInternalStorage(context)
 
         if (email != null) {
-            UserRepository().fetchUser(email) { result ->
+            UserRepository().fetchUserByEmail(email) { result ->
                 user.value = result
             }
         }
