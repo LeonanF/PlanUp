@@ -77,7 +77,7 @@ interface ApiService {
     @PUT("taskStatus")
     fun updateTaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("status") status: String) : Call<ResponseBody>
 
-    @PUT("subtask")
+    @PUT("subtaskStatus")
     fun updateSubtaskStatus(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("subtaskId") subtaskId: String, @Query("status") status: String) : Call<ResponseBody>
 
     @PUT("taskPriority")
