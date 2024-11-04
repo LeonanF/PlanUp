@@ -2,6 +2,7 @@ package com.example.planup.repository
 
 import android.util.Log
 import com.example.planup.model.SubtaskRequest
+import com.example.planup.model.UpdateSubtaskRequest
 import com.example.planup.network.RetrofitInstance.apiService
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -59,7 +60,21 @@ class SubtaskRepository {
                 t.printStackTrace()
             }
         })
-
     }
 
+    fun updateSubtask(updateSubtaskRequest: UpdateSubtaskRequest) {
+        apiService.updateSubtask(updateSubtaskRequest).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(p0: Call<ResponseBody>, p1: Response<ResponseBody>) {
+                if(p1.isSuccessful){
+                    Log.d("UpdateSubtask", "Subtarefa atualizada com sucesso: ${p1.body()}")
+                } else {
+                    Log.d("UpdateSubtask", "Falha ao atualizar subtarefa: ${p1.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
+                Log.e("UpdateSubtask", "Erro ao atualizar subtarefa: ${p1.message}")
+            }
+        })
+    }
 }

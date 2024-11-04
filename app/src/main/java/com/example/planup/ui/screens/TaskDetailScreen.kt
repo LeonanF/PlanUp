@@ -35,6 +35,7 @@ import com.example.planup.model.TaskStatus
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
+import com.example.planup.ui.components.UpdateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
 import java.util.Locale
@@ -71,6 +72,12 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     var isReplyFieldVisible by remember { mutableStateOf(false) }
 
     var showCreateSubtask by remember { mutableStateOf(false) }
+    var showEditSubtask by remember {
+        mutableStateOf(false)
+    }
+    var selectedSubtask by remember {
+        mutableStateOf("")
+    }
 
     val taskRepository = remember { TaskRepository() }
 
@@ -524,6 +531,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     popUpTo("task_detail_screen"){inclusive = true}
                                 }
                             },
+                            onEdit = { subtaskId ->
+                                showEditSubtask = true
+                                selectedSubtask = subtaskId
+                            },
                             onChecked = { status ->
                                 subtask._id?.let{ it1 ->
                                     SubtaskRepository().updateSubtaskStatus(
@@ -856,10 +867,19 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             }
         }
     }
+
+    if(showEditSubtask) {
+        UpdateSubtaskModalBottomSheet(projectId, listId, taskId, selectedSubtask) {
+            showEditSubtask = false
+            navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}") {
+                popUpTo("task_detail_screen") { inclusive = true }
+            }
+        }
+    }
 }
 
 @Composable
-fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : String)->Unit) {
+fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onEdit: (String)->Unit, onChecked: (status : String)->Unit) {
 
     var clicked by remember {
         mutableStateOf(false)
@@ -867,6 +887,10 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : Strin
 
     var status by remember{
         mutableStateOf(subtask.status)
+    }
+
+    var selectedSubtask by remember {
+        mutableStateOf("")
     }
 
     Box(
@@ -921,9 +945,26 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : Strin
     }
 
     if(clicked){
-        IconButton(modifier = Modifier.padding(16.dp), onClick = onDelete){
-            Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(30.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(modifier = Modifier.padding(16.dp), onClick = onDelete){
+                Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
+            }
+
+            IconButton(
+                modifier = Modifier.padding(16.dp),
+                onClick = {
+                    selectedSubtask = subtask._id.toString()
+                    onEdit(selectedSubtask)
+                }
+            ){
+                Icon(painter = painterResource(id = R.drawable.ic_edit), contentDescription = "Editar subtarefa", tint = Color.White)
+            }
         }
     }
-
 }
