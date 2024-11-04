@@ -36,8 +36,8 @@ class UserRepository {
         })
     }
 
-    fun fetchUser(email: String, callback: (User?) -> Unit) {
-        apiService.fetchUser(email).enqueue(object : Callback<User>{
+    fun fetchUserByEmail(email: String, callback: (User?) -> Unit) {
+        apiService.fetchUserByEmail(email).enqueue(object : Callback<User>{
             override fun onResponse(p0: Call<User>, p1: Response<User>) {
                 if (p1.isSuccessful) {
                     callback(p1.body())
@@ -55,7 +55,25 @@ class UserRepository {
         })
     }
 
-    // Função para salvar a imagem no armazenamento interno com detecção de erro
+    fun fetchUserById(userId: String, callback: (User?) -> Unit) {
+        apiService.fetchUserById(userId).enqueue(object : Callback<User>{
+            override fun onResponse(p0: Call<User>, p1: Response<User>) {
+                if (p1.isSuccessful) {
+                    callback(p1.body())
+                    Log.d("UserRepository", "Usuario carregado com sucesso")
+                } else {
+                    callback(null)
+                    Log.e("UserRepository", "Erro ao carregar usuario: ${p1.code()}")
+                }
+            }
+
+            override fun onFailure(p0: Call<User>, p1: Throwable) {
+                callback(null)
+                Log.e("UserRepository", "Falha ao carregar usuario: ${p1.message}")
+            }
+        })
+    }
+
     fun saveImageToInternalStorage(context: Context, uri: Uri): ImageSaveResult {
         return try {
             val imageFile = File(context.filesDir, "profile_image.jpg")
@@ -75,7 +93,6 @@ class UserRepository {
         }
     }
 
-    // Função para carregar a imagem salva do armazenamento interno
     fun loadImageFromInternalStorage(context: Context): Uri? {
         val imageFile = File(context.filesDir, "profile_image.jpg")
         return if (imageFile.exists()) Uri.fromFile(imageFile) else null

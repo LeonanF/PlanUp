@@ -27,41 +27,38 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.planup.model.MemberRequest
 import com.example.planup.repository.ProjectRepository
+import com.example.planup.repository.UserRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMemberModalBottomSheet(
-    projectId : String,
+    projectId: String,
     onDismiss: () -> Unit
-){
-
-    var memberId by remember {
-        mutableStateOf("")
-    }
+) {
+    var email by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     ModalBottomSheet(
-        modifier = Modifier
-            .heightIn(450.dp),
+        modifier = Modifier.heightIn(450.dp),
         onDismissRequest = onDismiss
-    ){
-        Column (
-            modifier = Modifier
-                .fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Novo membro",
+            Text(
+                text = "Novo membro",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .padding(0.dp,0.dp,0.dp,20.dp),
+                modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 20.dp)
             )
 
             HorizontalDivider(color = Color(0xFF35383F), thickness = 2.dp)
 
-            OutlinedTextField(value = memberId, onValueChange = { newText ->
-                memberId = newText
-            },
-                label = { Text("Id do membro", color = Color.White) },
+            OutlinedTextField(
+                value = email,
+                onValueChange = { newText -> email = newText },
+                label = { Text("Email do membro", color = Color.White) },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .padding(0.dp, 10.dp),
@@ -75,20 +72,44 @@ fun AddMemberModalBottomSheet(
 
             Spacer(modifier = Modifier.height(25.dp))
 
-            Button(onClick = {
-                if(memberId.isNotBlank()){
-                    ProjectRepository().postMember(MemberRequest(projectId = projectId, memberId = memberId))
-                }},
+            errorMessage?.let {
+                Text(
+                    text = it,
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
+
+            Button(
+                onClick = {
+                    if (email.isNotBlank()) {
+                        UserRepository().fetchUserByEmail(email) { user ->
+                            if (user != null) {
+                                ProjectRepository().postMember(
+                                    MemberRequest(projectId = projectId, memberId = user.id)
+                                ) { success ->
+                                    if (success) {
+                                        onDismiss()
+                                    } else {
+                                        errorMessage = "Erro ao adicionar o membro. Tente novamente."
+                                    }
+                                }
+                            } else {
+                                errorMessage = "Usuário não encontrado."
+                            }
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF246BFD),
                     contentColor = Color.White
                 ),
-                modifier = Modifier.fillMaxWidth(0.9f).heightIn(65.dp)
-            ){
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .heightIn(65.dp)
+            ) {
                 Text("Adicionar membro", fontSize = 18.sp, fontWeight = FontWeight.Bold)
             }
-
-
         }
     }
 }
