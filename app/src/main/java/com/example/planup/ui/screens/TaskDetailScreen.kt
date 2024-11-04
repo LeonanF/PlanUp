@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -42,6 +43,7 @@ import com.example.planup.repository.AttributeRepository
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
+import com.example.planup.ui.components.UpdateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
 import java.util.Locale
@@ -78,6 +80,12 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     var isReplyFieldVisible by remember { mutableStateOf(false) }
 
     var showCreateSubtask by remember { mutableStateOf(false) }
+    var showEditSubtask by remember {
+        mutableStateOf(false)
+    }
+    var selectedSubtask by remember {
+        mutableStateOf("")
+    }
 
     val taskRepository = remember { TaskRepository() }
 
@@ -643,9 +651,13 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                         subtaskId = it1
                                     )
                                 }
-                                navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}"){
+                                navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
                                     popUpTo("task_detail_screen"){inclusive = true}
                                 }
+                            },
+                            onEdit = { subtaskId ->
+                                showEditSubtask = true
+                                selectedSubtask = subtaskId
                             },
                             onChecked = { status ->
                                 subtask._id?.let{ it1 ->
@@ -670,7 +682,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 ){
                     Button(modifier = Modifier
                         .padding(16.dp)
-                        .width(180.dp),
+                        .fillMaxWidth(0.5f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF246BFD),
                             contentColor = Color.White
@@ -683,7 +695,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                     CreateSubtaskModalBottomSheet(onDismiss = {
                         showCreateSubtask = false
 
-                        navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}"){
+                        navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
                             popUpTo("task_detail_screen"){inclusive = true}
                         }
                     }, projectId = projectId, listId = listId, taskId = taskId)
@@ -698,7 +710,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 ) {
                     Button( modifier = Modifier
                         .padding(16.dp)
-                        .width(180.dp),
+                        .fillMaxWidth(0.5f),
                         onClick = {
 
                             navController.popBackStack()
@@ -732,6 +744,115 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF246BFD)),
                     ) {
                         Text(text = "Duplicar Tarefa", color = Color.White)
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                Text(
+                    text = "Documentos:",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    color = Color.White,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(15.dp))
+
+                task.value?.documents?.let { documents ->
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        items(documents) { document ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                            ) {
+                                Card(
+                                    modifier = Modifier
+                                        .width(200.dp)
+                                        .height(150.dp)
+                                        .clickable {
+                                            navController.navigate("edit_document_screen/$projectId/$listId/$taskId/${document._id}"){
+                                                popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                                    inclusive = true
+                                                }
+                                            }
+                                        },
+                                    elevation = CardDefaults.cardElevation(4.dp),
+                                    shape = CardDefaults.shape,
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0XFF1F222A)
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(20.dp)
+                                            .fillMaxSize(),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = document.title,
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            modifier = Modifier.padding(bottom = 4.dp),
+                                            color = Color.White
+                                        )
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        IconButton(onClick = {
+                                            TaskRepository().deleteDocument(
+                                                projectId = projectId,
+                                                listId = listId,
+                                                taskId = taskId,
+                                                documentId = document._id!!
+                                            )
+                                            navController.navigate("task_detail_screen/$projectId/$listId/$taskId"){
+                                                popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                                    inclusive = true
+                                                }
+                                                launchSingleTop = true
+                                            }
+                                        }) {
+                                            Icon(
+                                                painter = painterResource(id = R.drawable.ic_trash),
+                                                contentDescription = "Excluir documento",
+                                                tint = Color.Red,
+                                                modifier = Modifier.size(40.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } ?: Text("Nenhum documento disponível.", color = Color.White)
+
+
+                Spacer(modifier = Modifier.height(15.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+
+                    Button(modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(0.5f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF246BFD),
+                            contentColor = Color.White
+                        ), onClick = {
+                            navController.navigate("create_document_screen/$projectId/$listId/$taskId"){
+                                popUpTo("task_detail_screen/$projectId/$listId/$taskId"){
+                                    inclusive = true
+                                }
+                            }
+                        }){
+                        Text(text = "Adicionar documento")
                     }
                 }
 
@@ -976,10 +1097,18 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 }
             }
         }
+    if(showEditSubtask) {
+        UpdateSubtaskModalBottomSheet(projectId, listId, taskId, selectedSubtask) {
+            showEditSubtask = false
+            navController.navigate("task_detail_screen/${taskId}/${projectId}/${listId}") {
+                popUpTo("task_detail_screen") { inclusive = true }
+            }
+        }
     }
+}
 
 @Composable
-fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : String)->Unit) {
+fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onEdit: (String)->Unit, onChecked: (status : String)->Unit) {
 
     var clicked by remember {
         mutableStateOf(false)
@@ -987,6 +1116,10 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : Strin
 
     var status by remember{
         mutableStateOf(subtask.status)
+    }
+
+    var selectedSubtask by remember {
+        mutableStateOf("")
     }
 
     Box(
@@ -1041,8 +1174,26 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onChecked: (status : Strin
     }
 
     if(clicked){
-        IconButton(modifier = Modifier.padding(16.dp), onClick = onDelete){
-            Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(30.dp, 0.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(modifier = Modifier.padding(16.dp), onClick = onDelete){
+                Icon(painter = painterResource(id = R.drawable.ic_trash), contentDescription = "Excluir subtarefa", tint = Color.Red)
+            }
+
+            IconButton(
+                modifier = Modifier.padding(16.dp),
+                onClick = {
+                    selectedSubtask = subtask._id.toString()
+                    onEdit(selectedSubtask)
+                }
+            ){
+                Icon(painter = painterResource(id = R.drawable.ic_edit), contentDescription = "Editar subtarefa", tint = Color.White)
+            }
         }
     }
 

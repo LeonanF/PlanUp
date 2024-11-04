@@ -339,7 +339,7 @@ fun ProjectDetailScreen(
                                         IconButton(
                                             onClick = {
                                                 navController.navigate("create_task_screen/$projectId/${taskList._id}") {
-                                                    popUpTo("project_detail_screen/$projectId") { inclusive = false }
+                                                    popUpTo("project_detail_screen") { inclusive = false }
                                                 }
                                                 project.value!!.taskQuantity + 1
                                             }
@@ -353,9 +353,7 @@ fun ProjectDetailScreen(
                                         }
                                     }
                                 }
-                                // Fim da estilização das listas de tarefas
 
-                                // Estilização das tarefas
                                 LazyColumn(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -370,7 +368,7 @@ fun ProjectDetailScreen(
                                                 .clickable(
                                                     onClick = {
                                                         task._id?.let { taskId ->
-                                                            navController.navigate("task_detail_screen/$taskId/$projectId/${taskList._id}")
+                                                            navController.navigate("task_detail_screen/$projectId/${taskList._id}/$taskId")
                                                         }
                                                     }
                                                 ),

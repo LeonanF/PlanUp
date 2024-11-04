@@ -4,13 +4,15 @@ import android.util.Log
 import com.example.planup.model.Attachments
 import com.example.planup.model.AttachmentsRequest
 import com.example.planup.model.CommentRequest
-import com.example.planup.model.MoveTaskRequest
+import com.example.planup.model.Document
+import com.example.planup.model.DocumentRequest
 import com.example.planup.model.Priority
 import com.example.planup.model.Reply
 import com.example.planup.model.ReplyRequest
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
 import com.example.planup.model.TaskStatus
+import com.example.planup.model.UpdateDocumentRequest
 import com.example.planup.network.CommentResponse
 import com.example.planup.network.ReplyResponse
 import com.example.planup.network.RetrofitInstance
@@ -22,26 +24,6 @@ import retrofit2.Callback
 class TaskRepository {
 
     private val apiService = RetrofitInstance.apiService
-
-    fun moveTask(moveTaskRequest: MoveTaskRequest, onResult: (Boolean) -> Unit) {
-        apiService.moveTask(moveTaskRequest).enqueue(object: Callback<ResponseBody>{
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if(response.isSuccessful){
-                    onResult(true)
-                    Log.d("MoveTask", "Tarefa movida com sucesso: ${response.body()}")
-                } else {
-                    onResult(false)
-                    Log.d("MoveTask", "Falha ao mover a tarefa: ${response.errorBody()?.string()}")
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                onResult(false)
-                Log.e("MoveTask", "Erro ao mover a tarefa: ${t.message}")
-                t.printStackTrace()
-            }
-        })
-    }
 
     fun deleteTask(projectId: String, listId: String, taskId: String, callback: (Boolean) -> Unit) {
         apiService.deleteTask(projectId, listId, taskId).enqueue(object: Callback<ResponseBody> {
@@ -59,6 +41,55 @@ class TaskRepository {
                 callback(false)
                 Log.e("DeleteTask", "Erro ao deletar tarefa: ${t.message}")
                 t.printStackTrace()
+            }
+        })
+    }
+
+    fun deleteDocument(projectId: String, listId: String, taskId: String, documentId: String){
+        apiService.deleteDocument(projectId, listId, taskId, documentId).enqueue(object:Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("DeleteDocument", "Documento deletado com sucesso: ${response.body()}")
+                } else{
+                    Log.d("DeleteDocument", "Falha ao deletar documento: ${response.errorBody()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("DeleteDocument", "Erro ao deletar documento: ${t.message}")
+            }
+        })
+    }
+
+    fun postDocument(documentRequest: DocumentRequest){
+        apiService.postDocument(documentRequest).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("PostDocument", "Documento criado com sucesso: ${response.body()}")
+                } else{
+                    Log.d("PostDocument", "Falha ao criar documento: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("PostDocument", "Erro ao criar documento: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
+
+    fun updateDocument(documentRequest: UpdateDocumentRequest){
+        apiService.updateDocument(documentRequest).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if(response.isSuccessful){
+                    Log.d("UpdateDocument", "Documento atualizado com sucesso: ${response.body()}")
+                } else{
+                    Log.d("UpdateDocument", "Falha ao atualizar documento: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("UpdateDocument", "Erro ao atualizar documento: ${t.message}")
             }
         })
     }
@@ -97,6 +128,25 @@ class TaskRepository {
             override fun onFailure(call: Call<Task>, t: Throwable) {
                 callback(null, t.message)
                 t.printStackTrace()
+            }
+        })
+    }
+
+    fun fetchDocument(projectId: String, listId: String, taskId: String, documentId : String, callback: (Document?, String?)->Unit){
+        apiService.fetchDocument(projectId, listId, taskId, documentId).enqueue(object : Callback<Document>{
+            override fun onResponse(call: Call<Document>, response: Response<Document>) {
+                if(response.isSuccessful){
+                     Log.d("FetchDocument", "Documento encontrado: ${response.body()}")
+                    callback(response.body(), null)
+                } else{
+                    Log.d("FetchDocument", "Erro ao buscar tarefa: ${response.errorBody()}")
+                    callback(null, response.errorBody()?.string())
+                }
+            }
+
+            override fun onFailure(call: Call<Document>, t: Throwable) {
+                t.printStackTrace()
+                callback(null, t.message)
             }
         })
     }
