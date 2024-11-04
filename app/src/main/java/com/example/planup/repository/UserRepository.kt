@@ -74,6 +74,22 @@ class UserRepository {
         })
     }
 
+    fun deleteUser(userId: String) {
+        apiService.deleteUSer(userId).enqueue(object : Callback<ResponseBody>{
+            override fun onResponse(p0: Call<ResponseBody>, p1: Response<ResponseBody>) {
+                if (p1.isSuccessful) {
+                    Log.d("UserRepository", "Usuario deletado com sucesso")
+                } else {
+                    Log.e("UserRepository", "Erro ao deletar usuario: ${p1.code()}")
+                }
+            }
+
+            override fun onFailure(p0: Call<ResponseBody>, p1: Throwable) {
+                Log.e("UserRepository", "Falha ao deletar usuario: ${p1.message}")
+            }
+        })
+    }
+
     // Função para salvar a imagem no armazenamento interno com detecção de erro
     fun saveImageToInternalStorage(context: Context, uri: Uri): ImageSaveResult {
         return try {

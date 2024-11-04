@@ -124,6 +124,9 @@ interface ApiService {
     @DELETE("projectMember")
     fun deleteMember(@Query("projectId") projectId: String, @Query("memberId") memberId:String): Call<ResponseBody>
 
+    @DELETE("users")
+    fun deleteUSer(@Query("userId") userId: String): Call<ResponseBody>
+
     @DELETE("lists")
     fun deleteList(@Query("projectId") projectId: String, @Query("listId") listId: String): Call<ResponseBody>
 

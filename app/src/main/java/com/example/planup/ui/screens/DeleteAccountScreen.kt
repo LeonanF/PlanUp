@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.planup.R
+import com.example.planup.repository.UserRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,6 +95,7 @@ fun DeleteAccountScreen(navController: NavHostController) {
                                 if (reauthTask.isSuccessful) {
                                     currentUser.delete().addOnCompleteListener { deleteTask ->
                                         if (deleteTask.isSuccessful) {
+                                            UserRepository().deleteUser(currentUser.uid)
                                             Toast.makeText(context, "Conta excluída com sucesso", Toast.LENGTH_LONG).show()
                                             navController.navigate("register_screen") {
                                                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
