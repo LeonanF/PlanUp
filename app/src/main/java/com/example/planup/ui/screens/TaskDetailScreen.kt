@@ -857,7 +857,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                     Button(modifier = Modifier
                         .padding(16.dp)
-                        .fillMaxWidth(0.5f),
+                        .fillMaxWidth(0.6f),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF246BFD),
                             contentColor = Color.White

@@ -52,15 +52,21 @@ fun MemberScreen(
 ){
 
     var members by remember { mutableStateOf<List<String>?>(null) }
+    var membersId by remember { mutableStateOf<List<String>?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
     var showAddMember by remember { mutableStateOf(false)}
 
     LaunchedEffect(projectId) {
         ProjectRepository().fetchMembers(projectId){ result, errorMsg ->
-            members = result
+            membersId = result
             error = errorMsg
         }
+
+        membersId?.forEach { member ->
+            Proj
+        }
+
     }
 
     Scaffold (
