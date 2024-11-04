@@ -10,6 +10,7 @@ data class Task(
     val priority: Priority?,
     val status: TaskStatus,
     val attributes: List<Attribute> = listOf(),
+    val attachments: List<Attachments> = listOf(),
     val comments: List<Comment> = listOf(),
     val subtasks: List<Subtask> = listOf(),
     val documents: List<Document> = listOf()

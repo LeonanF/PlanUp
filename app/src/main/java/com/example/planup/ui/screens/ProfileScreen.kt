@@ -70,7 +70,7 @@ fun ProfileScreen(navController: NavHostController, qtdProjects: Int, qtdTasks: 
         imageUri = UserRepository().loadImageFromInternalStorage(context)
 
         if (email != null) {
-            UserRepository().fetchUser(email) { result ->
+            UserRepository().fetchUserByEmail(email) { result ->
                 user.value = result
             }
         }
@@ -246,7 +246,7 @@ fun ProfileScreen(navController: NavHostController, qtdProjects: Int, qtdTasks: 
                     modifier = Modifier
                         .wrapContentSize()
                         .clickable {
-                            /* TODO NOT YET IMPLEMENTED */
+                            navController?.navigate("edit_profile_screen")
                         }
                 ) {
                     Icon(
