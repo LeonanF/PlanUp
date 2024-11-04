@@ -3,6 +3,7 @@ package com.example.planup.ui.screens
 import android.icu.text.SimpleDateFormat
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,6 +44,7 @@ import com.example.planup.repository.AttributeRepository
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
+import com.example.planup.ui.components.MemberSelectionModal
 import com.example.planup.ui.components.UpdateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
@@ -88,6 +90,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     }
 
     val taskRepository = remember { TaskRepository() }
+
+    var showMemberSelection by remember { mutableStateOf(false) }
+    var selectedMemberName by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(taskId) {
         taskRepository.fetchTask(taskId, listId, projectId) { result, errorMsg ->
@@ -655,43 +660,104 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
 
             task.value?.let {
-                    items(it.subtasks) { subtask ->
-                        SubtaskItem(
-                            subtask = subtask,
-                            onDelete = {
-                                subtask._id?.let { it1 ->
-                                    SubtaskRepository().deleteSubtask(
-                                        projectId = projectId,
-                                        listId = listId,
-                                        taskId = taskId,
-                                        subtaskId = it1
-                                    )
-                                }
-                                navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
-                                    popUpTo("task_detail_screen"){inclusive = true}
-                                }
-                            },
-                            onEdit = { subtaskId ->
-                                showEditSubtask = true
-                                selectedSubtask = subtaskId
-                            },
-                            onChecked = { status ->
-                                subtask._id?.let{ it1 ->
-                                    SubtaskRepository().updateSubtaskStatus(
-                                        projectId = projectId,
-                                        listId = listId,
-                                        taskId = taskId,
-                                        subtaskId = it1,
-                                        status = status
-                                    )
-                                }
-
-                                subtask.status = SubtaskStatus.fromDatabaseString(status)!!
+                items(it.subtasks) { subtask ->
+                    SubtaskItem(
+                        subtask = subtask,
+                        onDelete = {
+                            subtask._id?.let { it1 ->
+                                SubtaskRepository().deleteSubtask(
+                                    projectId = projectId,
+                                    listId = listId,
+                                    taskId = taskId,
+                                    subtaskId = it1
+                                )
                             }
-                        )
-                    }
+                            navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
+                                popUpTo("task_detail_screen"){inclusive = true}
+                            }
+                        },
+                        onEdit = { subtaskId ->
+                            showEditSubtask = true
+                            selectedSubtask = subtaskId
+                        },
+                        onChecked = { status ->
+                            subtask._id?.let{ it1 ->
+                                SubtaskRepository().updateSubtaskStatus(
+                                    projectId = projectId,
+                                    listId = listId,
+                                    taskId = taskId,
+                                    subtaskId = it1,
+                                    status = status
+                                )
+                            }
+
+                            subtask.status = SubtaskStatus.fromDatabaseString(status)!!
+                        }
+                    )
+                }
             }
 
+            item {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    selectedMemberName?.let {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color.Gray,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .background(Color(0xFF181A20), shape = RoundedCornerShape(8.dp))
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Responsável: $it",
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            onClick = { showMemberSelection = true },
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text("Selecionar Responsável")
+                            IconButton(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(20.dp),
+                                onClick = { showMemberSelection = true }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.usermember),
+                                    contentDescription = "Selecionar Responsável",
+                                    tint = Color(0xFF246BFD)
+                                )
+                            }
+                        }
+                    }
+                }
+                if (showMemberSelection) {
+                    MemberSelectionModal(
+                        projectId = projectId,
+                        listId = listId,
+                        taskId = taskId,
+                        onMemberSelected = { member ->
+                            selectedMemberName = member
+                        },
+                        onDismiss = {
+                            showMemberSelection = false
+                        }
+                    )
+                }
+            }
             item{
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -728,6 +794,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         .padding(16.dp)
                         .fillMaxWidth(0.5f),
                         onClick = {
+
+                            navController.popBackStack()
+                            navController.navigate("task_datail_screen/{projectId}/{listId}/{taskId}")
+
                             task.value?.let { currentTask ->
 
                                 val duplicatedTask = currentTask.copy(
@@ -950,163 +1020,162 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             item {
                 comments.forEach { commentRequest ->
                     val comment = commentRequest.comment
-                        Column(
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .background(Color(0xFF2E2F33), RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                            .clickable {
+                                replyingTo.value = comment
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = comment.email,
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = comment.text,
+                                    fontSize = 14.sp,
+                                    color = Color.LightGray
+                                )
+                            }
+
+                            Text(
+                                text = comment.data,
+                                color = Color.Gray,
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .background(Color(0xFF2E2F33), RoundedCornerShape(8.dp))
-                                .padding(16.dp)
-                                .clickable {
-                                    replyingTo.value = comment
-                                }
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = comment.email,
-                                        fontSize = 16.sp,
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = comment.text,
-                                        fontSize = 14.sp,
-                                        color = Color.LightGray
-                                    )
-                                }
 
-                                Text(
-                                    text = comment.data,
-                                    color = Color.Gray,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
+                            IconButton(onClick = { showReplies = !showReplies } ) {
+                                Icon(
+                                    painter = painterResource(id = if (showReplies) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down),
+                                    contentDescription = if (showReplies) "Ocultar Respostas" else "Ver Respostas",
+                                    tint = Color.White
                                 )
                             }
 
-                            Row(
+                            Button(
+                                onClick = {
+                                    isReplyFieldVisible =
+                                        !isReplyFieldVisible
+                                    if (isReplyFieldVisible) {
+                                        replyText.value = ""
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF246BFD),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Responder")
+                            }
+                        }
+
+                        if (isReplyFieldVisible) {
+                            OutlinedTextField(
+                                value = replyText.value,
+                                onValueChange = { newReply -> replyText.value = newReply },
+                                label = { Text("Responder") },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-
-                                IconButton(onClick = { showReplies = !showReplies } ) {
-                                    Icon(
-                                        painter = painterResource(id = if (showReplies) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down),
-                                        contentDescription = if (showReplies) "Ocultar Respostas" else "Ver Respostas",
-                                        tint = Color.White
-                                    )
-                                }
-
-                                Button(
-                                    onClick = {
-                                        isReplyFieldVisible =
-                                            !isReplyFieldVisible
-                                        if (isReplyFieldVisible) {
-                                            replyText.value = ""
-                                        }
-                                    },
-                                    modifier = Modifier.align(Alignment.CenterVertically),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Responder")
-                                }
-                            }
-
-                            if (isReplyFieldVisible) {
-                                OutlinedTextField(
-                                    value = replyText.value,
-                                    onValueChange = { newReply -> replyText.value = newReply },
-                                    label = { Text("Responder") },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 12.dp),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = Color.White,
-                                        focusedBorderColor = Color.White,
-                                        unfocusedBorderColor = Color.Gray,
-                                        cursorColor = Color.White
-                                    )
+                                    .padding(top = 12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = Color.White,
+                                    focusedBorderColor = Color.White,
+                                    unfocusedBorderColor = Color.Gray,
+                                    cursorColor = Color.White
                                 )
+                            )
 
-                                Button(
-                                    onClick = {
-                                        if (replyText.value.isNotBlank()) {
-                                            val newReply = Reply(
-                                                text = replyText.value,
-                                                email = email!!,
-                                                data = currentDate,
-                                                userId = null,
-                                            )
+                            Button(
+                                onClick = {
+                                    if (replyText.value.isNotBlank()) {
+                                        val newReply = Reply(
+                                            text = replyText.value,
+                                            email = email!!,
+                                            data = currentDate,
+                                            userId = null,
+                                        )
 
-                                            val newReplyRequest = ReplyRequest(
-                                                projectId = projectId,
-                                                listId = listId,
-                                                taskId = taskId,
-                                                commentId = comment._id!!,
-                                                reply = newReply
-                                            )
+                                        val newReplyRequest = ReplyRequest(
+                                            projectId = projectId,
+                                            listId = listId,
+                                            taskId = taskId,
+                                            commentId = comment._id!!,
+                                            reply = newReply
+                                        )
 
-                                            taskRepository.postReply(newReplyRequest)
-                                            replyText.value = ""
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .align(Alignment.End)
-                                        .padding(top = 8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Enviar Resposta")
-                                }
+                                        taskRepository.postReply(newReplyRequest)
+                                        replyText.value = ""
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .padding(top = 8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF246BFD),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Enviar Resposta")
                             }
+                        }
 
-                            if (showReplies) {
-                                if (replies.isEmpty()) {
-                                    Text(
-                                        "Nenhuma resposta encontrada",
-                                        color = Color.LightGray
-                                    )
-                                } else {
-                                    replies.forEach { replyRequest ->
-                                        val reply = replyRequest.reply
-                                        Column(
-                                            modifier = Modifier.padding(
-                                                start = 16.dp,
-                                                top = 4.dp
-                                            )
+                        if (showReplies) {
+                            if (replies.isEmpty()) {
+                                Text(
+                                    "Nenhuma resposta encontrada",
+                                    color = Color.LightGray
+                                )
+                            } else {
+                                replies.forEach { replyRequest ->
+                                    val reply = replyRequest.reply
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            top = 4.dp
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "${reply.email} respondeu:",
+                                            fontSize = 16.sp,
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = reply.text,
+                                            fontSize = 14.sp,
+                                            color = Color.LightGray,
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text = "${reply.email} respondeu:",
-                                                fontSize = 16.sp,
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Bold
+                                                text = reply.data,
+                                                color = Color.Gray,
+                                                fontSize = 12.sp,
                                             )
-                                            Text(
-                                                text = reply.text,
-                                                fontSize = 14.sp,
-                                                color = Color.LightGray,
-                                                modifier = Modifier.padding(start = 8.dp)
-                                            )
-                                            Row(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                horizontalArrangement = Arrangement.End
-                                            ) {
-                                                Text(
-                                                    text = reply.data,
-                                                    color = Color.Gray,
-                                                    fontSize = 12.sp,
-                                                )
-                                            }
                                         }
                                     }
                                 }
@@ -1116,6 +1185,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 }
             }
         }
+    }
     if(showEditSubtask) {
         UpdateSubtaskModalBottomSheet(projectId, listId, taskId, selectedSubtask) {
             showEditSubtask = false

@@ -309,5 +309,37 @@ class TaskRepository {
 
         })
     }
+    fun postMemberTask(projectId: String, listId: String, taskId: String, memberId: String) {
+        apiService.postMemberTask(projectId, listId, taskId, memberId).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("PostMemberTask", "Membro adicionado à tarefa com sucesso: ${response.body()}")
+                } else {
+                    Log.d("PostMemberTask", "Falha ao adicionar membro à tarefa: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("PostMemberTask", "Erro ao adicionar membro à tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
+    fun removeMemberTask(projectId: String, listId: String, taskId: String, memberId: String) {
+        apiService.deleteMemberTask(projectId, listId, taskId, memberId).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    Log.d("RemoveMemberTask", "Membro removido da tarefa com sucesso: ${response.body()}")
+                } else {
+                    Log.d("RemoveMemberTask", "Falha ao remover membro da tarefa: ${response.errorBody()?.string()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("RemoveMemberTask", "Erro ao remover membro da tarefa: ${t.message}")
+                t.printStackTrace()
+            }
+        })
+    }
 
 }
