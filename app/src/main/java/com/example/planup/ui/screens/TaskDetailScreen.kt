@@ -3,6 +3,7 @@ package com.example.planup.ui.screens
 import android.icu.text.SimpleDateFormat
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,21 +22,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.planup.R
+import com.example.planup.model.Attachments
+import com.example.planup.model.AttachmentsRequest
+import com.example.planup.model.AttributeRequest
 import com.example.planup.model.Comment
 import com.example.planup.model.CommentRequest
 import com.example.planup.model.Priority
+import com.example.planup.model.Reply
+import com.example.planup.model.ReplyRequest
 import com.example.planup.model.SubtaskStatus
 import com.example.planup.model.Subtask
 import com.example.planup.model.Task
 import com.example.planup.model.TaskRequest
 import com.example.planup.model.TaskStatus
+import com.example.planup.repository.AttributeRepository
 import com.example.planup.repository.SubtaskRepository
 import com.example.planup.repository.TaskRepository
 import com.example.planup.ui.components.CreateSubtaskModalBottomSheet
+import com.example.planup.ui.components.MemberSelectionModal
 import com.example.planup.ui.components.UpdateSubtaskModalBottomSheet
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Date
@@ -67,9 +76,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
     val context = LocalContext.current
     val replyText = remember { mutableStateOf("") }
-    val replyingTo = remember { mutableStateOf<Pair<String, String>?>(null) }
+    val replyingTo = remember { mutableStateOf<Comment?>(null) }
     var showReplies by remember { mutableStateOf(false) }
-    val replies = remember { mutableStateListOf<Pair<String, String>>() }
+    val replies = remember { mutableStateListOf<ReplyRequest>() }
     var isReplyFieldVisible by remember { mutableStateOf(false) }
 
     var showCreateSubtask by remember { mutableStateOf(false) }
@@ -81,6 +90,9 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     }
 
     val taskRepository = remember { TaskRepository() }
+
+    var showMemberSelection by remember { mutableStateOf(false) }
+    var selectedMemberName by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(taskId) {
         taskRepository.fetchTask(taskId, listId, projectId) { result, errorMsg ->
@@ -402,20 +414,38 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Column(
+                            Row(
                                 modifier = Modifier
-                                    .fillMaxSize()
+                                    .fillMaxWidth()
+                                    .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
                                     text = "Atributos:",
                                     fontWeight = FontWeight.Normal,
                                     fontSize = 20.sp,
                                     color = Color.White,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(0.dp, 50.dp, 10.dp)
+                                    modifier = Modifier.weight(1f)
                                 )
 
+                                IconButton(
+                                    onClick = { navController.navigate("task_attribute_screen/{taskId}") },
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Adicionar Atributo",
+                                        tint = Color(0xFF246BFD),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
                                 task.value?.attributes?.let { attributes ->
                                     attributes.forEach { attribute ->
                                         var attributeName by remember {
@@ -468,15 +498,18 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                                             } else it
                                                         }
                                                     )
-                                                    /*taskRepository.updateTaskAttribute(
-                                                        projectId,
-                                                        listId,
-                                                        taskId,
-                                                        attribute.copy(
+                                                    val attributeRepository = AttributeRepository()
+                                                    val attributeToUpdate = AttributeRequest(
+                                                        taskId = taskId,
+                                                        attribute = attribute.copy(
                                                             attributeName = attributeName,
                                                             attributeDescription = attributeDescription
                                                         )
-                                                    )*/
+                                                    )
+
+                                                    attributeRepository.updateAttribute(
+                                                        attributeToUpdate
+                                                    )
                                                 },
                                                 modifier = Modifier.padding(top = 8.dp)
                                             ) {
@@ -484,28 +517,139 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                             }
                                         }
                                     }
-
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 16.dp),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        IconButton(
-                                            onClick = { /*navController.navigate("task_attribute_screen")*/ }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Add,
-                                                contentDescription = "Adicionar Atributo",
-                                                tint = Color(0xFF246BFD)
-                                            )
-                                        }
-                                    }
-                                } ?: run {
+                                }?: run {
                                     Text(
                                         text = "Nenhum atributo disponível.",
                                         color = Color.White,
                                         fontSize = 16.sp
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            var showDialog by remember { mutableStateOf(false) }
+                            var link by remember { mutableStateOf("") }
+                            var description by remember { mutableStateOf("") }
+                            val links = remember { mutableStateListOf<Pair<String, String>>() }
+
+                            fun addLink(url: String, description: String) {
+                                if (url.isNotBlank()) {
+
+                                    val attachment = Attachments(url, description)
+
+                                    val attachmentsRequest = AttachmentsRequest(
+                                        projectId = projectId,
+                                        listId = listId,
+                                        taskId = taskId,
+                                        attachments = attachment
+                                    )
+                                    taskRepository.postAttachments(attachmentsRequest)
+                                }
+                            }
+
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(0.dp, 50.dp, 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Anexos:",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 20.sp,
+                                    color = Color.White,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                IconButton(
+                                    onClick = { showDialog = true },
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Anexo",
+                                        tint = Color(0xFF246BFD),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+
+                            links.forEach { (url, description) ->
+                                TextButton(
+                                    onClick = { /* Lógica para abrir o link em um navegador */ },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = description.ifBlank { url.take(50) },
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+                                links.forEach { (url, description) ->
+                                    TextButton(
+                                        onClick = { /* Lógica para abrir o link */ },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = description.ifBlank { url.take(50) },
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+
+                                if (showDialog) {
+                                    AlertDialog(
+                                        onDismissRequest = { showDialog = false },
+                                        title = { Text(text = "Adicionar Link e Descrição") },
+                                        text = {
+                                            Column {
+                                                TextField(
+                                                    value = link,
+                                                    onValueChange = { link = it },
+                                                    label = { Text("Link") },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                                TextField(
+                                                    value = description,
+                                                    onValueChange = { description = it },
+                                                    label = { Text("Descrição (opcional)") },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                            }
+                                        },
+                                        confirmButton = {
+                                            Button(
+                                                onClick = {
+                                                    addLink(link, description)
+                                                    showDialog = false
+                                                    link = ""
+                                                    description = ""
+                                                }
+                                            ) {
+                                                Text("Adicionar")
+                                            }
+                                        },
+                                        dismissButton = {
+                                            Button(
+                                                onClick = { showDialog = false }
+                                            ) {
+                                                Text("Cancelar")
+                                            }
+                                        }
                                     )
                                 }
                             }
@@ -516,43 +660,104 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
 
             task.value?.let {
-                    items(it.subtasks) { subtask ->
-                        SubtaskItem(
-                            subtask = subtask,
-                            onDelete = {
-                                subtask._id?.let { it1 ->
-                                    SubtaskRepository().deleteSubtask(
-                                        projectId = projectId,
-                                        listId = listId,
-                                        taskId = taskId,
-                                        subtaskId = it1
-                                    )
-                                }
-                                navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
-                                    popUpTo("task_detail_screen"){inclusive = true}
-                                }
-                            },
-                            onEdit = { subtaskId ->
-                                showEditSubtask = true
-                                selectedSubtask = subtaskId
-                            },
-                            onChecked = { status ->
-                                subtask._id?.let{ it1 ->
-                                    SubtaskRepository().updateSubtaskStatus(
-                                        projectId = projectId,
-                                        listId = listId,
-                                        taskId = taskId,
-                                        subtaskId = it1,
-                                        status = status
-                                    )
-                                }
-
-                                subtask.status = SubtaskStatus.fromDatabaseString(status)!!
+                items(it.subtasks) { subtask ->
+                    SubtaskItem(
+                        subtask = subtask,
+                        onDelete = {
+                            subtask._id?.let { it1 ->
+                                SubtaskRepository().deleteSubtask(
+                                    projectId = projectId,
+                                    listId = listId,
+                                    taskId = taskId,
+                                    subtaskId = it1
+                                )
                             }
-                        )
-                    }
+                            navController.navigate("task_detail_screen/${projectId}/${listId}/${taskId}"){
+                                popUpTo("task_detail_screen"){inclusive = true}
+                            }
+                        },
+                        onEdit = { subtaskId ->
+                            showEditSubtask = true
+                            selectedSubtask = subtaskId
+                        },
+                        onChecked = { status ->
+                            subtask._id?.let{ it1 ->
+                                SubtaskRepository().updateSubtaskStatus(
+                                    projectId = projectId,
+                                    listId = listId,
+                                    taskId = taskId,
+                                    subtaskId = it1,
+                                    status = status
+                                )
+                            }
+
+                            subtask.status = SubtaskStatus.fromDatabaseString(status)!!
+                        }
+                    )
+                }
             }
 
+            item {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    selectedMemberName?.let {
+                        Box(
+                            modifier = Modifier
+                                .padding(20.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color.Gray,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .background(Color(0xFF181A20), shape = RoundedCornerShape(8.dp))
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Responsável: $it",
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Button(
+                            onClick = { showMemberSelection = true },
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text("Selecionar Responsável")
+                            IconButton(
+                                modifier = Modifier
+                                    .padding(10.dp)
+                                    .size(20.dp),
+                                onClick = { showMemberSelection = true }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.usermember),
+                                    contentDescription = "Selecionar Responsável",
+                                    tint = Color(0xFF246BFD)
+                                )
+                            }
+                        }
+                    }
+                }
+                if (showMemberSelection) {
+                    MemberSelectionModal(
+                        projectId = projectId,
+                        listId = listId,
+                        taskId = taskId,
+                        onMemberSelected = { member ->
+                            selectedMemberName = member
+                        },
+                        onDismiss = {
+                            showMemberSelection = false
+                        }
+                    )
+                }
+            }
             item{
                 Row(modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -589,6 +794,10 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                         .padding(16.dp)
                         .fillMaxWidth(0.5f),
                         onClick = {
+
+                            navController.popBackStack()
+                            navController.navigate("task_datail_screen/{projectId}/{listId}/{taskId}")
+
                             task.value?.let { currentTask ->
 
                                 val duplicatedTask = currentTask.copy(
@@ -786,18 +995,14 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                                     text = commentText.value,
                                     replies = listOf()
                                 )
-                                val newCommentRequest = CommentRequest(projectId = projectId,listId = listId,taskId = taskId, comment = newComment)
-                                taskRepository.postComment(newCommentRequest) { success, errorMsg ->
-                                    if (success) {
-                                        comments.add(newCommentRequest)
-                                        commentText.value = ""
-                                        Toast.makeText(context, "Comentário adicionado com sucesso!", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(context, errorMsg ?: "Erro ao adicionar comentário", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                            } else {
-                                Toast.makeText(context, "Por favor, preencha o comentário.", Toast.LENGTH_SHORT).show()
+                                val newCommentRequest = CommentRequest(
+                                    projectId = projectId,
+                                    listId = listId,
+                                    taskId = taskId,
+                                    comment = newComment
+                                )
+                                taskRepository.postComment(newCommentRequest)
+                                commentText.value = ""
                             }
                         },
                         modifier = Modifier
@@ -813,141 +1018,161 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             }
 
             item {
-                if (comments.isNotEmpty()) {
-                    comments.forEach { (email, comment) ->
-                        Column(
+                comments.forEach { commentRequest ->
+                    val comment = commentRequest.comment
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .background(Color(0xFF2E2F33), RoundedCornerShape(8.dp))
+                            .padding(16.dp)
+                            .clickable {
+                                replyingTo.value = comment
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = comment.email,
+                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = comment.text,
+                                    fontSize = 14.sp,
+                                    color = Color.LightGray
+                                )
+                            }
+
+                            Text(
+                                text = comment.data,
+                                color = Color.Gray,
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .background(Color(0xFF2E2F33), RoundedCornerShape(8.dp))
-                                .padding(16.dp)
-                                .clickable {
-                                    replyingTo.value = Pair(email, comment)
-                                }
+                                .padding(vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = email,
-                                        fontSize = 16.sp,
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = comment,
-                                        fontSize = 14.sp,
-                                        color = Color.LightGray
-                                    )
-                                }
-
-                                Text(
-                                    text = currentDate,
-                                    color = Color.Gray,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.align(Alignment.CenterVertically)
+                            IconButton(onClick = { showReplies = !showReplies } ) {
+                                Icon(
+                                    painter = painterResource(id = if (showReplies) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down),
+                                    contentDescription = if (showReplies) "Ocultar Respostas" else "Ver Respostas",
+                                    tint = Color.White
                                 )
                             }
 
-                            Row(
+                            Button(
+                                onClick = {
+                                    isReplyFieldVisible =
+                                        !isReplyFieldVisible
+                                    if (isReplyFieldVisible) {
+                                        replyText.value = ""
+                                    }
+                                },
+                                modifier = Modifier.align(Alignment.CenterVertically),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF246BFD),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Responder")
+                            }
+                        }
+
+                        if (isReplyFieldVisible) {
+                            OutlinedTextField(
+                                value = replyText.value,
+                                onValueChange = { newReply -> replyText.value = newReply },
+                                label = { Text("Responder") },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-
-                                IconButton(onClick = { showReplies = !showReplies }) {
-                                    Icon(
-                                        painter = painterResource(id = if (showReplies) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down),
-                                        contentDescription = if (showReplies) "Ocultar Respostas" else "Ver Respostas",
-                                        tint = Color.White
-                                    )
-                                }
-
-                                Button(
-                                    onClick = {
-                                        isReplyFieldVisible =
-                                            !isReplyFieldVisible
-                                        if (isReplyFieldVisible) {
-                                            replyText.value = ""
-                                        }
-                                    },
-                                    modifier = Modifier.align(Alignment.CenterVertically),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Responder")
-                                }
-                            }
-
-                            if (isReplyFieldVisible) {
-                                OutlinedTextField(
-                                    value = replyText.value,
-                                    onValueChange = { newReply -> replyText.value = newReply },
-                                    label = { Text("Responder") },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 12.dp),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedTextColor = Color.White,
-                                        focusedBorderColor = Color.White,
-                                        unfocusedBorderColor = Color.Gray,
-                                        cursorColor = Color.White
-                                    )
+                                    .padding(top = 12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedTextColor = Color.White,
+                                    focusedBorderColor = Color.White,
+                                    unfocusedBorderColor = Color.Gray,
+                                    cursorColor = Color.White
                                 )
+                            )
 
-                                Button(
-                                    onClick = {
-                                        if (replyText.value.isNotBlank() && email.isNotBlank()) {
-                                            replies.add(Pair(email, replyText.value))
-                                            replyText.value = ""
-                                            isReplyFieldVisible = false
-                                        } else {
-                                            Toast.makeText(
-                                                context,
-                                                "Por favor, preencha a resposta.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .align(Alignment.End)
-                                        .padding(top = 8.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF246BFD),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Enviar Resposta")
-                                }
+                            Button(
+                                onClick = {
+                                    if (replyText.value.isNotBlank()) {
+                                        val newReply = Reply(
+                                            text = replyText.value,
+                                            email = email!!,
+                                            data = currentDate,
+                                            userId = null,
+                                        )
+
+                                        val newReplyRequest = ReplyRequest(
+                                            projectId = projectId,
+                                            listId = listId,
+                                            taskId = taskId,
+                                            commentId = comment._id!!,
+                                            reply = newReply
+                                        )
+
+                                        taskRepository.postReply(newReplyRequest)
+                                        replyText.value = ""
+                                    }
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .padding(top = 8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF246BFD),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Enviar Resposta")
                             }
+                        }
 
-                            if (showReplies) {
-                                replies.forEach { (email, replyText) ->
-                                    Column(modifier = Modifier.padding(start = 16.dp, top = 4.dp)) {
+                        if (showReplies) {
+                            if (replies.isEmpty()) {
+                                Text(
+                                    "Nenhuma resposta encontrada",
+                                    color = Color.LightGray
+                                )
+                            } else {
+                                replies.forEach { replyRequest ->
+                                    val reply = replyRequest.reply
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            top = 4.dp
+                                        )
+                                    ) {
                                         Text(
-                                            text = "$email respondeu:",
+                                            text = "${reply.email} respondeu:",
                                             fontSize = 16.sp,
                                             color = Color.White,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = replyText,
+                                            text = reply.text,
                                             fontSize = 14.sp,
-                                            color = Color.LightGray
+                                            color = Color.LightGray,
+                                            modifier = Modifier.padding(start = 8.dp)
                                         )
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text = currentDate,
+                                                text = reply.data,
                                                 color = Color.Gray,
                                                 fontSize = 12.sp,
                                             )
@@ -961,7 +1186,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             }
         }
     }
-
     if(showEditSubtask) {
         UpdateSubtaskModalBottomSheet(projectId, listId, taskId, selectedSubtask) {
             showEditSubtask = false
@@ -1061,4 +1285,5 @@ fun SubtaskItem(subtask: Subtask, onDelete: ()->Unit, onEdit: (String)->Unit, on
             }
         }
     }
+
 }
