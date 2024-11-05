@@ -54,7 +54,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
 
     val task = remember { mutableStateOf<Task?>(null) }
     val error = remember { mutableStateOf<String?>(null) }
-    val comments = remember { mutableStateListOf<CommentRequest>() }
+    val comments = remember { mutableStateListOf<Comment>() }
     val isEditingDescription = remember { mutableStateOf(false) }
     val descriptionText = remember { mutableStateOf("") }
     val isEditingName = remember { mutableStateOf(false) }
@@ -76,7 +76,6 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
     val replyText = remember { mutableStateOf("") }
     val replyingTo = remember { mutableStateOf<Comment?>(null) }
     var showReplies by remember { mutableStateOf(false) }
-    val replies = remember { mutableStateListOf<ReplyRequest>() }
     var isReplyFieldVisible by remember { mutableStateOf(false) }
 
     var showCreateSubtask by remember { mutableStateOf(false) }
@@ -102,13 +101,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                 taskPriority = result.priority?.toDatabaseString() ?: "Sem prioridade"
 
                 taskData.comments.forEach { comment ->
-                    val commentRequest = CommentRequest(
-                        projectId = projectId,
-                        listId = listId,
-                        taskId = taskId,
-                        comment = comment
-                    )
-                    comments.add(commentRequest)
+                    comments.add(comment)
                 }
             }
         }
@@ -948,8 +941,7 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
             }
 
             item {
-                comments.forEach { commentRequest ->
-                    val comment = commentRequest.comment
+                comments.forEach { comment ->
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -1071,14 +1063,13 @@ fun TaskDetailScreen(taskId: String, listId: String, projectId: String, navContr
                             }
 
                             if (showReplies) {
-                                if (replies.isEmpty()) {
+                                if (comment.replies.isEmpty()) {
                                     Text(
                                         "Nenhuma resposta encontrada",
                                         color = Color.LightGray
                                     )
                                 } else {
-                                    replies.forEach { replyRequest ->
-                                        val reply = replyRequest.reply
+                                    comment.replies.forEach { reply ->
                                         Column(
                                             modifier = Modifier.padding(
                                                 start = 16.dp,

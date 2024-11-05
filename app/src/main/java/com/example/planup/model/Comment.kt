@@ -8,5 +8,5 @@ data class Comment(
     val email: String,
     val userId: String?,
     val text: String,
-    val replies: List<Comment> = listOf()
+    val replies: List<Reply> = listOf()
 )
