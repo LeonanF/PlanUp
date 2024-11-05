@@ -94,6 +94,9 @@ interface ApiService {
     @PUT("tasks")
     fun updateTask(@Body taskRequest: TaskRequest): Call<ResponseBody>
 
+    @POST("tasksMember")
+    fun postMemberTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("memberId") memberId: String): Call<ResponseBody>
+
     @PUT("updateAttribute")
     fun updateAttribute(@Body attributeRequest: AttributeRequest): Call<ResponseBody>
 
@@ -137,5 +140,8 @@ interface ApiService {
         @Query("taskId") taskId: String,
         @Query("documentId") documentId: String
     ): Call<ResponseBody>
+
+    @DELETE("tasksMember")
+    fun deleteMemberTask(@Query("projectId") projectId: String, @Query("listId") listId: String, @Query("taskId") taskId: String, @Query("memberId") memberId: String): Call<ResponseBody>
 
 }
